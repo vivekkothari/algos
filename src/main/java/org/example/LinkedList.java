@@ -45,11 +45,17 @@ class LinkedList {
 
   public static void main(String[] args) {
     var head = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
-    var head2 = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
-    print(merge2Lists(head, head2));
     print(head);
-    print(reverseList(head));
-    System.out.println(hasCycle(head));
+    //    var head2 = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new
+    // ListNode(5)))));
+    //    print(merge2Lists(head, head2));
+    //    print(reverseList(head));
+    //    System.out.println(hasCycle(head));
+    // 1,2,3,4,5
+    // 5,1,2,3,4
+    // 4,5,1,2,3
+    // 3,4,5,1,2
+    print(rotateKPlaces(head, 1));
   }
 
   public static boolean hasCycle(ListNode head) {
@@ -91,7 +97,37 @@ class LinkedList {
     }
   }
 
-  public static void reorderList(ListNode head) {
+  /**
+   *
+   *
+   * <pre>
+   * 1 -> 2 -> 3 -> 4 -> 5
+   * k = 2
+   * 4 -> 5 -> 1 -> 2 -> 3
+   * </pre>
+   */
+  private static ListNode rotateKPlaces(ListNode head, int k) {
+    if (head == null || head.next == null || k == 0) {
+      return head;
+    }
+    int length = 1;
+    ListNode oldTail = head;
+    while (oldTail.next != null) {
+      oldTail = oldTail.next;
+      length++;
+    }
+    oldTail.next = head;
+    int pivot = length - (k % length);
+    ListNode newTail = head;
+    for (int i = 1; i < pivot; i++) {
+      newTail = newTail.next;
+    }
+    ListNode newHead = newTail.next;
+    newTail.next = null;
+    return newHead;
+  }
+
+  public static void reorderList(LinkedList.ListNode head) {
     List<ListNode> list = new ArrayList<>();
     var curr = head;
     while (curr != null) {
