@@ -1,5 +1,8 @@
 package org.example;
 
+import java.util.ArrayList;
+import java.util.List;
+
 class LinkedList {
 
   static class ListNode {
@@ -42,6 +45,8 @@ class LinkedList {
 
   public static void main(String[] args) {
     var head = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
+    var head2 = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
+    print(merge2Lists(head, head2));
     print(head);
     print(reverseList(head));
     System.out.println(hasCycle(head));
@@ -84,5 +89,25 @@ class LinkedList {
       l2.next = merge2Lists(l1, l2.next);
       return l2;
     }
+  }
+
+  public static void reorderList(ListNode head) {
+    List<ListNode> list = new ArrayList<>();
+    var curr = head;
+    while (curr != null) {
+      list.add(curr);
+      curr = curr.next;
+    }
+    int l = 0, r = list.size() - 1;
+    while (l < r) {
+      list.get(l).next = list.get(r);
+      l++;
+      if (l >= r) {
+        break;
+      }
+      list.get(r).next = list.get(l);
+      r--;
+    }
+    list.get(l).next = null;
   }
 }

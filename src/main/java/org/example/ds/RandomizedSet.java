@@ -1,0 +1,53 @@
+package org.example.ds;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+/** https://www.youtube.com/watch?v=46dZH7LDbf8 */
+class RandomizedSet {
+
+  private final Map<Integer, Integer> map = new HashMap<>();
+  private final List<Integer> list = new ArrayList<>();
+
+  public boolean insert(int n) {
+    if (map.containsKey(n)) {
+      return false;
+    }
+    list.add(n);
+    map.put(n, list.size() - 1);
+    return true;
+  }
+
+  public boolean remove(int n) {
+    if (!map.containsKey(n)) {
+      return false;
+    }
+    var i = map.get(n);
+    var temp = list.getLast();
+    list.set(i, temp);
+    map.put(temp, i);
+    list.removeLast();
+    map.remove(n);
+    return true;
+  }
+
+  public int getRandom() {
+    return list.get(new Random().nextInt(list.size()));
+  }
+
+  public static void main(String[] args) {
+    var store = new RandomizedSet();
+    store.insert(0);
+    store.insert(10);
+    store.insert(10);
+    store.insert(10);
+    store.insert(15);
+    System.out.println(store.getRandom());
+    store.remove(10);
+    store.remove(15);
+    System.out.println(store.getRandom());
+  }
+}

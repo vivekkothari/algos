@@ -19,24 +19,48 @@ class Trees {
     }
   }
 
+  static final class BinaryNode {
+    int val;
+    BinaryNode left;
+    BinaryNode right;
+
+    public BinaryNode(int val) {
+      this.val = val;
+    }
+
+    public BinaryNode(int val, BinaryNode left, BinaryNode right) {
+      this.val = val;
+      this.left = left;
+      this.right = right;
+    }
+  }
+
   public static void main(String[] args) {
-    var root =
-        new Node(
-            1,
-            List.of(
-                new Node(2, List.of(new Node(10), new Node(20))),
-                new Node(3, List.of(new Node(11))),
-                new Node(4, List.of(new Node(12)))));
-    System.out.println(bfs(root));
-    System.out.println(bfsIter(root));
+    //    var root =
+    //        new Node(
+    //            1,
+    //            List.of(
+    //                new Node(2, List.of(new Node(10), new Node(20))),
+    //                new Node(3, List.of(new Node(11))),
+    //                new Node(4, List.of(new Node(12)))));
+    //    System.out.println(bfs(root));
+    //    System.out.println(bfsIter(root));
 
     //    preOrder(root, "");
     //    System.out.println("===================");
-    postOrder(root, "");
-    System.out.println("===================");
+    //    postOrder(root, "");
+    //    System.out.println("===================");
     //    preOrderIter(root);
     //    System.out.println("===================");
-    postOrderIter(root);
+    //    postOrderIter(root);
+    var binaryNode =
+        new BinaryNode(
+            1,
+            new BinaryNode(2, new BinaryNode(10), new BinaryNode(20)),
+            new BinaryNode(3, new BinaryNode(11), null));
+    preOrder(binaryNode, "");
+    investBinaryTree(binaryNode);
+    preOrder(binaryNode, "");
   }
 
   static List<List<Integer>> bfs(Node root) {
@@ -88,6 +112,15 @@ class Trees {
     root.children().forEach(n -> preOrder(n, "  " + indent));
   }
 
+  static void preOrder(BinaryNode root, String indent) {
+    if (root == null) {
+      return;
+    }
+    System.out.println(indent + root.val);
+    preOrder(root.left, "  " + indent);
+    preOrder(root.right, "  " + indent);
+  }
+
   static void preOrderIter(Node root) {
     if (root == null) {
       return;
@@ -101,6 +134,15 @@ class Trees {
         stack.push(new NodeAndLevel(child, node.level + 1));
       }
     }
+  }
+
+  static void postOrder(BinaryNode root, String indent) {
+    if (root == null) {
+      return;
+    }
+    postOrder(root.left, "  " + indent);
+    postOrder(root.right, "  " + indent);
+    System.out.println(indent + root.val);
   }
 
   record NodeAndLevel(Node node, int level) {}
@@ -133,6 +175,16 @@ class Trees {
     while (!output.isEmpty()) {
       var node = output.pop();
       System.out.println("  ".repeat(node.level) + node.node.val);
+    }
+  }
+
+  static void investBinaryTree(BinaryNode root) {
+    if (root != null) {
+      var left = root.left;
+      root.left = root.right;
+      root.right = left;
+      investBinaryTree(root.left);
+      investBinaryTree(root.right);
     }
   }
 }
