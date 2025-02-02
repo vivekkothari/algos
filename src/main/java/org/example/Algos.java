@@ -8,14 +8,15 @@ class Algos {
     //    System.out.println(binarySearch(largeArray, Integer.MAX_VALUE / 2 - 2));
     //    System.out.println(binarySearchRecur(new int[] {1, 2, 3, 4, 5, 6, 7, 8}, 10));
     //    System.out.println(binarySearchRecur(largeArray, 10));
-    System.out.println(powmod(999999999, 999999999, 6));
-    System.out.println(pow(2.1, 3));
+    //    System.out.println(powmod(999999999, 999999999, 6));
+    //    System.out.println(pow(2.1, 3));
+    System.out.println(binarySearch(new int[] {-1, 0, 2, 4, 6, 8}, 4));
   }
 
   private static int binarySearch(int[] nums, int target) {
     var high = nums.length - 1;
     var low = 0;
-    while (low < high) {
+    while (low <= high) {
       var mid = low + (high - low) / 2;
       if (nums[mid] == target) {
         return mid;
