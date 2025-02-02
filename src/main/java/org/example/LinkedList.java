@@ -60,4 +60,29 @@ class LinkedList {
     }
     return false;
   }
+
+  public static ListNode mergeKLists(ListNode[] lists) {
+    if (lists.length == 0) return null;
+    return divideAndConquer(lists, 0, lists.length - 1);
+  }
+
+  private static ListNode divideAndConquer(ListNode[] lists, int l, int r) {
+    if (l == r) return lists[l];
+    int mid = l + (r - l) / 2;
+    var l1 = divideAndConquer(lists, l, mid);
+    var l2 = divideAndConquer(lists, mid + 1, r);
+    return merge2Lists(l1, l2);
+  }
+
+  private static ListNode merge2Lists(ListNode l1, ListNode l2) {
+    if (l1 == null) return l2;
+    if (l2 == null) return l1;
+    if (l1.val < l2.val) {
+      l1.next = merge2Lists(l1.next, l2);
+      return l1;
+    } else {
+      l2.next = merge2Lists(l1, l2.next);
+      return l2;
+    }
+  }
 }
