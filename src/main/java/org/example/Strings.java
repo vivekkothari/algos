@@ -217,7 +217,8 @@ class Strings {
 
     //    System.out.println(mergeAlternately("ab", "pqrs"));
     //    System.out.println(reverseVowels("leetcode"));
-    System.out.println(reverseWords("the sky is blue"));
+    //    System.out.println(reverseWords("the sky is blue"));
+    System.out.println(generateParenthesis(3));
   }
 
   // I c e C r e A m
@@ -296,5 +297,46 @@ class Strings {
       }
     }
     return String.join(" ", words);
+  }
+
+  /**
+   *
+   *
+   * <pre>
+   *   Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
+   * Example 1:
+   *
+   * Input: n = 3
+   * Output: ["((()))","(()())","(())()","()(())","()()()"]
+   * Example 2:
+   *
+   * Input: n = 1
+   * Output: ["()"]
+   * </pre>
+   */
+  public static List<String> generateParenthesis(int n) {
+    List<String> res = new ArrayList<>();
+    StringBuilder stack = new StringBuilder();
+    backtrack(0, 0, n, res, stack);
+    return res;
+  }
+
+  private static void backtrack(
+      int openN, int closedN, int n, List<String> res, StringBuilder stack) {
+    if (openN == closedN && openN == n) {
+      res.add(stack.toString());
+      return;
+    }
+
+    if (openN < n) {
+      stack.append('(');
+      backtrack(openN + 1, closedN, n, res, stack);
+      stack.deleteCharAt(stack.length() - 1);
+    }
+    if (closedN < openN) {
+      stack.append(')');
+      backtrack(openN, closedN + 1, n, res, stack);
+      stack.deleteCharAt(stack.length() - 1);
+    }
   }
 }
