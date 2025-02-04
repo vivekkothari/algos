@@ -233,9 +233,7 @@ class Strings {
       while (l < r && isNotVowel(res[r])) {
         r--;
       }
-      char temp = res[l];
-      res[l] = res[r];
-      res[r] = temp;
+      swap(res, l, r);
       l++;
       r--;
     }
