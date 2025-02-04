@@ -187,4 +187,20 @@ class Trees {
       investBinaryTree(root.right);
     }
   }
+
+  public static int maxDepth(BinaryNode root) {
+    if (root == null) {
+      return 0;
+    }
+    return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
+  }
+
+  public static int diameterOfBinaryTree(BinaryNode root) {
+    if (root == null) {
+      return 0;
+    }
+    return Math.max(
+        maxDepth(root.left) + maxDepth(root.right),
+        Math.max(diameterOfBinaryTree(root.left), diameterOfBinaryTree(root.right)));
+  }
 }

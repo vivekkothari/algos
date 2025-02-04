@@ -1,5 +1,7 @@
 package org.example;
 
+import static java.lang.Math.max;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -65,7 +67,11 @@ public class Arrays {
     //    System.out.println(canPlaceFlowers(new int[] {1, 0}, 1));
     //    System.out.println(containsNearbyDuplicate(new int[] {99, 99}, 2));
     //    System.out.println(maxArea(new int[] {1, 7, 2, 5, 4, 7, 3, 6}));
-    System.out.println(searchInsert(new int[] {1, 3, 5, 6}, 7));
+    //    System.out.println(searchInsert(new int[] {1, 3, 5, 6}, 7));
+
+    //    System.out.println(climbStairs(5));
+    //    System.out.println(fib(50));
+    System.out.println(rob(new int[] {2, 7, 9, 3, 1}));
   }
 
   public static int[] twoSum(int[] nums, int target) {
@@ -191,7 +197,7 @@ public class Arrays {
     for (var todaysPrice : stockPrices) {
       minPrice = Math.min(minPrice, todaysPrice);
       var currentProfit = todaysPrice - minPrice;
-      maxProfit = Math.max(maxProfit, currentProfit);
+      maxProfit = max(maxProfit, currentProfit);
     }
     return maxProfit;
   }
@@ -340,8 +346,8 @@ public class Arrays {
     var maxSum = 0;
     var currentSum = nums[0];
     for (int i = 1; i < nums.length; i++) {
-      currentSum = Math.max(nums[i], currentSum + nums[i]);
-      maxSum = Math.max(maxSum, currentSum);
+      currentSum = max(nums[i], currentSum + nums[i]);
+      maxSum = max(maxSum, currentSum);
     }
     return maxSum;
   }
@@ -407,7 +413,7 @@ public class Arrays {
         merged.add(interval);
       } else {
         // If overlap, merge by updating the end of the last interval
-        merged.getLast()[1] = Math.max(merged.getLast()[1], interval[1]);
+        merged.getLast()[1] = max(merged.getLast()[1], interval[1]);
       }
     }
     // Step 4: Convert the list to a 2D array and return it
@@ -1001,7 +1007,7 @@ public class Arrays {
     var maxArea = 0;
     int l = 0, r = heights.length - 1;
     while (l < r) {
-      maxArea = Math.max(maxArea, Math.min(heights[l], heights[r]) * (r - l));
+      maxArea = max(maxArea, Math.min(heights[l], heights[r]) * (r - l));
       if (heights[l] > heights[r]) {
         r--;
       } else {
@@ -1049,7 +1055,7 @@ public class Arrays {
         while (items.contains(num + length)) {
           length++;
         }
-        longest = Math.max(longest, length);
+        longest = max(longest, length);
       }
     }
     return longest;
@@ -1161,5 +1167,100 @@ public class Arrays {
       }
     }
     return res;
+  }
+
+  public static int climbStairs(int n) {
+    return climbStairs(n, new HashMap<>());
+  }
+
+  public static int climbStairs(int n, Map<Integer, Integer> memo) {
+    // Base cases: If there are 0 or 1 stairs,
+    // there is only one way to reach the top.
+    // If n < 0, it means this is not a valid way so return 0
+    if (n < 0) return 0;
+    // If n = 0, it means we have reached the bottom, so return 1
+    if (n == 0) return 1;
+    if (memo.containsKey(n)) {
+      return memo.get(n);
+    }
+    memo.put(n, climbStairs(n - 1, memo) + climbStairs(n - 2, memo));
+    return memo.get(n);
+  }
+
+  public static long fib(long n) {
+    return fib(n, new HashMap<>());
+  }
+
+  public static long fib(long n, Map<Long, Long> memo) {
+    if (n < 2) {
+      return n;
+    }
+    if (memo.containsKey(n)) {
+      return memo.get(n);
+    }
+    memo.put(n, fib(n - 1, memo) + fib(n - 2, memo));
+    return memo.get(n);
+  }
+
+  /**
+   *
+   *
+   * <pre>
+   *   You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and it will automatically contact the police if two adjacent houses were broken into on the same night.
+   *
+   * Given an integer array nums representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.
+   *
+   * Example 1:
+   *
+   * Input: nums = [1,2,3,1]
+   * Output: 4
+   * Explanation: Rob house 1 (money = 1) and then rob house 3 (money = 3).
+   * Total amount you can rob = 1 + 3 = 4.
+   * Example 2:
+   *
+   * Input: nums = [2,7,9,3,1]
+   * Output: 12
+   * Explanation: Rob house 1 (money = 2), rob house 3 (money = 9) and rob house 5 (money = 1).
+   * Total amount you can rob = 2 + 9 + 1 = 12.
+   * </pre>
+   */
+  public static int rob(int[] nums) {
+    return rob(nums, 0, new HashMap<>());
+  }
+
+  static int rob(int[] nums, int i, Map<Integer, Integer> memo) {
+    if (memo.containsKey(i)) {
+      return memo.get(i);
+    }
+    if (i >= nums.length) {
+      return 0;
+    }
+    var max = max(nums[i] + rob(nums, i + 2, memo), rob(nums, i + 1, memo));
+    memo.put(i, max);
+    return max;
+  }
+
+  /** Similar to {@link #rob(int[])} but houses are in circle. */
+  public int robCircular(int[] nums) {
+    if (nums.length == 1) {
+      return nums[0];
+    }
+    return Math.max(
+        robCircular(nums, 0, nums.length - 2, new HashMap<>()),
+        robCircular(nums, 1, nums.length - 1, new HashMap<>()));
+  }
+
+  static int robCircular(int[] nums, int i, int n, Map<String, Integer> memo) {
+    var key = String.join(",", String.valueOf(i), String.valueOf(n));
+    if (memo.containsKey(key)) {
+      return memo.get(key);
+    }
+    if (i > n || n < 0) {
+      return 0;
+    }
+    memo.put(
+        key,
+        Math.max(robCircular(nums, i, n - 2, memo) + nums[n], robCircular(nums, i, n - 1, memo)));
+    return memo.get(key);
   }
 }
