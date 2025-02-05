@@ -8,7 +8,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class Arrays {
 
@@ -1262,5 +1264,27 @@ public class Arrays {
         key,
         Math.max(robCircular(nums, i, n - 2, memo) + nums[n], robCircular(nums, i, n - 1, memo)));
     return memo.get(key);
+  }
+
+  /**
+   * Asked in MSFT interview 2.
+   *
+   * <pre>
+   *   Given an array of integers,
+   *   generate an output array where element at index i is smallest element
+   *   (to the right of i) greater that INPUT[i] in the input array.
+   *   INPUT - [30, 130, 46, 140, 66, 110]
+   *   OUTPUT- [46, 140, 66, -1, 110, -1]
+   * </pre>
+   */
+  static int[] sortedMin(int[] num) {
+    int[] res = new int[num.length];
+    TreeSet<Integer> set = new TreeSet<>();
+    for (int i = num.length - 1; i >= 0; i--) {
+      var n = set.ceiling(num[i]);
+      res[i] = Objects.requireNonNullElse(n, -1);
+      set.add(num[i]);
+    }
+    return res;
   }
 }
