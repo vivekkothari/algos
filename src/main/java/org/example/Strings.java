@@ -225,7 +225,8 @@ class Strings {
     //    System.out.println(rotateString("abcabcbb", 2));
     //    System.out.println(detectCapitalUse("Google"));
     //    System.out.println(numberOfSpecialChars("abBCab"));
-    System.out.println(numberOfSpecialCharsII("cCceDC"));
+    //    System.out.println(numberOfSpecialCharsII("cCceDC"));
+    System.out.println(lengthOfLastWord("Hello World"));
   }
 
   // I c e C r e A m
@@ -805,5 +806,118 @@ class Strings {
     //            if (ll<fu) res++;
     //        }
     //        return res;
+  }
+
+  /**
+   * https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/description/
+   *
+   * <pre>
+   *   Given two strings needle and haystack, return the index of the first occurrence
+   *   of needle in haystack, or -1 if needle is not part of haystack.
+   *
+   * Example 1:
+   *
+   * Input: haystack = "sadbutsad", needle = "sad"
+   * Output: 0
+   * Explanation: "sad" occurs at index 0 and 6.
+   * The first occurrence is at index 0, so we return 0.
+   * Example 2:
+   *
+   * Input: haystack = "leetcode", needle = "leeto"
+   * Output: -1
+   * Explanation: "leeto" did not occur in "leetcode", so we return -1.
+   *
+   *
+   * Constraints:
+   *
+   * 1 <= haystack.length, needle.length <= 104
+   * haystack and needle consist of only lowercase English characters.
+   * </pre>
+   */
+  public static int strStr(String haystack, String needle) {
+    return haystack.indexOf(needle);
+  }
+
+  /**
+   * https://leetcode.com/problems/length-of-last-word/
+   *
+   * <pre>
+   *   Given a string s consisting of words and spaces, return the length of the last word in the string.
+   *
+   * A word is a maximal
+   * substring
+   *  consisting of non-space characters only.
+   *
+   * Example 1:
+   *
+   * Input: s = "Hello World"
+   * Output: 5
+   * Explanation: The last word is "World" with length 5.
+   * Example 2:
+   *
+   * Input: s = "   fly me   to   the moon  "
+   * Output: 4
+   * Explanation: The last word is "moon" with length 4.
+   * Example 3:
+   *
+   * Input: s = "luffy is still joyboy"
+   * Output: 6
+   * Explanation: The last word is "joyboy" with length 6.
+   *
+   *
+   * Constraints:
+   *
+   * 1 <= s.length <= 104
+   * s consists of only English letters and spaces ' '.
+   * There will be at least one word in s.
+   * </pre>
+   */
+  public static int lengthOfLastWord(String s) {
+    s = s.trim();
+    var lastSpace = s.lastIndexOf(" ");
+    return s.substring(lastSpace + 1).length();
+  }
+
+  /**
+   * https://leetcode.com/problems/add-binary/
+   *
+   * <pre>
+   *   Given two binary strings a and b, return their sum as a binary string.
+   *
+   * Example 1:
+   *
+   * Input: a = "11", b = "1"
+   * Output: "100"
+   * Example 2:
+   *
+   * Input: a = "1010", b = "1011"
+   * Output: "10101"
+   * </pre>
+   */
+  public static String addBinary(String a, String b) {
+    StringBuilder res = new StringBuilder();
+    int i = a.length() - 1;
+    int j = b.length() - 1;
+
+    int carry = 0;
+
+    while (i >= 0 || j >= 0) {
+
+      int sum = carry;
+      if (i >= 0) {
+        sum += a.charAt(i) - '0';
+        i--;
+      }
+      if (j >= 0) {
+        sum += b.charAt(j) - '0';
+        j--;
+      }
+      carry = sum > 1 ? 1 : 0;
+      res.append(sum % 2);
+    }
+    if (carry != 0) {
+      res.append(carry);
+    }
+    return res.reverse().toString();
   }
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -73,7 +74,8 @@ public class Arrays {
 
     //    System.out.println(climbStairs(5));
     //    System.out.println(fib(50));
-    System.out.println(rob(new int[] {2, 7, 9, 3, 1}));
+    //    System.out.println(rob(new int[] {2, 7, 9, 3, 1}));
+    System.out.println(java.util.Arrays.toString(plusOne(new int[] {9})));
   }
 
   public static int[] twoSum(int[] nums, int target) {
@@ -1340,5 +1342,72 @@ public class Arrays {
   public static int addedIntegerOptimal(int[] nums1, int[] nums2) {
     return java.util.Arrays.stream(nums2).min().orElseThrow()
         - java.util.Arrays.stream(nums1).min().orElseThrow();
+  }
+
+  /**
+   * https://leetcode.com/problems/plus-one/
+   *
+   * <pre>
+   *   You are given a large integer represented as an integer array digits,
+   *   where each digits[i] is the ith digit of the integer. The digits are ordered from
+   *   most significant to least significant in left-to-right order.
+   *   The large integer does not contain any leading 0's.
+   *
+   * Increment the large integer by one and return the resulting array of digits.
+   *
+   * Example 1:
+   *
+   * Input: digits = [1,2,3]
+   * Output: [1,2,4]
+   * Explanation: The array represents the integer 123.
+   * Incrementing by one gives 123 + 1 = 124.
+   * Thus, the result should be [1,2,4].
+   * Example 2:
+   *
+   * Input: digits = [4,3,2,1]
+   * Output: [4,3,2,2]
+   * Explanation: The array represents the integer 4321.
+   * Incrementing by one gives 4321 + 1 = 4322.
+   * Thus, the result should be [4,3,2,2].
+   * Example 3:
+   *
+   * Input: digits = [9]
+   * Output: [1,0]
+   * Explanation: The array represents the integer 9.
+   * Incrementing by one gives 9 + 1 = 10.
+   * Thus, the result should be [1,0].
+   * </pre>
+   */
+  public static int[] plusOne(int[] digits) {
+    LinkedList<Integer> res = new LinkedList<>();
+    var carry = 0;
+    for (var i = digits.length - 1; i >= 0; i--) {
+      var val = digits[i] + (i == (digits.length - 1) ? 1 : 0) + carry;
+      if (val > 9) {
+        res.addFirst(val % 10);
+        carry = val / 10;
+      } else {
+        res.addFirst(val);
+        carry = 0;
+      }
+    }
+    if (carry > 0) {
+      res.addFirst(carry);
+    }
+    return res.stream().mapToInt(Integer::intValue).toArray();
+  }
+
+  public static int[] plusOneOptimised(int[] digits) {
+    for (int i = digits.length - 1; i >= 0; i--) {
+      if (digits[i] < 9) {
+        digits[i]++;
+        return digits;
+      }
+      digits[i] = 0;
+    }
+
+    digits = new int[digits.length + 1];
+    digits[0] = 1;
+    return digits;
   }
 }
