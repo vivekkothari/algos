@@ -7,6 +7,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 class Strings {
 
@@ -33,11 +35,11 @@ class Strings {
     if (s.length() != t.length()) {
       return false;
     }
-    int[] charcount = new int[26];
-    for (int i = 0; i < s.length(); i++) {
+    var charcount = new int[26];
+    for (var i = 0; i < s.length(); i++) {
       charcount[s.charAt(i) - 'a']++;
     }
-    for (int i = 0; i < t.length(); i++) {
+    for (var i = 0; i < t.length(); i++) {
       charcount[t.charAt(i) - 'a']--;
       if (charcount[t.charAt(i) - 'a'] < 0) {
         return false;
@@ -49,7 +51,7 @@ class Strings {
   public static List<List<String>> groupAnagrams(String[] strs) {
     Map<String, List<String>> groupedAnagrams = new HashMap<>();
     for (var str : strs) {
-      char[] charcount = new char[26];
+      var charcount = new char[26];
       for (var c : str.toCharArray()) {
         charcount[c - 'a']++;
       }
@@ -100,8 +102,8 @@ class Strings {
 
   public static String longestCommonPrefix(String[] strs) {
     var commonPrefix = new StringBuilder();
-    for (int i = 0; i < strs[0].length(); i++) {
-      char currentChar = strs[0].charAt(i);
+    for (var i = 0; i < strs[0].length(); i++) {
+      var currentChar = strs[0].charAt(i);
       for (var str : strs) {
         if (str.length() <= i || str.charAt(i) != currentChar) {
           return commonPrefix.toString();
@@ -226,7 +228,8 @@ class Strings {
     //    System.out.println(detectCapitalUse("Google"));
     //    System.out.println(numberOfSpecialChars("abBCab"));
     //    System.out.println(numberOfSpecialCharsII("cCceDC"));
-    System.out.println(lengthOfLastWord("Hello World"));
+    //    System.out.println(lengthOfLastWord("Hello World"));
+    System.out.println(reversePrefix("abcdefd", 'd'));
   }
 
   // I c e C r e A m
@@ -288,7 +291,7 @@ class Strings {
   public static String reverseWords(String s) {
     List<String> words = new LinkedList<>();
     int wStart = 0, wEnd = 0;
-    for (int i = 0; i < s.length(); ) {
+    for (var i = 0; i < s.length(); ) {
       // if space, skip forward
       if (s.charAt(i) == ' ') {
         wStart++;
@@ -322,7 +325,7 @@ class Strings {
    */
   public static List<String> generateParenthesis(int n) {
     List<String> res = new ArrayList<>();
-    StringBuilder stack = new StringBuilder();
+    var stack = new StringBuilder();
     backtrack(0, 0, n, res, stack);
     return res;
   }
@@ -381,7 +384,7 @@ class Strings {
     int l = 0, r = 0, max = 0;
     Map<Character, Integer> charIndex = new HashMap<>();
     while (r < s.length()) {
-      char c = s.charAt(r);
+      var c = s.charAt(r);
       if (charIndex.containsKey(c)) {
         l = Math.max(l, charIndex.get(c) + 1);
       }
@@ -394,10 +397,10 @@ class Strings {
 
   public static int lengthOfLongestSubstringV2(String s) {
     Set<Character> charSet = new HashSet<>();
-    int l = 0;
-    int res = 0;
+    var l = 0;
+    var res = 0;
 
-    for (int r = 0; r < s.length(); r++) {
+    for (var r = 0; r < s.length(); r++) {
       while (charSet.contains(s.charAt(r))) {
         charSet.remove(s.charAt(l));
         l++;
@@ -438,7 +441,7 @@ class Strings {
   public static int minimumChairs(String s) {
     List<Character> stack = new LinkedList<>();
     var max = 0;
-    for (int i = 0; i < s.length(); i++) {
+    for (var i = 0; i < s.length(); i++) {
       var c = s.charAt(i);
       if (c == 'E') {
         stack.addFirst(c);
@@ -453,7 +456,7 @@ class Strings {
   public static int minimumChairsOptimal(String s) {
     var res = 0;
     var max = 0;
-    for (int i = 0; i < s.length(); i++) {
+    for (var i = 0; i < s.length(); i++) {
       var c = s.charAt(i);
       if (c == 'E') {
         res++;
@@ -495,7 +498,7 @@ class Strings {
   // input - abcde, 2 => cdeab
   public static String rotateString(String s, int k) {
     var res = new char[s.length()];
-    for (int i = 0; i < res.length; i++) {
+    for (var i = 0; i < res.length; i++) {
       res[i] = s.charAt((i + k) % res.length);
     }
     return String.valueOf(res);
@@ -523,7 +526,7 @@ class Strings {
    */
   public static String toLowerCase(String s) {
     var res = new char[s.length()];
-    for (int i = 0; i < res.length; i++) {
+    for (var i = 0; i < res.length; i++) {
       var c = s.charAt(i);
       if ('A' <= c && c <= 'Z') {
         res[i] = (char) (c + 32);
@@ -568,7 +571,7 @@ class Strings {
    */
   public static String capitalizeTitle(String title) {
     var words = title.toLowerCase().split(" ");
-    StringBuilder sb = new StringBuilder();
+    var sb = new StringBuilder();
     for (var word : words) {
       if (word.length() < 3) {
         sb.append(word);
@@ -606,13 +609,13 @@ class Strings {
   public static boolean detectCapitalUse(String word) {
     if (word.isEmpty() || word.length() == 1) return true;
     if (Character.isUpperCase(word.charAt(0))) {
-      boolean isFirstCharacter = Character.isUpperCase(word.charAt(1));
-      for (int i = 2; i < word.length(); i++) {
-        boolean currentCharState = Character.isUpperCase(word.charAt(i));
+      var isFirstCharacter = Character.isUpperCase(word.charAt(1));
+      for (var i = 2; i < word.length(); i++) {
+        var currentCharState = Character.isUpperCase(word.charAt(i));
         if (currentCharState != isFirstCharacter) return false;
       }
     } else {
-      for (int i = 1; i < word.length(); i++) {
+      for (var i = 1; i < word.length(); i++) {
         if (Character.isUpperCase(word.charAt(i))) return false;
       }
     }
@@ -661,8 +664,8 @@ class Strings {
   public static int numberOfSpecialChars(String word) {
     Set<Character> lowerChars = new HashSet<>();
     Set<Character> upperChars = new HashSet<>();
-    int res = 0;
-    for (int i = 0; i < word.length(); i++) {
+    var res = 0;
+    for (var i = 0; i < word.length(); i++) {
       var c = word.charAt(i);
       var added = false;
       var isLower = Character.isLowerCase(c);
@@ -710,9 +713,9 @@ class Strings {
    * </pre>
    */
   public static String greatestLetter(String s) {
-    int[] lower = new int[26];
-    int[] upper = new int[26];
-    for (int i = 0; i < s.length(); i++) {
+    var lower = new int[26];
+    var upper = new int[26];
+    for (var i = 0; i < s.length(); i++) {
       var c = s.charAt(i);
       if (Character.isUpperCase(c)) {
         upper[c - 'A']++;
@@ -720,7 +723,7 @@ class Strings {
         lower[c - 'a']++;
       }
     }
-    for (int i = 25; i >= 0; i--) {
+    for (var i = 25; i >= 0; i--) {
       if (lower[i] != 0 && upper[i] != 0) {
         return String.valueOf((char) Character.toUpperCase(i + 'a'));
       }
@@ -770,7 +773,7 @@ class Strings {
   public static int numberOfSpecialCharsII(String word) {
     Map<Character, Integer> firstUpper = new HashMap<>();
     Map<Character, Integer> lastLower = new HashMap<>();
-    for (int i = 0; i < word.length(); i++) {
+    for (var i = 0; i < word.length(); i++) {
       var c = word.charAt(i);
       if (Character.isUpperCase(c) && !firstUpper.containsKey(c)) {
         firstUpper.put(Character.toLowerCase(c), i);
@@ -780,7 +783,7 @@ class Strings {
       }
     }
     var res = 0;
-    for (char c = 'a'; c <= 'z'; c++) {
+    for (var c = 'a'; c <= 'z'; c++) {
       var ll = lastLower.getOrDefault(c, word.length());
       var fu = firstUpper.getOrDefault(c, -1);
       if (ll < fu) res++;
@@ -895,15 +898,15 @@ class Strings {
    * </pre>
    */
   public static String addBinary(String a, String b) {
-    StringBuilder res = new StringBuilder();
-    int i = a.length() - 1;
-    int j = b.length() - 1;
+    var res = new StringBuilder();
+    var i = a.length() - 1;
+    var j = b.length() - 1;
 
-    int carry = 0;
+    var carry = 0;
 
     while (i >= 0 || j >= 0) {
 
-      int sum = carry;
+      var sum = carry;
       if (i >= 0) {
         sum += a.charAt(i) - '0';
         i--;
@@ -919,5 +922,109 @@ class Strings {
       res.append(carry);
     }
     return res.reverse().toString();
+  }
+
+  /**
+   * https://leetcode.com/problems/reverse-prefix-of-word/
+   *
+   * <pre>
+   *   Given a 0-indexed string word and a character ch, reverse the segment of word that starts at index 0 and ends at the index of the first occurrence of ch (inclusive). If the character ch does not exist in word, do nothing.
+   *
+   * For example, if word = "abcdefd" and ch = "d", then you should reverse the segment that starts at 0 and ends at 3 (inclusive). The resulting string will be "dcbaefd".
+   * Return the resulting string.
+   *
+   *
+   *
+   * Example 1:
+   *
+   * Input: word = "abcdefd", ch = "d"
+   * Output: "dcbaefd"
+   * Explanation: The first occurrence of "d" is at index 3.
+   * Reverse the part of word from 0 to 3 (inclusive), the resulting string is "dcbaefd".
+   * Example 2:
+   *
+   * Input: word = "xyxzxe", ch = "z"
+   * Output: "zxyxxe"
+   * Explanation: The first and only occurrence of "z" is at index 3.
+   * Reverse the part of word from 0 to 3 (inclusive), the resulting string is "zxyxxe".
+   * Example 3:
+   *
+   * Input: word = "abcd", ch = "z"
+   * Output: "abcd"
+   * Explanation: "z" does not exist in word.
+   * You should not do any reverse operation, the resulting string is "abcd".
+   * </pre>
+   */
+  public static String reversePrefix(String word, char ch) {
+    var i = word.indexOf(ch);
+    if (i < 1) {
+      return word;
+    }
+    var s = word.toCharArray();
+    var mid = i / 2;
+    for (int k = 0, j = i; k <= mid; k++, j--) {
+      var temp = s[k];
+      s[k] = s[j];
+      s[j] = temp;
+    }
+    return String.valueOf(s);
+  }
+
+  /**
+   * https://leetcode.com/problems/minimum-index-sum-of-two-lists/
+   *
+   * <pre>
+   *   Given two arrays of strings list1 and list2, find the common strings with the least index sum.
+   *
+   * A common string is a string that appeared in both list1 and list2.
+   *
+   * A common string with the least index sum is a common string such that if it appeared at list1[i] and list2[j] then i + j should be the minimum value among all the other common strings.
+   *
+   * Return all the common strings with the least index sum. Return the answer in any order.
+   *
+   * Example 1:
+   *
+   * Input: list1 = ["Shogun","Tapioca Express","Burger King","KFC"], list2 = ["Piatti","The Grill at Torrey Pines","Hungry Hunter Steakhouse","Shogun"]
+   * Output: ["Shogun"]
+   * Explanation: The only common string is "Shogun".
+   * Example 2:
+   *
+   * Input: list1 = ["Shogun","Tapioca Express","Burger King","KFC"], list2 = ["KFC","Shogun","Burger King"]
+   * Output: ["Shogun"]
+   * Explanation: The common string with the least index sum is "Shogun" with index sum = (0 + 1) = 1.
+   * Example 3:
+   *
+   * Input: list1 = ["happy","sad","good"], list2 = ["sad","happy","good"]
+   * Output: ["sad","happy"]
+   * Explanation: There are three common strings:
+   * "happy" with index sum = (0 + 1) = 1.
+   * "sad" with index sum = (1 + 0) = 1.
+   * "good" with index sum = (2 + 2) = 4.
+   * The strings with the least index sum are "sad" and "happy".
+   * </pre>
+   */
+  public static String[] findRestaurant(String[] list1, String[] list2) {
+    var map1 =
+        IntStream.range(0, list1.length)
+            .mapToObj(i -> Map.entry(list1[i], i))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    Set<String> res = new HashSet<>();
+    var minIndex = Integer.MAX_VALUE;
+    for (var i = 0; i < list2.length; i++) {
+      if (!map1.containsKey(list2[i])) {
+        continue;
+      }
+      var indexInFirst = map1.get(list2[i]);
+      var sumOfIndices = indexInFirst + i;
+      if (minIndex > sumOfIndices) {
+        minIndex = sumOfIndices;
+        // We found a new min, so clear everything we saw so far.
+        res.clear();
+        res.add(list2[i]);
+      } else if (minIndex == sumOfIndices) {
+        res.add(list2[i]);
+      }
+    }
+    return res.toArray(String[]::new);
   }
 }

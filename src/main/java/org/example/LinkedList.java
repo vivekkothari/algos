@@ -43,9 +43,21 @@ class LinkedList {
     System.out.println();
   }
 
+  private static String toString(ListNode head) {
+    var sb = new StringBuilder();
+    var current = head;
+    while (current != null) {
+      sb.append(current.val).append(" -> ");
+      current = current.next;
+    }
+    sb.append("null");
+    return sb.toString();
+  }
+
   public static void main(String[] args) {
-    var head = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new ListNode(5)))));
-    print(head);
+    var head = new ListNode(1, new ListNode(1, new ListNode(1, new ListNode(1, new ListNode(1)))));
+    print(deleteDuplicates(head));
+    //    print(head);
     //    var head2 = new ListNode(1, new ListNode(2, new ListNode(3, new ListNode(4, new
     // ListNode(5)))));
     //    print(merge2Lists(head, head2));
@@ -55,7 +67,11 @@ class LinkedList {
     // 5,1,2,3,4
     // 4,5,1,2,3
     // 3,4,5,1,2
-    print(rotateKPlaces(head, 1));
+    //    print(rotateKPlaces(head, 1));
+    var intersect = new ListNode(8, new ListNode(4, new ListNode(5)));
+    var headA = new ListNode(4, new ListNode(1, intersect));
+    var headB = new ListNode(5, new ListNode(6, new ListNode(1, intersect)));
+    System.out.println(getIntersectionNode(headA, headB));
   }
 
   public static boolean hasCycle(ListNode head) {
@@ -93,6 +109,39 @@ class LinkedList {
       return l1;
     } else {
       l2.next = merge2Lists(l1, l2.next);
+      return l2;
+    }
+  }
+
+  /**
+   * https://leetcode.com/problems/merge-two-sorted-lists/description/
+   *
+   * <pre>
+   *   You are given the heads of two sorted linked lists list1 and list2.
+   * Merge the two lists into one sorted list. The list should be made by splicing
+   * together the nodes of the first two lists.
+   *
+   *  Return the head of the merged linked list.
+   * Input: list1 = [1,2,4], list2 = [1,3,4]
+   * Output: [1,1,2,3,4,4]
+   * Example 2:
+   *
+   * Input: list1 = [], list2 = []
+   * Output: []
+   * Example 3:
+   *
+   * Input: list1 = [], list2 = [0]
+   * Output: [0]
+   * </pre>
+   */
+  public static ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+    if (l1 == null) return l2;
+    if (l2 == null) return l1;
+    if (l1.val < l2.val) {
+      l1.next = mergeTwoLists(l1.next, l2);
+      return l1;
+    } else {
+      l2.next = mergeTwoLists(l1, l2.next);
       return l2;
     }
   }
@@ -145,5 +194,96 @@ class LinkedList {
       r--;
     }
     list.get(l).next = null;
+  }
+
+  /**
+   * https://leetcode.com/problems/remove-duplicates-from-sorted-list/description/
+   *
+   * <pre>
+   *   Given the head of a sorted linked list, delete all duplicates such that each element
+   *   appears only once. Return the linked list sorted as well.
+   * Input: head = [1,1,2]
+   * Output: [1,2]
+   *
+   * Input: head = [1,1,2,3,3]
+   * Output: [1,2,3]
+   * </pre>
+   */
+  public static ListNode deleteDuplicates(ListNode head) {
+    ListNode res = head;
+
+    while (head != null && head.next != null) {
+      if (head.val == head.next.val) {
+        head.next = head.next.next;
+      } else {
+        head = head.next;
+      }
+    }
+    return res;
+  }
+
+  /**
+   * https://leetcode.com/problems/intersection-of-two-linked-lists/
+   *
+   * <pre>
+   *
+   *   Given the heads of two singly linked-lists headA and headB, return the node at which the two lists intersect. If the two linked lists have no intersection at all, return null.
+   *   Input: intersectVal = 8, listA = [4,1,8,4,5], listB = [5,6,1,8,4,5], skipA = 2, skipB = 3
+   * Output: Intersected at '8'
+   * Explanation: The intersected node's value is 8 (note that this must not be 0 if the two lists intersect).
+   * From the head of A, it reads as [4,1,8,4,5]. From the head of B, it reads as [5,6,1,8,4,5]. There are 2 nodes before the intersected node in A; There are 3 nodes before the intersected node in B.
+   * - Note that the intersected node's value is not 1 because the nodes with value 1 in A and B (2nd node in A and 3rd node in B) are different node references. In other words, they point to two different locations in memory, while the nodes with value 8 in A and B (3rd node in A and 4th node in B) point to the same location in memory.
+   * </pre>
+   */
+  public static ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+    var lenA = 0;
+    var lenB = 0;
+    var currA = headA;
+    while (currA.next != null) {
+      currA = currA.next;
+      lenA++;
+    }
+    var currB = headB;
+    while (currB.next != null) {
+      currB = currB.next;
+      lenB++;
+    }
+    // Tail is different
+    if (currA != currB) {
+      return null;
+    }
+    currA = headA;
+    currB = headB;
+    if (lenA > lenB) {
+      for (int i = 0; i < lenA - lenB; i++) {
+        currA = currA.next;
+      }
+    } else {
+      for (int i = 0; i < lenB - lenA; i++) {
+        currB = currB.next;
+      }
+    }
+    while (currA != currB) {
+      currA = currA.next;
+      currB = currB.next;
+    }
+    return currA;
+  }
+
+  public static ListNode getIntersectionNodeOptimised(ListNode headA, ListNode headB) {
+    // boundary check
+    if (headA == null || headB == null) return null;
+
+    ListNode a = headA;
+    ListNode b = headB;
+
+    // if a & b have different len, then we will stop the loop after second iteration
+    while (a != b) {
+      // for the end of first iteration, we just reset the pointer to the head of another linkedlist
+      a = a == null ? headB : a.next;
+      b = b == null ? headA : b.next;
+    }
+
+    return a;
   }
 }

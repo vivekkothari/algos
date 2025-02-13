@@ -195,6 +195,27 @@ class Trees {
     return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
   }
 
+  /**
+   * https://leetcode.com/problems/minimum-depth-of-binary-tree/description/
+   *
+   * <pre>
+   *   Given a binary tree, find its minimum depth.
+   *
+   * The minimum depth is the number of nodes along the shortest path
+   * from the root node down to the nearest leaf node.
+   *
+   * Note: A leaf is a node with no children.
+   * </pre>
+   */
+  public static int minDepth(BinaryNode root) {
+    if (root == null) {
+      return 0;
+    }
+    int left = minDepth(root.left);
+    int right = minDepth(root.right);
+    return (left == 0 || right == 0) ? left + right + 1 : Math.min(left, right) + 1;
+  }
+
   public static int diameterOfBinaryTree(BinaryNode root) {
     if (root == null) {
       return 0;

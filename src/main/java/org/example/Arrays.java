@@ -75,7 +75,9 @@ public class Arrays {
     //    System.out.println(climbStairs(5));
     //    System.out.println(fib(50));
     //    System.out.println(rob(new int[] {2, 7, 9, 3, 1}));
-    System.out.println(java.util.Arrays.toString(plusOne(new int[] {9})));
+    //    System.out.println(java.util.Arrays.toString(plusOne(new int[] {9})));
+    System.out.println(java.util.Arrays.toString(applyOperations(new int[] {1, 2, 2, 1, 1, 0})));
+    System.out.println(countQuadruplets(new int[] {1, 1, 1, 3, 5}));
   }
 
   public static int[] twoSum(int[] nums, int target) {
@@ -1409,5 +1411,143 @@ public class Arrays {
     digits = new int[digits.length + 1];
     digits[0] = 1;
     return digits;
+  }
+
+  /**
+   * https://leetcode.com/problems/apply-operations-to-an-array/description/
+   *
+   * <pre>
+   *   You are given a 0-indexed array nums of size n consisting of non-negative integers.
+   *
+   * You need to apply n - 1 operations to this array where, in the ith operation (0-indexed), you will apply the following on the ith element of nums:
+   *
+   * If nums[i] == nums[i + 1], then multiply nums[i] by 2 and set nums[i + 1] to 0. Otherwise, you skip this operation.
+   * After performing all the operations, shift all the 0's to the end of the array.
+   *
+   * For example, the array [1,0,2,0,0,1] after shifting all its 0's to the end, is [1,2,1,0,0,0].
+   * Return the resulting array.
+   *
+   * Note that the operations are applied sequentially, not all at once.
+   *
+   * Example 1:
+   *
+   * Input: nums = [1,2,2,1,1,0]
+   * Output: [1,4,2,0,0,0]
+   * Explanation: We do the following operations:
+   * - i = 0: nums[0] and nums[1] are not equal, so we skip this operation.
+   * - i = 1: nums[1] and nums[2] are equal, we multiply nums[1] by 2 and change nums[2] to 0. The array becomes [1,4,0,1,1,0].
+   * - i = 2: nums[2] and nums[3] are not equal, so we skip this operation.
+   * - i = 3: nums[3] and nums[4] are equal, we multiply nums[3] by 2 and change nums[4] to 0. The array becomes [1,4,0,2,0,0].
+   * - i = 4: nums[4] and nums[5] are equal, we multiply nums[4] by 2 and change nums[5] to 0. The array becomes [1,4,0,2,0,0].
+   * After that, we shift the 0's to the end, which gives the array [1,4,2,0,0,0].
+   * Example 2:
+   *
+   * Input: nums = [0,1]
+   * Output: [1,0]
+   * Explanation: No operation can be applied, we just shift the 0 to the end.
+   * </pre>
+   */
+  public static int[] applyOperations(int[] nums) {
+    for (int i = 0, j = 1; j < nums.length; i++, j++) {
+      if (nums[i] == nums[j]) {
+        nums[i] *= 2;
+        nums[j] = 0;
+      }
+    }
+    moveZeroes(nums);
+    return nums;
+  }
+
+  /**
+   * https://leetcode.com/problems/count-special-quadruplets/description/
+   *
+   * <pre>
+   *   Given a 0-indexed integer array nums, return the number of distinct quadruplets (a, b, c, d) such that:
+   *
+   * nums[a] + nums[b] + nums[c] == nums[d], and
+   * a < b < c < d
+   *
+   *
+   * Example 1:
+   *
+   * Input: nums = [1,2,3,6]
+   * Output: 1
+   * Explanation: The only quadruplet that satisfies the requirement is (0, 1, 2, 3) because 1 + 2 + 3 == 6.
+   * Example 2:
+   *
+   * Input: nums = [3,3,6,4,5]
+   * Output: 0
+   * Explanation: There are no such quadruplets in [3,3,6,4,5].
+   * Example 3:
+   *
+   * Input: nums = [1,1,1,3,5]
+   * Output: 4
+   * Explanation: The 4 quadruplets that satisfy the requirement are:
+   * - (0, 1, 2, 3): 1 + 1 + 1 == 3
+   * - (0, 1, 3, 4): 1 + 1 + 3 == 5
+   * - (0, 2, 3, 4): 1 + 1 + 3 == 5
+   * - (1, 2, 3, 4): 1 + 1 + 3 == 5
+   * </pre>
+   */
+  public static int countQuadruplets(int[] nums) {
+    int res = 0;
+    int len = nums.length;
+    Map<Integer, Integer> count = new HashMap<>();
+    count.put(nums[len - 1] - nums[len - 2], 1);
+    for (int b = len - 3; b >= 1; b--) {
+      for (int a = b - 1; a >= 0; a--) {
+        res += count.getOrDefault(nums[a] + nums[b], 0);
+      }
+
+      for (int x = len - 1; x > b; x--) {
+        count.put(nums[x] - nums[b], count.getOrDefault(nums[x] - nums[b], 0) + 1);
+      }
+    }
+
+    return res;
+  }
+
+  /**
+   * https://leetcode.com/problems/contains-duplicate/description/
+   *
+   * <pre>
+   *   Given an integer array nums, return true if any value appears at least twice in the array,
+   *   and return false if every element is distinct.
+   * Example 1:
+   *
+   * Input: nums = [1,2,3,1]
+   *
+   * Output: true
+   *
+   * Explanation:
+   *
+   * The element 1 occurs at the indices 0 and 3.
+   *
+   * Example 2:
+   *
+   * Input: nums = [1,2,3,4]
+   *
+   * Output: false
+   *
+   * Explanation:
+   *
+   * All elements are distinct.
+   *
+   * Example 3:
+   *
+   * Input: nums = [1,1,1,3,3,4,3,2,4,2]
+   *
+   * Output: true
+   * </pre>
+   */
+  public boolean containsDuplicate(int[] nums) {
+    java.util.Arrays.sort(nums);
+    var res = false;
+    for (int i = 0; i < nums.length - 1; i++) {
+      if (nums[i] == nums[i + 1]) {
+        return true;
+      }
+    }
+    return res;
   }
 }
