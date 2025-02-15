@@ -60,7 +60,9 @@ public class Arrays {
 
     //    System.out.println(java.util.Arrays.toString(twoSumSortedArray(new int[] {2, 7, 11, 15},
     // 9)));
+    //    System.out.println(threeSumDifferent(new int[] {-1, 0, 1, 2, -1, -4}));
     //    System.out.println(threeSum(new int[] {-1, 0, 1, 2, -1, -4}));
+    System.out.println(threeSumClosest(new int[] {1, 1, 1, 0}, -100));
     //    var nums = new int[] {1, 2, 3, 4, 5, 6, 7};
     //    rotateNoExtraSpace(nums, 3);
     //    System.out.println(java.util.Arrays.toString(nums));
@@ -76,8 +78,9 @@ public class Arrays {
     //    System.out.println(fib(50));
     //    System.out.println(rob(new int[] {2, 7, 9, 3, 1}));
     //    System.out.println(java.util.Arrays.toString(plusOne(new int[] {9})));
-    System.out.println(java.util.Arrays.toString(applyOperations(new int[] {1, 2, 2, 1, 1, 0})));
-    System.out.println(countQuadruplets(new int[] {1, 1, 1, 3, 5}));
+    //    System.out.println(java.util.Arrays.toString(applyOperations(new int[] {1, 2, 2, 1, 1,
+    // 0})));
+    //    System.out.println(countQuadruplets(new int[] {1, 1, 1, 3, 5}));
   }
 
   public static int[] twoSum(int[] nums, int target) {
@@ -93,7 +96,7 @@ public class Arrays {
   }
 
   /**
-   *
+   * https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/description/
    *
    * <pre>
    *   Given a 1-indexed array of integers numbers that is already sorted in non-decreasing order, find two numbers such that they add up to a specific target number. Let these two numbers be numbers[index1] and numbers[index2] where 1 <= index1 < index2 <= numbers.length.
@@ -126,9 +129,10 @@ public class Arrays {
   public static int[] twoSumSortedArray(int[] numbers, int target) {
     int l = 0, r = numbers.length - 1;
     while (l < r) {
-      if (numbers[l] + numbers[r] == target) {
+      var sum = numbers[l] + numbers[r];
+      if (sum == target) {
         break;
-      } else if (numbers[l] + numbers[r] > target) {
+      } else if (sum > target) {
         r--;
       } else {
         l++;
@@ -195,6 +199,76 @@ public class Arrays {
       }
     }
     return triplets;
+  }
+
+  public static List<List<Integer>> threeSumDifferent(int[] nums) {
+    java.util.Arrays.sort(nums);
+    var res = new HashSet<List<Integer>>();
+    for (int i = 0; i < nums.length; i++) {
+      int j = i + 1, k = nums.length - 1;
+      while (j < k) {
+        var sum = nums[i] + nums[j] + nums[k];
+        if (sum == 0) {
+          res.add(List.of(nums[i], nums[j], nums[k]));
+          j++;
+          k--;
+        } else if (sum < 0) {
+          j++;
+        } else {
+          k--;
+        }
+      }
+    }
+    return res.stream().toList();
+  }
+
+  /**
+   * https://leetcode.com/problems/3sum-closest/
+   *
+   * <pre>
+   *   Given an integer array nums of length n and an integer target,
+   *
+   *   find three integers in nums such that the sum is closest to target.
+   *
+   * Return the sum of the three integers.
+   *
+   * You may assume that each input would have exactly one solution.
+   *
+   *
+   *
+   * Example 1:
+   *
+   * Input: nums = [-1,2,1,-4], target = 1
+   * Output: 2
+   * Explanation: The sum that is closest to the target is 2. (-1 + 2 + 1 = 2).
+   * Example 2:
+   *
+   * Input: nums = [0,0,0], target = 1
+   * Output: 0
+   * Explanation: The sum that is closest to the target is 0. (0 + 0 + 0 = 0).
+   * </pre>
+   */
+  public static int threeSumClosest(int[] nums, int target) {
+    java.util.Arrays.sort(nums);
+    var minDiff = Integer.MAX_VALUE;
+    var ans = 0;
+    for (int i = 0; i < nums.length; i++) {
+      int j = i + 1, k = nums.length - 1;
+      while (j < k) {
+        var sum = nums[i] + nums[j] + nums[k];
+        if (sum == target) {
+          return sum;
+        }
+        var diff = Math.abs(target - sum);
+        if (diff < minDiff) {
+          minDiff = diff;
+          ans = sum;
+        }
+        if (sum < target) j++;
+        else k--;
+      }
+    }
+    return ans;
   }
 
   public static int maxStockProfit(int[] stockPrices) {
