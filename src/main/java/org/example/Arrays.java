@@ -62,7 +62,8 @@ public class Arrays {
     // 9)));
     //    System.out.println(threeSumDifferent(new int[] {-1, 0, 1, 2, -1, -4}));
     //    System.out.println(threeSum(new int[] {-1, 0, 1, 2, -1, -4}));
-    System.out.println(threeSumClosest(new int[] {1, 1, 1, 0}, -100));
+    //    System.out.println(threeSumClosest(new int[] {1, 1, 1, 0}, -100));
+    System.out.println(kSum(new int[] {-1, 0, 1, 2, -1, -4}, 3, 0));
     //    var nums = new int[] {1, 2, 3, 4, 5, 6, 7};
     //    rotateNoExtraSpace(nums, 3);
     //    System.out.println(java.util.Arrays.toString(nums));
@@ -1684,5 +1685,49 @@ public class Arrays {
     makeCombination(candidates, target, idx, comb, total + candidates[idx], res);
     comb.removeLast();
     makeCombination(candidates, target, idx + 1, comb, total, res);
+  }
+
+  public static List<List<Integer>> kSum(int[] nums, int k, int target) {
+    java.util.Arrays.sort(nums);
+    return kSumHelper(nums, k, target, 0);
+  }
+
+  private static List<List<Integer>> kSumHelper(int[] nums, int k, int target, int start) {
+    List<List<Integer>> res = new LinkedList<>();
+    int n = nums.length;
+    if (k == 2) {
+      int left = start, right = n - 1;
+      while (left < right) {
+        int sum = nums[left] + nums[right];
+        if (sum == target) {
+          res.add(List.of(nums[left], nums[right]));
+          // Skip duplicates
+          while (left < right && nums[left] == nums[left + 1]) left++;
+          while (left < right && nums[right] == nums[right - 1]) right--;
+          left++;
+          right--;
+        } else if (sum < target) {
+          left++;
+        } else {
+          right--;
+        }
+      }
+      return res;
+    }
+    for (int i = start; i <= n - k; i++) {
+      // Skip duplicate elements
+      if (i > start && nums[i] == nums[i - 1]) continue;
+
+      // Recursive call for (k-1)-Sum
+      List<List<Integer>> subResults = kSumHelper(nums, k - 1, target - nums[i], i + 1);
+
+      // Add the current element to each subset found
+      for (List<Integer> subList : subResults) {
+        List<Integer> newList = new LinkedList<>(subList);
+        newList.addFirst(nums[i]);
+        res.add(newList);
+      }
+    }
+    return res;
   }
 }

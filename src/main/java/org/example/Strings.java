@@ -232,7 +232,8 @@ class Strings {
     //    System.out.println(reversePrefix("abcdefd", 'd'));
     //    System.out.println(maxRepeating("aaabaaaabaaabaaaabaaaabaaaabaaaaba", "aaaba"));
     //    System.out.println(convert("AB", 1));
-    System.out.println(myAtoi("-91283472332"));
+    //    System.out.println(myAtoi("-91283472332"));
+    System.out.println(letterCombinations("23"));
   }
 
   // I c e C r e A m
@@ -1294,5 +1295,75 @@ class Strings {
     }
 
     return ans * sign;
+  }
+
+  /**
+   * https://leetcode.com/problems/letter-combinations-of-a-phone-number/
+   *
+   * <pre>
+   *   Given a string containing digits from 2-9 inclusive, return all possible letter combinations that the number could represent. Return the answer in any order.
+   *
+   * A mapping of digits to letters (just like on the telephone buttons) is given below. Note that 1 does not map to any letters.
+   *
+   * <img
+   *    * src="https://assets.leetcode.com/uploads/2022/03/15/1200px-telephone-keypad2svg.png"></img>
+   *
+   * Example 1:
+   *
+   * Input: digits = "23"
+   * Output: ["ad","ae","af","bd","be","bf","cd","ce","cf"]
+   * Example 2:
+   *
+   * Input: digits = ""
+   * Output: []
+   * Example 3:
+   *
+   * Input: digits = "2"
+   * Output: ["a","b","c"]
+   *
+   * </pre>
+   */
+  public static List<String> letterCombinations(String digits) {
+    Map<Integer, List<Character>> map =
+        Map.of(
+            2,
+            List.of('a', 'b', 'c'),
+            3,
+            List.of('d', 'e', 'f'),
+            4,
+            List.of('g', 'h', 'i'),
+            5,
+            List.of('j', 'k', 'l'),
+            6,
+            List.of('m', 'n', 'o'),
+            7,
+            List.of('p', 'q', 'r', 's'),
+            8,
+            List.of('t', 'u', 'v'),
+            9,
+            List.of('w', 'x', 'y', 'z'));
+    List<String> res = new ArrayList<>();
+    backtrack(digits, 0, new LinkedList<>(), res, map);
+    return res;
+  }
+
+  private static void backtrack(
+      String digits,
+      int idx,
+      LinkedList<Character> comb,
+      List<String> res,
+      Map<Integer, List<Character>> digitToLetters) {
+    if (idx == digits.length()) {
+      var list = comb.stream().map(c -> "" + c).collect(Collectors.joining());
+      if (!list.isEmpty()) {
+        res.add(list);
+      }
+      return;
+    }
+    for (char letter : digitToLetters.get(digits.charAt(idx) - '0')) {
+      comb.addLast(letter);
+      backtrack(digits, idx + 1, comb, res, digitToLetters);
+      comb.removeLast();
+    }
   }
 }
