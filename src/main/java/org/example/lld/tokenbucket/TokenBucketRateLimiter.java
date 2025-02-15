@@ -39,7 +39,7 @@ class TokenBucketRateLimiter {
 
   public boolean allowRequest() {
     refillTokens();
-    return tokens.updateAndGet(i -> i > 0 ? i - 1 : i) > 0;
+    return tokens.getAndUpdate(i -> i > 0 ? i - 1 : i) > 0;
   }
 
   public static void main(String[] args) {
