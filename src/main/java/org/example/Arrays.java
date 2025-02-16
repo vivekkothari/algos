@@ -1730,4 +1730,33 @@ public class Arrays {
     }
     return res;
   }
+
+  /**
+   * https://leetcode.com/problems/sort-array-by-increasing-frequency/
+   *
+   * <pre>
+   *   Given an array of integers nums, sort the array in increasing order based on the
+   *   frequency of the values. If multiple values have the same frequency, sort them in decreasing order.
+   *
+   * Return the sorted array.
+   * </pre>
+   */
+  public static int[] frequencySort(int[] nums) {
+    Map<Integer, Integer> freqMap = new HashMap<>();
+    for (var num : nums) {
+      freqMap.put(num, freqMap.getOrDefault(num, 0) + 1);
+    }
+    return java.util.Arrays.stream(nums)
+        .boxed()
+        .sorted(
+            (o1, o2) -> {
+              var r = Integer.compare(freqMap.get(o1), freqMap.get(o2));
+              if (r != 0) {
+                return r;
+              }
+              return Integer.compare(o2, o1);
+            })
+        .mapToInt(i -> i)
+        .toArray();
+  }
 }

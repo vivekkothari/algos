@@ -1,6 +1,8 @@
 package org.example;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -168,6 +170,35 @@ class Strings {
     return true;
   }
 
+  /**
+   * Challenge 2: Implement a Palindrome Checker (Deque) A palindrome is a word that reads the same
+   * forward and backward (e.g., "racecar", "madam").
+   *
+   * <p>Implement a PalindromeChecker class using a Deque. It should have a method
+   * isPalindrome(String word) that returns true if the word is a palindrome.
+   */
+  public static boolean isPalindromeUsingDequeue(String s) {
+    Deque<Character> deque = new ArrayDeque<>(s.length());
+    for (var c : s.toCharArray()) {
+      deque.push(c);
+    }
+    while (deque.size() > 1) {
+      if (deque.pollFirst() != deque.pollLast()) return false;
+    }
+    return true;
+  }
+
+  public static boolean isPalindromeUsingDequeueIgnoreCaseNonAlphaNumeric(String s) {
+    Deque<Character> deque = new ArrayDeque<>(s.length());
+    for (var c : s.toCharArray()) {
+      if (Character.isLetterOrDigit(c)) deque.push(Character.toLowerCase(c));
+    }
+    while (deque.size() > 1) {
+      if (deque.pollFirst() != deque.pollLast()) return false;
+    }
+    return true;
+  }
+
   public static boolean isPalindromeByDeletingOneChar(String s) {
     int l = 0, r = s.length() - 1;
     while (l < r) {
@@ -213,6 +244,7 @@ class Strings {
   public static void main(String[] args) {
     //    System.out.println(longestCommonPrefix(new String[] {"flower", "flow"}));
     //    System.out.println(isPalindrome("Was it a car or a cat I saw?"));
+    System.out.println(isPalindromeUsingDequeue("ababa"));
     //    System.out.println(isPalindrome("0P"));
     //
     //    System.out.println(isPalindromeByDeletingOneChar("aba"));
