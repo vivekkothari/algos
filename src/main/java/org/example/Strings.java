@@ -244,11 +244,12 @@ class Strings {
   }
 
   public static void main(String[] args) {
-    System.out.println(wordPattern("abba", "dog dog dog dog"));
-    System.out.println(checkRecord("LALL"));
+    System.out.println(minimizeConcatenatedLength(new String[] {"a", "bc", "c"}));
+    //    System.out.println(wordPattern("abba", "dog dog dog dog"));
+    //    System.out.println(checkRecord("LALL"));
     //    System.out.println(longestCommonPrefix(new String[] {"flower", "flow"}));
     //    System.out.println(isPalindrome("Was it a car or a cat I saw?"));
-    System.out.println(isPalindromeUsingDequeue("ababa"));
+    //    System.out.println(isPalindromeUsingDequeue("ababa"));
     //    System.out.println(isPalindrome("0P"));
     //
     //    System.out.println(isPalindromeByDeletingOneChar("aba"));
@@ -1403,6 +1404,30 @@ class Strings {
     }
   }
 
+  /**
+   * You are given a string s representing an attendance record for a student where each character
+   * signifies whether the student was absent, late, or present on that day. The record only
+   * contains the following three characters:
+   *
+   * <p>'A': Absent. 'L': Late. 'P': Present. The student is eligible for an attendance award if
+   * they meet both of the following criteria:
+   *
+   * <p>The student was absent ('A') for strictly fewer than 2 days total. The student was never
+   * late ('L') for 3 or more consecutive days. Return true if the student is eligible for an
+   * attendance award, or false otherwise.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: s = "PPALLP" Output: true Explanation: The student has fewer than 2 absences and was
+   * never late 3 or more consecutive days. Example 2:
+   *
+   * <p>Input: s = "PPALLL" Output: false Explanation: The student was late 3 consecutive days in
+   * the last 3 days, so is not eligible for the award.
+   *
+   * <p>Constraints:
+   *
+   * <p>1 <= s.length <= 1000 s[i] is either 'A', 'L', or 'P'.
+   */
   public static boolean checkRecord(String s) {
     var lCount = 0;
     var aCount = 0;
@@ -1579,5 +1604,99 @@ class Strings {
       map2.put(word, letter);
     }
     return true;
+  }
+
+  /**
+   * International Morse Code defines a standard encoding where each letter is mapped to a series of
+   * dots and dashes, as follows:
+   *
+   * <p>'a' maps to ".-", 'b' maps to "-...", 'c' maps to "-.-.", and so on. For convenience, the
+   * full table for the 26 letters of the English alphabet is given below:
+   *
+   * <p>[".-","-...","-.-.","-..",".","..-.","--.","....","..",".---","-.-",".-..","--","-.","---",".--.","--.-",".-.","...","-","..-","...-",".--","-..-","-.--","--.."]
+   * Given an array of strings words where each word can be written as a concatenation of the Morse
+   * code of each letter.
+   *
+   * <p>For example, "cab" can be written as "-.-..--...", which is the concatenation of "-.-.",
+   * ".-", and "-...". We will call such a concatenation the transformation of a word. Return the
+   * number of different transformations among all words we have.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: words = ["gin","zen","gig","msg"] Output: 2 Explanation: The transformation of each
+   * word is: "gin" -> "--...-." "zen" -> "--...-." "gig" -> "--...--." "msg" -> "--...--." There
+   * are 2 different transformations: "--...-." and "--...--.". Example 2:
+   *
+   * <p>Input: words = ["a"] Output: 1
+   */
+  public int uniqueMorseRepresentations(String[] words) {
+    var morseCode =
+        new String[] {
+          ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", ".---", "-.-", ".-..",
+          "--", "-.", "---", ".--.", "--.-", ".-.", "...", "-", "..-", "...-", ".--", "-..-",
+          "-.--", "--.."
+        };
+    Set<String> transformation = new HashSet<>();
+    for (int i = 0; i < words.length; i++) {
+      var sb = new StringBuilder();
+      for (var c : words[i].toCharArray()) {
+        sb.append(morseCode[c - 'a']);
+      }
+      transformation.add(sb.toString());
+    }
+    return transformation.size();
+  }
+
+  /**
+   * https://leetcode.com/problems/decremental-string-concatenation/ You are given a 0-indexed array
+   * words containing n strings.
+   *
+   * <p>Let's define a join operation join(x, y) between two strings x and y as concatenating them
+   * into xy. However, if the last character of x is equal to the first character of y, one of them
+   * is deleted.
+   *
+   * <p>For example join("ab", "ba") = "aba" and join("ab", "cde") = "abcde".
+   *
+   * <p>You are to perform n - 1 join operations. Let str0 = words[0]. Starting from i = 1 up to i =
+   * n - 1, for the ith operation, you can do one of the following:
+   *
+   * <p>Make stri = join(stri - 1, words[i]) Make stri = join(words[i], stri - 1) Your task is to
+   * minimize the length of strn - 1.
+   *
+   * <p>Return an integer denoting the minimum possible length of strn - 1.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: words = ["aa","ab","bc"] Output: 4 Explanation: In this example, we can perform join
+   * operations in the following order to minimize the length of str2: str0 = "aa" str1 = join(str0,
+   * "ab") = "aab" str2 = join(str1, "bc") = "aabc" It can be shown that the minimum possible length
+   * of str2 is 4. Example 2:
+   *
+   * <p>Input: words = ["ab","b"] Output: 2 Explanation: In this example, str0 = "ab", there are two
+   * ways to get str1: join(str0, "b") = "ab" or join("b", str0) = "bab". The first string, "ab",
+   * has the minimum length. Hence, the answer is 2. Example 3:
+   *
+   * <p>Input: words = ["aaa","c","aba"] Output: 6 Explanation: In this example, we can perform join
+   * operations in the following order to minimize the length of str2: str0 = "aaa" str1 =
+   * join(str0, "c") = "aaac" str2 = join("aba", str1) = "abaaac" It can be shown that the minimum
+   * possible length of str2 is 6.
+   */
+  public static int minimizeConcatenatedLength(String[] words) {
+    for (int i = 1; i < words.length; i++) {
+      var wordPrev = words[i - 1];
+      var word = words[i];
+      var one = join(wordPrev, word);
+      var two = join(word, wordPrev);
+      words[i] = one.length() <= two.length() ? one : two;
+    }
+    return words[words.length - 1].length();
+  }
+
+  private static String join(String left, String right) {
+    if (left.charAt(left.length() - 1) == right.charAt(0)) {
+      return left + right.subSequence(1, right.length());
+    } else {
+      return left + right;
+    }
   }
 }
