@@ -473,6 +473,26 @@ public class Arrays {
     return ret;
   }
 
+  public static int[] minOperationsOptimal(String boxes) {
+    var res = new int[boxes.length()];
+    int moves = 0;
+    int numBalls = 0;
+    for (int i = 0; i < boxes.length(); i++) {
+      res[i] += moves + numBalls;
+      moves = res[i];
+      numBalls += boxes.charAt(i) - '0';
+    }
+    moves = 0;
+    numBalls = 0;
+    for (int i = boxes.length() - 1; i >= 0; i--) {
+      var temp = res[i];
+      res[i] += moves + numBalls;
+      moves = res[i] - temp;
+      numBalls += boxes.charAt(i) - '0';
+    }
+    return res;
+  }
+
   public static int missingNumber(int[] nums) {
     var n = nums.length;
     var expectedSum = n * (n + 1) / 2;
@@ -1758,5 +1778,34 @@ public class Arrays {
             })
         .mapToInt(i -> i)
         .toArray();
+  }
+
+  /**
+   *
+   *
+   * <pre>
+   *   Given an array of integers arr, return true if the number of occurrences of each
+   *   value in the array is unique or false otherwise.
+   *
+   * Example 1:
+   *
+   * Input: arr = [1,2,2,1,1,3]
+   * Output: true
+   * Explanation: The value 1 has 3 occurrences, 2 has 2 and 3 has 1.
+   * No two values have the same number of occurrences.
+   * </pre>
+   */
+  public static boolean uniqueOccurrences(int[] arr) {
+    Map<Integer, Integer> freqMap = new HashMap<>();
+    for (var i : arr) {
+      freqMap.put(i, freqMap.getOrDefault(i, 0) + 1);
+    }
+    Set<Integer> seenFreq = new HashSet<>();
+    for (var value : freqMap.values()) {
+      if (!seenFreq.add(value)) {
+        return false;
+      }
+    }
+    return true;
   }
 }

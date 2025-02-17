@@ -2,6 +2,7 @@ package org.example;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -242,6 +244,8 @@ class Strings {
   }
 
   public static void main(String[] args) {
+    System.out.println(wordPattern("abba", "dog dog dog dog"));
+    System.out.println(checkRecord("LALL"));
     //    System.out.println(longestCommonPrefix(new String[] {"flower", "flow"}));
     //    System.out.println(isPalindrome("Was it a car or a cat I saw?"));
     System.out.println(isPalindromeUsingDequeue("ababa"));
@@ -1397,5 +1401,183 @@ class Strings {
       backtrack(digits, idx + 1, comb, res, digitToLetters);
       comb.removeLast();
     }
+  }
+
+  public static boolean checkRecord(String s) {
+    var lCount = 0;
+    var aCount = 0;
+    for (var c : s.toCharArray()) {
+      if (c == 'A') {
+        aCount++;
+        if (aCount == 2) return false;
+      }
+      if (c == 'L') {
+        lCount++;
+        if (lCount > 2) return false;
+      } else {
+        lCount = 0;
+      }
+    }
+    return true;
+  }
+
+  /**
+   *
+   *
+   * <pre>
+   *   A transaction is possibly invalid if:
+   *
+   * the amount exceeds $1000, or;
+   * if it occurs within (and including) 60 minutes of another transaction with the same name in a different city.
+   * You are given an array of strings transaction where transactions[i] consists of comma-separated
+   * values representing the name, time (in minutes), amount, and city of the transaction.
+   *
+   * Return a list of transactions that are possibly invalid. You may return the answer in any order.
+   *
+   * Example 1:
+   *
+   * Input: transactions = ["alice,20,800,mtv","alice,50,100,beijing"]
+   * Output: ["alice,20,800,mtv","alice,50,100,beijing"]
+   * Explanation: The first transaction is invalid because the second transaction occurs within a difference of 60 minutes, have the same name and is in a different city. Similarly the second one is invalid too.
+   * Example 2:
+   *
+   * Input: transactions = ["alice,20,800,mtv","alice,50,1200,mtv"]
+   * Output: ["alice,50,1200,mtv"]
+   * Example 3:
+   *
+   * Input: transactions = ["alice,20,800,mtv","bob,50,1200,mtv"]
+   * Output: ["bob,50,1200,mtv"]
+   *
+   *
+   * Constraints:
+   *
+   * transactions.length <= 1000
+   * Each transactions[i] takes the form "{name},{time},{amount},{city}"
+   * Each {name} and {city} consist of lowercase English letters, and have lengths between 1 and 10.
+   * Each {time} consist of digits, and represent an integer between 0 and 1000.
+   * Each {amount} consist of digits, and represent an integer between 0 and 2000.
+   * </pre>
+   */
+  public static List<String> invalidTransactions(String[] transactions) {
+    var rows = Arrays.stream(transactions).map(Row::parse).toList();
+    var nameToRow = rows.stream().collect(Collectors.groupingBy(Row::name));
+    Predicate<Row> isInvalid =
+        row ->
+            row.amount > 1000
+                || nameToRow.getOrDefault(row.name, List.of()).stream()
+                    .anyMatch(
+                        r ->
+                            !r.city.equals(row.city)
+                                && Math.abs(row.timeInMinutes - r.timeInMinutes) <= 60);
+    return rows.stream().filter(isInvalid).map(Row::toString).toList();
+  }
+
+  record Row(String name, int timeInMinutes, int amount, String city) {
+
+    static Row parse(String s) {
+      var split = s.split(",");
+      return new Row(split[0], Integer.parseInt(split[1]), Integer.parseInt(split[2]), split[3]);
+    }
+
+    @Override
+    public String toString() {
+      return "%s,%d,%d,%s".formatted(name, timeInMinutes, amount, city);
+    }
+  }
+
+  /**
+   * You have n boxes. You are given a binary string boxes of length n, where boxes[i] is '0' if the
+   * ith box is empty, and '1' if it contains one ball.
+   *
+   * <p>In one operation, you can move one ball from a box to an adjacent box. Box i is adjacent to
+   * box j if abs(i - j) == 1. Note that after doing so, there may be more than one ball in some
+   * boxes.
+   *
+   * <p>Return an array answer of size n, where answer[i] is the minimum number of operations needed
+   * to move all the balls to the ith box.
+   *
+   * <p>Each answer[i] is calculated considering the initial state of the boxes.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: boxes = "110" Output: [1,1,3] Explanation: The answer for each box is as follows: 1)
+   * First box: you will have to move one ball from the second box to the first box in one
+   * operation. 2) Second box: you will have to move one ball from the first box to the second box
+   * in one operation. 3) Third box: you will have to move one ball from the first box to the third
+   * box in two operations, and move one ball from the second box to the third box in one operation.
+   * Example 2:
+   *
+   * <p>Input: boxes = "001011" Output: [11,8,5,4,3,4]
+   */
+  public static int[] minOperations(String boxes) {
+    var res = new int[boxes.length()];
+    for (int i = 0; i < boxes.length(); i++) {
+      int moves = 0;
+      for (int j = 0; j < boxes.length(); j++) {
+        if (boxes.charAt(j) == '0' || i == j) continue;
+        moves += Math.abs(j - i);
+      }
+      res[i] = moves;
+    }
+    return res;
+  }
+
+  /**
+   * Given a pattern and a string s, find if s follows the same pattern.
+   *
+   * <p>Here follow means a full match, such that there is a bijection between a letter in pattern
+   * and a non-empty word in s. Specifically:
+   *
+   * <p>Each letter in pattern maps to exactly one unique word in s. Each unique word in s maps to
+   * exactly one letter in pattern. No two letters map to the same word, and no two words map to the
+   * same letter.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: pattern = "abba", s = "dog cat cat dog"
+   *
+   * <p>Output: true
+   *
+   * <p>Explanation:
+   *
+   * <p>The bijection can be established as:
+   *
+   * <p>'a' maps to "dog". 'b' maps to "cat". Example 2:
+   *
+   * <p>Input: pattern = "abba", s = "dog cat cat fish"
+   *
+   * <p>Output: false
+   *
+   * <p>Example 3:
+   *
+   * <p>Input: pattern = "aaaa", s = "dog cat cat dog"
+   *
+   * <p>Output: false
+   *
+   * <p>Constraints:
+   *
+   * <p>1 <= pattern.length <= 300 pattern contains only lower-case English letters. 1 <= s.length
+   * <= 3000 s contains only lowercase English letters and spaces ' '. s does not contain any
+   * leading or trailing spaces. All the words in s are separated by a single space.
+   */
+  public static boolean wordPattern(String pattern, String s) {
+    var words = s.split(" ");
+    var letters = pattern.toCharArray();
+    if (words.length != letters.length) return false;
+    Map<Character, String> map1 = new HashMap<>();
+    Map<String, Character> map2 = new HashMap<>();
+    for (var i = 0; i < letters.length; i++) {
+      var letter = letters[i];
+      var word = words[i];
+      if (map1.containsKey(letter) && !word.equals(map1.get(letter))) {
+        return false;
+      }
+      map1.put(letter, word);
+      if (map2.containsKey(word) && letter != map2.get(word)) {
+        return false;
+      }
+      map2.put(word, letter);
+    }
+    return true;
   }
 }

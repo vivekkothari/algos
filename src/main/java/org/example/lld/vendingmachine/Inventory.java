@@ -18,10 +18,12 @@ class Inventory {
         inventory.computeIfPresent(
             product,
             (p, q) -> {
-              var newQuantity = q.decrementAndGet();
-              return newQuantity > 0 ? q : null;
+              q.getAndUpdate(i -> i > 0 ? i - 1 : 0);
+              return q;
             });
-    return currentQuantity == null ? Optional.empty() : Optional.of(product);
+    return currentQuantity == null || currentQuantity.get() == 0
+        ? Optional.empty()
+        : Optional.of(product);
   }
 
   public boolean isAvailable(Product product) {
