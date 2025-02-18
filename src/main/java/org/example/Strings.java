@@ -1361,24 +1361,8 @@ class Strings {
    * </pre>
    */
   public static List<String> letterCombinations(String digits) {
-    Map<Integer, List<Character>> map =
-        Map.of(
-            2,
-            List.of('a', 'b', 'c'),
-            3,
-            List.of('d', 'e', 'f'),
-            4,
-            List.of('g', 'h', 'i'),
-            5,
-            List.of('j', 'k', 'l'),
-            6,
-            List.of('m', 'n', 'o'),
-            7,
-            List.of('p', 'q', 'r', 's'),
-            8,
-            List.of('t', 'u', 'v'),
-            9,
-            List.of('w', 'x', 'y', 'z'));
+    Map<Integer, String> map =
+        Map.of(2, "abc", 3, "def", 4, "ghi", 5, "jkl", 6, "mno", 7, "pqrs", 8, "tuv", 9, "wxyz");
     List<String> res = new ArrayList<>();
     backtrack(digits, 0, new LinkedList<>(), res, map);
     return res;
@@ -1389,7 +1373,7 @@ class Strings {
       int idx,
       LinkedList<Character> comb,
       List<String> res,
-      Map<Integer, List<Character>> digitToLetters) {
+      Map<Integer, String> digitToLetters) {
     if (idx == digits.length()) {
       var list = comb.stream().map(c -> "" + c).collect(Collectors.joining());
       if (!list.isEmpty()) {
@@ -1397,7 +1381,7 @@ class Strings {
       }
       return;
     }
-    for (char letter : digitToLetters.get(digits.charAt(idx) - '0')) {
+    for (char letter : digitToLetters.get(digits.charAt(idx) - '0').toCharArray()) {
       comb.addLast(letter);
       backtrack(digits, idx + 1, comb, res, digitToLetters);
       comb.removeLast();

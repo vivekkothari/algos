@@ -26,6 +26,7 @@ package org.example.llmquiz;
  * </pre>
  */
 class CircularQueue<T> {
+  private final boolean blockOnFull;
   private final Object[] data;
   private final int capacity;
   private int size;
@@ -33,6 +34,11 @@ class CircularQueue<T> {
   private int endIndex;
 
   CircularQueue(int capacity) {
+    this(capacity, false);
+  }
+
+  CircularQueue(int capacity, boolean blockOnFull) {
+    this.blockOnFull = blockOnFull;
     this.data = new Object[capacity];
     this.capacity = capacity;
     size = 0;
@@ -41,7 +47,7 @@ class CircularQueue<T> {
   }
 
   boolean enqueue(T value) {
-    if (size >= capacity) return false;
+    if (blockOnFull && size >= capacity) return false;
     data[endIndex] = value;
     endIndex = (endIndex + 1) % capacity;
     size++;
@@ -77,13 +83,15 @@ class CircularQueue<T> {
   }
 
   public static void main(String[] args) {
-    var queue = new CircularQueue<Integer>(3);
+    var queue = new CircularQueue<Integer>(3, false);
     System.out.println(queue.enqueue(1)); // true
     System.out.println(queue.enqueue(2)); // true
     System.out.println(queue.enqueue(3)); // true
     System.out.println(queue.enqueue(4)); // false (queue is full)
     System.out.println(queue.rear()); // 3
+    System.out.println(queue.isFull()); // 3
     System.out.println(queue.dequeue()); // true
+    System.out.println(queue.enqueue(4)); // false (queue is full)
     System.out.println(queue.front()); // 2
   }
 }
