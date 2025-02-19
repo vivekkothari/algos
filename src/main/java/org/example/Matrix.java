@@ -12,6 +12,7 @@ import java.util.PriorityQueue;
 class Matrix {
 
   public static void main(String[] args) {
+    findCircleNum(new int[][] {{1, 0, 0, 1}, {0, 1, 1, 0}, {0, 1, 1, 1}, {1, 0, 1, 1}});
     //    sortMatrix(new int[][] {{1, 7, 3}, {9, 8, 2}, {4, 5, 6}});
 
     //    networkDelayTime(new int[][] {{2, 1, 1}, {2, 3, 1}, {3, 4, 1}}, 4, 2);
@@ -191,5 +192,69 @@ class Matrix {
       minCost += refund[i];
     }
     return minCost;
+  }
+
+  /**
+   *
+   *
+   * <pre>https://leetcode.com/problems/number-of-provinces/description/</pre>
+   *
+   * There are n cities. Some of them are connected, while some are not. If city a is connected
+   * directly with city b, and city b is connected directly with city c, then city a is connected
+   * indirectly with city c.
+   *
+   * <p>A province is a group of directly or indirectly connected cities and no other cities outside
+   * of the group.
+   *
+   * <p>You are given an n x n matrix isConnected where isConnected[i][j] = 1 if the ith city and
+   * the jth city are directly connected, and isConnected[i][j] = 0 otherwise.
+   *
+   * <p>Return the total number of provinces.
+   *
+   * <pre>
+   * Constraints:
+   * 1 <= n <= 200
+   * n == isConnected.length
+   * n == isConnected[i].length
+   * isConnected[i][j] is 1 or 0.
+   * isConnected[i][i] == 1
+   * isConnected[i][j] == isConnected[j][i]
+   * </pre>
+   *
+   * <p>Input: isConnected = [[1,1,0],[1,1,0],[0,0,1]] Output: 2
+   *
+   * <pre>
+   *   1 1 0
+   *   1 1 0
+   *   0 0 1
+   *   return 2
+   *
+   *   1 0 0 1
+   *   0 1 1 0
+   *   0 1 1 0
+   *   1 0 0 1
+   *   return 3
+   * </pre>
+   */
+  public static int findCircleNum(int[][] isConnected) {
+    var n = isConnected.length;
+    var visit = new boolean[n];
+    int numOfProvince = 0;
+    for (int i = 0; i < n; i++) {
+      if (!visit[i]) {
+        numOfProvince++;
+        findCircleNumDfs(i, visit, isConnected);
+      }
+    }
+    return numOfProvince;
+  }
+
+  private static void findCircleNumDfs(int city, boolean[] visit, int[][] otherCities) {
+    visit[city] = true;
+    for (int i = 0; i < otherCities.length; i++) {
+      if (otherCities[city][i] == 1 && !visit[i]) {
+        findCircleNumDfs(i, visit, otherCities);
+      }
+    }
   }
 }

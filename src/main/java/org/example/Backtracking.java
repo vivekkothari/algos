@@ -6,7 +6,50 @@ import java.util.List;
 class Backtracking {
 
   public static void main(String[] args) {
-    System.out.println(subsets(new int[] {}));
+    //    System.out.println(subsets(new int[] {}));
+    //    System.out.println(permute(new int[] {1, 2, 3}));
+    //    System.out.println(findAllBinaryStrings(7));
+    //    System.out.println(permute("ABC", true));
+    //    System.out.println(permute("ABC", false));
+    System.out.println(generateParenthesis(5));
+  }
+
+  /**
+   * https://leetcode.com/problems/generate-parentheses/?envType=daily-question&envId=2025-02-19
+   *
+   * <pre>
+   *   Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
+   * Example 1:
+   *
+   * Input: n = 3
+   * Output: ["((()))","(()())","(())()","()(())","()()()"]
+   * Example 2:
+   *
+   * Input: n = 1
+   * Output: ["()"]
+   * </pre>
+   */
+  public static List<String> generateParenthesis(int n) {
+    var res = new ArrayList<String>();
+    generateParenthesis(res, 0, 0, new StringBuilder(), n);
+    return res;
+  }
+
+  static void generateParenthesis(List<String> res, int open, int closed, StringBuilder sb, int n) {
+    if (open == closed && open == n) {
+      res.add(sb.toString());
+      return;
+    }
+    if (open < n) {
+      sb.append('(');
+      generateParenthesis(res, open + 1, closed, sb, n);
+      sb.deleteCharAt(sb.length() - 1);
+    }
+    if (closed < open) {
+      sb.append(')');
+      generateParenthesis(res, open, closed + 1, sb, n);
+      sb.deleteCharAt(sb.length() - 1);
+    }
   }
 
   /**
@@ -33,17 +76,101 @@ class Backtracking {
   public static List<List<Integer>> subsets(int[] nums) {
     List<List<Integer>> list = new ArrayList<>();
     java.util.Arrays.sort(nums);
-    backtrack(list, new ArrayList<>(), nums, 0);
+    subsets(list, new ArrayList<>(), nums, 0);
     return list;
   }
 
-  private static void backtrack(
+  private static void subsets(
       List<List<Integer>> list, List<Integer> tempList, int[] nums, int start) {
     list.add(new ArrayList<>(tempList));
     for (int i = start; i < nums.length; i++) {
       tempList.add(nums[i]);
-      backtrack(list, tempList, nums, i + 1);
+      subsets(list, tempList, nums, i + 1);
       tempList.removeLast();
+    }
+  }
+
+  /**
+   * https://leetcode.com/problems/permutations/?envType=daily-question&envId=2025-02-19 Given an
+   * array nums of distinct integers, return all the possible permutations . You can return the
+   * answer in any order.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: nums = [1,2,3] Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]] Example 2:
+   *
+   * <p>Input: nums = [0,1] Output: [[0,1],[1,0]] Example 3:
+   *
+   * <p>Input: nums = [1] Output: [[1]]
+   */
+  public static List<List<Integer>> permute(int[] nums) {
+    List<List<Integer>> list = new ArrayList<>();
+    permute(list, new ArrayList<>(), nums, new boolean[nums.length]);
+    return list;
+  }
+
+  public static void permute(
+      List<List<Integer>> list, List<Integer> tempList, int[] nums, boolean[] used) {
+    if (nums.length == tempList.size()) {
+      list.add(new ArrayList<>(tempList));
+      return;
+    }
+    for (int i = 0; i < nums.length; i++) {
+      if (used[i]) continue;
+      used[i] = true;
+      tempList.add(nums[i]); // choose an element
+      permute(list, tempList, nums, used); // explore more options
+      used[i] = false;
+      tempList.removeLast(); // undo the last choice
+    }
+  }
+
+  public static List<String> permute(String string, boolean reuseAllowed) {
+    List<String> res = new ArrayList<>();
+    var used = new boolean[string.length()];
+    permute(res, new StringBuilder(), string, used, reuseAllowed);
+    return res;
+  }
+
+  private static void permute(
+      List<String> res, StringBuilder sb, String s, boolean[] used, boolean reuseAllowed) {
+    if (sb.length() == s.length()) {
+      res.add(sb.toString());
+      return;
+    }
+    char[] charArray = s.toCharArray();
+    for (int i = 0; i < charArray.length; i++) {
+      if (used[i] && !reuseAllowed) continue;
+      used[i] = true;
+      var c = charArray[i];
+      sb.append(c);
+      permute(res, sb, s, used, reuseAllowed);
+      used[i] = false;
+      sb.deleteCharAt(sb.length() - 1);
+    }
+  }
+
+  /**
+   * Print All Binary Strings of Length N Problem: Given an integer N, print all binary strings of
+   * length N. Example: N = 2 → { "00", "01", "10", "11" }
+   *
+   * <p>✅ Key Concept: Either choose 0 or 1 at each step.
+   */
+  public static List<String> findAllBinaryStrings(int n) {
+    List<String> res = new ArrayList<>();
+    findAllBinaryStrings(res, new StringBuilder(), n);
+    return res;
+  }
+
+  private static void findAllBinaryStrings(List<String> list, StringBuilder sb, int n) {
+    if (sb.length() == n) {
+      list.add(sb.toString());
+      return;
+    }
+    for (var c : "01".toCharArray()) {
+      sb.append(c);
+      findAllBinaryStrings(list, sb, n);
+      sb.deleteCharAt(sb.length() - 1);
     }
   }
 

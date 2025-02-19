@@ -525,7 +525,7 @@ public class Arrays {
   public static int binarySearch(int[] nums, int target) {
     int low = 0, high = nums.length - 1;
     while (low <= high) {
-      var mid = (low + high) / 2;
+      var mid = low + (high - low) / 2;
       if (target == nums[mid]) {
         return mid;
       } else if (target < nums[mid]) {
@@ -1853,5 +1853,68 @@ public class Arrays {
       swap(nums, i, j);
     }
     reverse(nums, i + 1, n - 1);
+  }
+
+  /**
+   * Given a sorted array of distinct integers and a target value, return the index if the target is
+   * found. If not, return the index where it would be if it were inserted in order.
+   *
+   * <p>You must write an algorithm with O(log n) runtime complexity.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: nums = [1,3,5,6], target = 5 Output: 2 Example 2:
+   *
+   * <p>Input: nums = [1,3,5,6], target = 2 Output: 1 Example 3:
+   *
+   * <p>Input: nums = [1,3,5,6], target = 7 Output: 4
+   */
+  public static int searchInsertAssessment(int[] nums, int target) {
+    int low = 0, high = nums.length - 1;
+    while (low <= high) {
+      var mid = low + (high - low) / 2;
+      if (nums[mid] == target) return mid;
+      if (nums[mid] > target) high = mid - 1;
+      else low = mid + 1;
+    }
+    return low;
+  }
+
+  /**
+   * https://leetcode.com/problems/largest-time-for-given-digits/description/
+   *
+   * <p>Given an array arr of 4 digits, find the latest 24-hour time that can be made using each
+   * digit exactly once.
+   *
+   * <p>24-hour times are formatted as "HH:MM", where HH is between 00 and 23, and MM is between 00
+   * and 59. The earliest 24-hour time is 00:00, and the latest is 23:59.
+   *
+   * <p>Return the latest 24-hour time in "HH:MM" format. If no valid time can be made, return an
+   * empty string.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: arr = [1,2,3,4] Output: "23:41" Explanation: The valid 24-hour times are "12:34",
+   * "12:43", "13:24", "13:42", "14:23", "14:32", "21:34", "21:43", "23:14", and "23:41". Of these
+   * times, "23:41" is the latest. Example 2:
+   *
+   * <p>Input: arr = [5,5,5,5] Output: "" Explanation: There are no valid 24-hour times as "55:55"
+   * is not valid.
+   */
+  public static String largestTimeFromDigits(int[] arr) {
+    String ans = "";
+    for (int i = 0; i < 4; ++i) {
+      for (int j = 0; j < 4; ++j) {
+        for (int k = 0; k < 4; ++k) {
+          if (i == j || i == k || j == k) continue; // avoid duplicate among i, j & k.
+          String h = "" + arr[i] + arr[j],
+              m = "" + arr[k] + arr[6 - i - j - k],
+              t = h + ":" + m; // hour, minutes, & time.
+          if (h.compareTo("24") < 0 && m.compareTo("60") < 0 && ans.compareTo(t) < 0)
+            ans = t; // hour < 24; minute < 60; update result.
+        }
+      }
+    }
+    return ans;
   }
 }
