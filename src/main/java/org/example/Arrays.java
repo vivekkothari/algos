@@ -11,12 +11,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Stack;
 import java.util.TreeSet;
 
 public class Arrays {
 
   public static void main(String[] args) {
-    nextPermutation(new int[] {3, 1, 2});
+    nextGreaterElements(new int[] {1, 4, 2, 5, 4, 6, 3, 8});
+    System.out.println(
+        java.util.Arrays.toString(nextGreaterElement(new int[] {4, 1, 2}, new int[] {1, 3, 4, 2})));
+    //    nextPermutation(new int[] {3, 1, 2});
     //    System.out.println(Arrays.toString(twoSum(new int[] {3, 2, 4}, 6)));
     //    System.out.println(maxStockProfit(new int[] {7, 1, 5, 3, 6, 4}));
     //    var nums = new int[] {1, 2, 3, 0, 4, 0, 5};
@@ -504,6 +508,23 @@ public class Arrays {
     return expectedSum - actualSum;
   }
 
+  /**
+   * https://leetcode.com/problems/merge-intervals/ Given an array of intervals where intervals[i] =
+   * [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping
+   * intervals that cover all the intervals in the input.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: intervals = [[1,3],[2,6],[8,10],[15,18]] Output: [[1,6],[8,10],[15,18]] Explanation:
+   * Since intervals [1,3] and [2,6] overlap, merge them into [1,6]. Example 2:
+   *
+   * <p>Input: intervals = [[1,4],[4,5]] Output: [[1,5]] Explanation: Intervals [1,4] and [4,5] are
+   * considered overlapping.
+   *
+   * <p>Constraints:
+   *
+   * <p>1 <= intervals.length <= 104 intervals[i].length == 2 0 <= starti <= endi <= 104
+   */
   public static int[][] merge(int[][] intervals) {
     java.util.Arrays.sort(intervals, Comparator.comparingInt(a -> a[0]));
     // Step 2: Initialize the list to store the merged intervals
@@ -1855,5 +1876,87 @@ public class Arrays {
       }
     }
     return ans;
+  }
+
+  /**
+   * https://leetcode.com/problems/next-greater-element-i/?envType=problem-list-v2&envId=monotonic-stack
+   *
+   * <pre>
+   *   The next greater element of some element x in an array is the first greater element
+   *   that is to the right of x in the same array.
+   * You are given two distinct 0-indexed integer arrays nums1 and nums2, where nums1 is a subset of nums2.
+   *
+   * For each 0 <= i < nums1.length, find the index j such that nums1[i] == nums2[j] and
+   * determine the next greater element of nums2[j] in nums2. If there is no next greater element,
+   * then the answer for this query is -1.
+   *
+   * Return an array ans of length nums1.length such that ans[i] is the next greater element as
+   * described above.
+   *
+   * Example 1:
+   *
+   * Input: nums1 = [4,1,2], nums2 = [1,3,4,2]
+   * Output: [-1,3,-1]
+   * Explanation: The next greater element for each value of nums1 is as follows:
+   * - 4 is underlined in nums2 = [1,3,4,2]. There is no next greater element, so the answer is -1.
+   * - 1 is underlined in nums2 = [1,3,4,2]. The next greater element is 3.
+   * - 2 is underlined in nums2 = [1,3,4,2]. There is no next greater element, so the answer is -1.
+   * Example 2:
+   *
+   * Input: nums1 = [2,4], nums2 = [1,2,3,4]
+   * Output: [3,-1]
+   * Explanation: The next greater element for each value of nums1 is as follows:
+   * - 2 is underlined in nums2 = [1,2,3,4]. The next greater element is 3.
+   * - 4 is underlined in nums2 = [1,2,3,4]. There is no next greater element, so the answer is -1.
+   *
+   * </pre>
+   */
+  public static int[] nextGreaterElement(int[] nums1, int[] nums2) {
+    Map<Integer, Integer> mp = new HashMap<>();
+    Stack<Integer> s = new Stack<>();
+    // Find and store the Next greater element in array
+    for (int num : nums2) {
+      while (!s.isEmpty() && s.peek() < num) {
+        mp.put(s.pop(), num);
+      }
+      s.push(num);
+    }
+    // Reusing the nums1 array to store the Next greater element
+    for (int i = 0; i < nums1.length; i++) {
+      nums1[i] = mp.getOrDefault(nums1[i], -1);
+    }
+    return nums1;
+  }
+
+  /**
+   *
+   *
+   * <pre>
+   *   Next Greater Element (NGE)
+   * 📌 Problem: Given an array, find the next greater element for each element.
+   * 🔹 Example:
+   *
+   * text
+   * Copy
+   * Edit
+   * Input:  [2, 1, 5, 3]
+   * Output: [5, 5, -1, -1]  // -1 means no greater element exists
+   * </pre>
+   */
+  public static int[] nextGreaterElements(int[] nums) {
+    Stack<Integer> stack = new Stack<>();
+    var res = new int[nums.length];
+    java.util.Arrays.fill(res, -1);
+    for (int i = nums.length - 1; i >= 0; i--) {
+      var num = nums[i];
+      while (!stack.isEmpty() && stack.peek() <= num) {
+        stack.pop();
+      }
+      if (!stack.isEmpty()) {
+        res[i] = stack.peek();
+      }
+      stack.push(num);
+    }
+    return res;
   }
 }
