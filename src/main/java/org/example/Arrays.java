@@ -17,6 +17,8 @@ import java.util.TreeSet;
 public class Arrays {
 
   public static void main(String[] args) {
+    System.out.println(
+        java.util.Arrays.toString(dailyTemperatures(new int[] {30, 38, 30, 36, 35, 40, 28})));
     nextGreaterElements(new int[] {1, 4, 2, 5, 4, 6, 3, 8});
     System.out.println(
         java.util.Arrays.toString(nextGreaterElement(new int[] {4, 1, 2}, new int[] {1, 3, 4, 2})));
@@ -1956,6 +1958,38 @@ public class Arrays {
         res[i] = stack.peek();
       }
       stack.push(num);
+    }
+    return res;
+  }
+
+  /**
+   * https://neetcode.io/problems/daily-temperatures Daily Temperatures You are given an array of
+   * integers temperatures where temperatures[i] represents the daily temperatures on the ith day.
+   *
+   * <p>Return an array result where result[i] is the number of days after the ith day before a
+   * warmer temperature appears on a future day. If there is no day in the future where a warmer
+   * temperature will appear for the ith day, set result[i] to 0 instead.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: temperatures = [30,38,30,36,35,40,28]
+   *
+   * <p>Output: [1,4,1,2,1,0,0] Example 2:
+   *
+   * <p>Input: temperatures = [22,21,20]
+   *
+   * <p>Output: [0,0,0]
+   */
+  public static int[] dailyTemperatures(int[] temperatures) {
+    var res = new int[temperatures.length];
+    Stack<int[]> stack = new Stack<>(); // pair: [temp, index]
+    for (int i = 0; i < temperatures.length; i++) {
+      int t = temperatures[i];
+      while (!stack.isEmpty() && t > stack.peek()[0]) {
+        int[] pair = stack.pop();
+        res[pair[1]] = i - pair[1];
+      }
+      stack.push(new int[] {t, i});
     }
     return res;
   }

@@ -245,6 +245,7 @@ class Strings {
   }
 
   public static void main(String[] args) {
+    System.out.println(checkInclusion("ab", "eidbaooo"));
     System.out.println(minimizeConcatenatedLength(new String[] {"a", "bc", "c"}));
     //    System.out.println(wordPattern("abba", "dog dog dog dog"));
     //    System.out.println(checkRecord("LALL"));
@@ -1683,5 +1684,42 @@ class Strings {
 
   static boolean isInRange(LocalTime ts, LocalTime lowerBound, LocalTime upperBound) {
     return !ts.isBefore(lowerBound) && !ts.isAfter(upperBound);
+  }
+
+  /**
+   * https://leetcode.com/problems/permutation-in-string/ Given two strings s1 and s2, return true
+   * if s2 contains a permutation of s1, or false otherwise.
+   *
+   * <p>In other words, return true if one of s1's permutations is the substring of s2.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: s1 = "ab", s2 = "eidbaooo" Output: true Explanation: s2 contains one permutation of
+   * s1 ("ba"). Example 2:
+   *
+   * <p>Input: s1 = "ab", s2 = "eidboaoo" Output: false
+   */
+  public static boolean checkInclusion(String s1, String s2) {
+    if (s1.length() > s2.length()) {
+      return false;
+    }
+    Map<Character, Integer> s1Map = new HashMap<>();
+    Map<Character, Integer> s2Map = new HashMap<>();
+    for (int i = 0; i < s1.length(); i++) {
+      s1Map.put(s1.charAt(i), s1Map.getOrDefault(s1.charAt(i), 0) + 1);
+      s2Map.put(s2.charAt(i), s2Map.getOrDefault(s2.charAt(i), 0) + 1);
+    }
+    if (s1Map.equals(s2Map)) return true;
+    for (int r = s1.length(), l = 0; r < s2.length(); l++, r++) {
+      var rc = s2.charAt(r);
+      s2Map.put(rc, s2Map.getOrDefault(rc, 0) + 1);
+      var lc = s2.charAt(l);
+      s2Map.put(lc, s2Map.getOrDefault(lc, 0) - 1);
+      if (s2Map.get(lc) == 0) {
+        s2Map.remove(lc);
+      }
+      if (s1Map.equals(s2Map)) return true;
+    }
+    return false;
   }
 }
