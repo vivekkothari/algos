@@ -245,6 +245,7 @@ class Strings {
   }
 
   public static void main(String[] args) {
+    System.out.println(partitionLabels("ababcbacadefegdehijhklij"));
     System.out.println(checkInclusion("ab", "eidbaooo"));
     System.out.println(minimizeConcatenatedLength(new String[] {"a", "bc", "c"}));
     //    System.out.println(wordPattern("abba", "dog dog dog dog"));
@@ -1721,5 +1722,50 @@ class Strings {
       if (s1Map.equals(s2Map)) return true;
     }
     return false;
+  }
+
+  /**
+   * https://leetcode.com/problems/partition-labels/solutions/127422/partition-labels/
+   *
+   * <p>You are given a string s. We want to partition the string into as many parts as possible so
+   * that each letter appears in at most one part. For example, the string "ababcc" can be
+   * partitioned into ["abab", "cc"], but partitions such as ["aba", "bcc"] or ["ab", "ab", "cc"]
+   * are invalid.
+   *
+   * <p>Note that the partition is done so that after concatenating all the parts in order, the
+   * resultant string should be s.
+   *
+   * <p>Return a list of integers representing the size of these parts.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: s = "ababcbacadefegdehijhklij" Output: [9,7,8] Explanation: The partition is
+   * "ababcbaca", "defegde", "hijhklij". This is a partition so that each letter appears in at most
+   * one part. A partition like "ababcbacadefegde", "hijhklij" is incorrect, because it splits s
+   * into less parts. Example 2:
+   *
+   * <p>Input: s = "eccbbbbdec" Output: [10]
+   */
+  public static List<Integer> partitionLabels(String s) {
+    Map<Character, Integer> map = new HashMap<>();
+    // filling impact of character's
+    for (int i = 0; i < s.length(); i++) {
+      map.put(s.charAt(i), i);
+    }
+    // making of result
+    List<Integer> res = new ArrayList<>();
+    int prev = -1;
+    int max = 0;
+
+    for (int i = 0; i < s.length(); i++) {
+      char ch = s.charAt(i);
+      max = Math.max(max, map.get(ch));
+      if (max == i) {
+        // partition time
+        res.add(max - prev);
+        prev = max;
+      }
+    }
+    return res;
   }
 }

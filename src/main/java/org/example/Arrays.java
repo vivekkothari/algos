@@ -17,11 +17,15 @@ import java.util.TreeSet;
 public class Arrays {
 
   public static void main(String[] args) {
-    System.out.println(
-        java.util.Arrays.toString(dailyTemperatures(new int[] {30, 38, 30, 36, 35, 40, 28})));
-    nextGreaterElements(new int[] {1, 4, 2, 5, 4, 6, 3, 8});
-    System.out.println(
-        java.util.Arrays.toString(nextGreaterElement(new int[] {4, 1, 2}, new int[] {1, 3, 4, 2})));
+    dominantIndex(new int[] {3, 6, 1, 0});
+    System.out.println(findPivotIndex(new int[] {1, 7, 3, 6, 5, 6}));
+    //    maxSlidingWindow(new int[] {1, 3, -1, -3, 5, 3, 6, 7}, 3);
+    //    System.out.println(
+    //        java.util.Arrays.toString(dailyTemperatures(new int[] {30, 38, 30, 36, 35, 40, 28})));
+    //    nextGreaterElements(new int[] {1, 4, 2, 5, 4, 6, 3, 8});
+    //    System.out.println(
+    //        java.util.Arrays.toString(nextGreaterElement(new int[] {4, 1, 2}, new int[] {1, 3, 4,
+    // 2})));
     //    nextPermutation(new int[] {3, 1, 2});
     //    System.out.println(Arrays.toString(twoSum(new int[] {3, 2, 4}, 6)));
     //    System.out.println(maxStockProfit(new int[] {7, 1, 5, 3, 6, 4}));
@@ -70,7 +74,7 @@ public class Arrays {
     //    System.out.println(threeSumDifferent(new int[] {-1, 0, 1, 2, -1, -4}));
     //    System.out.println(threeSum(new int[] {-1, 0, 1, 2, -1, -4}));
     //    System.out.println(threeSumClosest(new int[] {1, 1, 1, 0}, -100));
-    System.out.println(kSum(new int[] {-1, 0, 1, 2, -1, -4}, 3, 0));
+    //    System.out.println(kSum(new int[] {-1, 0, 1, 2, -1, -4}, 3, 0));
     //    var nums = new int[] {1, 2, 3, 4, 5, 6, 7};
     //    rotateNoExtraSpace(nums, 3);
     //    System.out.println(java.util.Arrays.toString(nums));
@@ -785,7 +789,7 @@ public class Arrays {
 
   private static void mergeSort(int[] nums, int left, int right) {
     if (left >= right) return;
-    int mid = (left + right) / 2;
+    int mid = left + (right - left) / 2;
     mergeSort(nums, left, mid);
     mergeSort(nums, mid + 1, right);
     merge(nums, left, mid, right);
@@ -1992,5 +1996,153 @@ public class Arrays {
       stack.push(new int[] {t, i});
     }
     return res;
+  }
+
+  /**
+   * https://leetcode.com/problems/sliding-window-maximum/
+   *
+   * <pre>
+   *   You are given an array of integers nums, there is a sliding window of size k
+   *   which is moving from the very left of the array to the very right. You can only see
+   *   the k numbers in the window. Each time the sliding window moves right by one position.
+   *
+   * Return the max sliding window.
+   *
+   * Example 1:
+   *
+   * Input: nums = [1,3,-1,-3,5,3,6,7], k = 3
+   * Output: [3,3,5,5,6,7]
+   * Explanation:
+   * Window position                Max
+   * ---------------               -----
+   * [1  3  -1] -3  5  3  6  7       3
+   *  1 [3  -1  -3] 5  3  6  7       3
+   *  1  3 [-1  -3  5] 3  6  7       5
+   *  1  3  -1 [-3  5  3] 6  7       5
+   *  1  3  -1  -3 [5  3  6] 7       6
+   *  1  3  -1  -3  5 [3  6  7]      7
+   * Example 2:
+   *
+   * Input: nums = [1], k = 1
+   * Output: [1]
+   *
+   * Constraints:
+   *
+   * 1 <= nums.length <= 105
+   * -104 <= nums[i] <= 104
+   * 1 <= k <= nums.length
+   * </pre>
+   */
+  public static int[] maxSlidingWindow(int[] nums, int k) {
+    var res = new ArrayList<Integer>();
+    var deque = new LinkedList<Integer>();
+    for (int i = 0; i < nums.length; i++) {
+      var num = nums[i];
+      while (!deque.isEmpty() && deque.getLast() < num) {
+        deque.pollLast();
+      }
+      deque.addLast(num);
+      // We got past the first window, its time to start draining..
+      if (i >= k && nums[i - k] == deque.getFirst()) {
+        deque.pollFirst();
+      }
+
+      if (i >= k - 1) {
+        res.add(deque.getFirst());
+      }
+    }
+    return res.stream().mapToInt(i -> i).toArray();
+  }
+
+  /**
+   *
+   *
+   * <pre>
+   *   An axis-aligned rectangle is represented as a list [x1, y1, x2, y2],
+   *   where (x1, y1) is the coordinate of its bottom-left corner, and (x2, y2)
+   *   is the coordinate of its top-right corner. Its top and bottom edges are
+   *   parallel to the X-axis, and its left and right edges are parallel to the Y-axis.
+   *
+   * Two rectangles overlap if the area of their intersection is positive.
+   * To be clear, two rectangles that only touch at the corner or edges do not overlap.
+   *
+   * Given two axis-aligned rectangles rec1 and rec2, return true if they
+   * overlap, otherwise return false.
+   *
+   *
+   * Example 1:
+   *
+   * Input: rec1 = [0,0,2,2], rec2 = [1,1,3,3]
+   * Output: true
+   * Example 2:
+   *
+   * Input: rec1 = [0,0,1,1], rec2 = [1,0,2,1]
+   * Output: false
+   * Example 3:
+   *
+   * Input: rec1 = [0,0,1,1], rec2 = [2,2,3,3]
+   * Output: false
+   * </pre>
+   */
+  public static boolean isRectangleOverlap(int[] rec1, int[] rec2) {
+    // Check if one rectangle is to the left of the other
+    boolean isLeft = rec1[2] <= rec2[0] || rec2[2] <= rec1[0];
+
+    // Check if one rectangle is above the other
+    boolean isAbove = rec1[3] <= rec2[1] || rec2[3] <= rec1[1];
+
+    // If neither is true, the rectangles overlap
+    return !(isLeft || isAbove);
+  }
+
+  /**
+   * https://leetcode.com/problems/find-pivot-index/description/
+   *
+   * <p>https://leetcode.com/explore/learn/card/array-and-string/201/introduction-to-array/1144/
+   * Given an array of integers nums, calculate the pivot index of this array.
+   *
+   * <p>The pivot index is the index where the sum of all the numbers strictly to the left of the
+   * index is equal to the sum of all the numbers strictly to the index's right.
+   *
+   * <p>If the index is on the left edge of the array, then the left sum is 0 because there are no
+   * elements to the left. This also applies to the right edge of the array.
+   *
+   * <p>Return the leftmost pivot index. If no such index exists, return -1.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: nums = [1,7,3,6,5,6] Output: 3 Explanation: The pivot index is 3. Left sum = nums[0]
+   * + nums[1] + nums[2] = 1 + 7 + 3 = 11 Right sum = nums[4] + nums[5] = 5 + 6 = 11
+   */
+  public static int findPivotIndex(int[] nums) {
+    var n = nums.length - 1;
+    int[] sumLeft = new int[n + 1];
+    int[] sumRight = new int[n + 1];
+    for (int i = 0, j = n; i <= n; i++, j--) {
+      sumLeft[i] = sumLeft[i == 0 ? 0 : i - 1] + nums[i];
+      sumRight[j] = sumRight[j == n ? n : j + 1] + nums[j];
+    }
+    for (int i = 0; i <= n; i++) {
+      if (sumLeft[i] == sumRight[i]) return i;
+    }
+    return -1;
+  }
+
+  /** Largest Number At Least Twice of Others */
+  public static int dominantIndex(int[] nums) {
+    int m = -1, mIndex = -1;
+    for (int i = 0; i < nums.length; i++) {
+      if (m < nums[i]) {
+        m = nums[i];
+        mIndex = i;
+      }
+    }
+    // 3,6,1,0
+    for (int num : nums) {
+      if (num * 2 > m && m != num) {
+        return -1;
+      }
+    }
+    return mIndex;
   }
 }

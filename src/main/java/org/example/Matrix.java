@@ -5,14 +5,19 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.TreeMap;
 
 class Matrix {
 
   public static void main(String[] args) {
-    findCircleNum(new int[][] {{1, 0, 0, 1}, {0, 1, 1, 0}, {0, 1, 1, 1}, {1, 0, 1, 1}});
+    generateRecur(5);
+    //    System.out.println(
+    //        Arrays.toString(findDiagonalOrder(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}})));
+    //    findCircleNum(new int[][] {{1, 0, 0, 1}, {0, 1, 1, 0}, {0, 1, 1, 1}, {1, 0, 1, 1}});
     //    sortMatrix(new int[][] {{1, 7, 3}, {9, 8, 2}, {4, 5, 6}});
 
     //    networkDelayTime(new int[][] {{2, 1, 1}, {2, 3, 1}, {3, 4, 1}}, 4, 2);
@@ -20,7 +25,10 @@ class Matrix {
     //    System.out.println(
     //        shortestPathToTarget(new int[][] {{1, 3, 1}, {1, 2, 4}, {3, 4, 1}, {4, 2, 1}}, 4, 1,
     // 2));
-    generateMatrix(3);
+    //    var ints = generateMatrix(3);
+    //    spiralOrder(new int[][] {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}});
+
+    spiralMatrixIII(5, 6, 1, 4);
   }
 
   /**
@@ -75,6 +83,24 @@ class Matrix {
       }
     }
     return grid;
+  }
+
+  /** https://leetcode.com/problems/sort-the-matrix-diagonally/ */
+  public static int[][] diagonalSort(int[][] mat) {
+    var m = mat.length;
+    var n = mat[0].length;
+    Map<Integer, PriorityQueue<Integer>> diagonals = new HashMap<>();
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        diagonals.computeIfAbsent(i - j, k -> new PriorityQueue<>()).offer(mat[i][j]);
+      }
+    }
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        mat[i][j] = diagonals.get(i - j).remove();
+      }
+    }
+    return mat;
   }
 
   /**
@@ -256,5 +282,164 @@ class Matrix {
         findCircleNumDfs(i, visit, otherCities);
       }
     }
+  }
+
+  public static int[] findDiagonalOrder(int[][] mat) {
+    var m = mat.length;
+    var n = mat[0].length;
+    Map<Integer, List<Integer>> map = new TreeMap<>();
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        var list = map.computeIfAbsent(i + j, k -> new LinkedList<>());
+        if ((i + j) % 2 == 0) {
+          list.addFirst(mat[i][j]);
+        } else {
+          list.addLast(mat[i][j]);
+        }
+      }
+    }
+    return map.values().stream().flatMap(List::stream).mapToInt(i -> i).toArray();
+  }
+
+  /**
+   * https://leetcode.com/problems/spiral-matrix/
+   *
+   * <pre>
+   * Given an m x n matrix, return all elements of the matrix in spiral order.
+   * Input: matrix = [[1,2,3],[4,5,6],[7,8,9]]
+   * Output: [1,2,3,6,9,8,7,4,5]
+   * <img src="https://assets.leetcode.com/uploads/2020/11/13/spiral1.jpg"></img>
+   * </pre>
+   */
+  public static List<Integer> spiralOrder(int[][] matrix) {
+    int m = matrix.length;
+    int n = matrix[0].length;
+    List<Integer> res = new ArrayList<>();
+    int minCol = 0;
+    int maxCol = n - 1;
+    int minRow = 0;
+    int maxRow = m - 1;
+    var total = m * n;
+    while (res.size() < total) {
+      for (int i = minCol; i <= maxCol; i++) {
+        res.add(matrix[minRow][i]);
+      }
+      minRow++;
+      for (int i = minRow; i <= maxRow; i++) {
+        res.add(matrix[i][maxCol]);
+      }
+      maxCol--;
+      if (res.size() < total) {
+        for (int i = maxCol; i >= minCol; i--) {
+          res.add(matrix[maxRow][i]);
+        }
+        maxRow--;
+      }
+      if (res.size() < total) {
+        for (int i = maxRow; i >= minRow; i--) {
+          res.add(matrix[i][minCol]);
+        }
+        minCol++;
+      }
+    }
+    return res;
+  }
+
+  /**
+   * https://leetcode.com/problems/spiral-matrix-iii/description/
+   *
+   * <pre>
+   *   You start at the cell (rStart, cStart) of an rows x cols grid facing east. The northwest corner is at the first row and column in the grid, and the southeast corner is at the last row and column.
+   *
+   * You will walk in a clockwise spiral shape to visit every position in this grid. Whenever you move outside the grid's boundary, we continue our walk outside the grid (but may return to the grid boundary later.). Eventually, we reach all rows * cols spaces of the grid.
+   *
+   * Return an array of coordinates representing the positions of the grid in the order you visited them.
+   * <img src="https://s3-lc-upload.s3.amazonaws.com/uploads/2018/08/24/example_2.png"></img>
+   *
+   * Input: rows = 5, cols = 6, rStart = 1, cStart = 4
+   * Output: [[1,4],[1,5],[2,5],[2,4],[2,3],[1,3],[0,3],[0,4],[0,5],[3,5],[3,4],[3,3],[3,2],[2,2],
+   * [1,2],[0,2],[4,5],[4,4],[4,3],[4,2],[4,1],[3,1],[2,1],
+   * [1,1],[0,1],[4,0],[3,0],[2,0],[1,0],[0,0]]
+   * </pre>
+   */
+  public static int[][] spiralMatrixIII(int rows, int cols, int rStart, int cStart) {
+    int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    int numSteps = 1;
+    int totalCells = rows * cols;
+    List<int[]> result = new ArrayList<>();
+    int r = rStart, c = cStart;
+    int d = 0;
+
+    while (result.size() < totalCells) {
+      for (int i = 0; i < 2; i++) {
+        for (int j = 0; j < numSteps; j++) {
+          if (0 <= r && r < rows && 0 <= c && c < cols) {
+            result.add(new int[] {r, c});
+          }
+          if (result.size() == totalCells) {
+            return result.toArray(int[][]::new);
+          }
+          r += directions[d][0];
+          c += directions[d][1];
+        }
+        d = (d + 1) % 4;
+      }
+      numSteps++;
+    }
+    return result.toArray(int[][]::new);
+  }
+
+  /**
+   * Pascals triangle.
+   *
+   * <p><img
+   * src="https://upload.wikimedia.org/wikipedia/commons/0/0d/PascalTriangleAnimated2.gif"></img>
+   */
+  public static List<List<Integer>> generate(int numRows) {
+    if (numRows == 0) return List.of();
+    List<List<Integer>> res = new ArrayList<>();
+    res.add(List.of(1));
+    if (numRows == 1) return res;
+    res.add(List.of(1, 1));
+    if (numRows == 2) return res;
+
+    for (int i = 2; i < numRows; i++) {
+      var lastRow = res.get(i - 1);
+      var thisRowSize = lastRow.size() + 1;
+      var temp = new ArrayList<Integer>();
+      for (int j = 0, k = 0; j < thisRowSize && k + 1 < lastRow.size(); j++) {
+        if (j == 0) {
+          temp.add(1);
+        } else {
+          temp.add(lastRow.get(k) + lastRow.get(k + 1));
+          k++;
+        }
+      }
+      temp.add(1);
+      res.add(temp);
+    }
+    return res;
+  }
+
+  public static List<List<Integer>> generateRecur(int numRows) {
+    if (numRows == 0) return new ArrayList<>();
+    if (numRows == 1) {
+      List<List<Integer>> result = new ArrayList<>();
+      result.add(List.of(1));
+      return result;
+    }
+    var prevRows = generateRecur(numRows - 1);
+    var newRow = new ArrayList<Integer>();
+    for (int i = 0; i < numRows; i++) {
+      if (i == 0 || i == numRows - 1) {
+        newRow.add(1);
+      } else {
+        // we do - 2 because of 2 recursive base cases
+        var prevRow = prevRows.get(numRows - 2);
+        newRow.add(i, prevRow.get(i - 1) + prevRow.get(i));
+      }
+    }
+    prevRows.add(newRow);
+    return prevRows;
   }
 }
