@@ -14,6 +14,20 @@ import java.util.TreeMap;
 class Matrix {
 
   public static void main(String[] args) {
+    //    System.out.println(
+    //        searchMatrixOptimised(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}},
+    // 3));
+    System.out.println(
+        searchMatrixOptimised(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 13));
+    System.out.println(
+        searchMatrixOptimised(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 10));
+
+    System.out.println(
+        searchMatrix(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 3));
+    System.out.println(
+        searchMatrix(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 13));
+    System.out.println(
+        searchMatrix(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 10));
     generateRecur(5);
     //    System.out.println(
     //        Arrays.toString(findDiagonalOrder(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}})));
@@ -441,5 +455,41 @@ class Matrix {
     }
     prevRows.add(newRow);
     return prevRows;
+  }
+
+  /**
+   * https://neetcode.io/problems/search-2d-matrix Input: matrix =
+   * [[1,2,4,8],[10,11,12,13],[14,20,30,40]], target = 10
+   *
+   * <p>Output: true <img
+   * src="https://imagedelivery.net/CLfkmk9Wzy8_9HRyug4EVA/7ca61f56-00d4-4fa0-26cf-56809028ac00/public"/>
+   */
+  public static boolean searchMatrix(int[][] matrix, int target) {
+    // This is O(m * log(n))
+    for (int[] ints : matrix) {
+      var exists = Arrays.binarySearch(ints, target) >= 0;
+      if (exists) return true;
+    }
+    return false;
+  }
+
+  public static boolean searchMatrixOptimised(int[][] matrix, int target) {
+    int m = matrix.length;
+    int n = matrix[0].length;
+    int l = 0, r = m * n - 1;
+    while (l <= r) {
+      int mid = l + (r - l) / 2;
+      var row = mid / n;
+      var col = mid % n;
+      var cell = matrix[row][col];
+      if (target == cell) {
+        return true;
+      } else if (target < cell) {
+        r = mid - 1;
+      } else {
+        l = mid + 1;
+      }
+    }
+    return false;
   }
 }
