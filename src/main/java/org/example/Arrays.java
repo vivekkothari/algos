@@ -17,6 +17,7 @@ import java.util.TreeSet;
 public class Arrays {
 
   public static void main(String[] args) {
+    trapOptimised(new int[] {0, 2, 0, 3, 1, 0, 1, 3, 2, 1});
     dominantIndex(new int[] {3, 6, 1, 0});
     System.out.println(findPivotIndex(new int[] {1, 7, 3, 6, 5, 6}));
     //    maxSlidingWindow(new int[] {1, 3, -1, -3, 5, 3, 6, 7}, 3);
@@ -1986,14 +1987,13 @@ public class Arrays {
    */
   public static int[] dailyTemperatures(int[] temperatures) {
     var res = new int[temperatures.length];
-    Stack<int[]> stack = new Stack<>(); // pair: [temp, index]
+    Stack<Integer> stack = new Stack<>(); // [index]
     for (int i = 0; i < temperatures.length; i++) {
-      int t = temperatures[i];
-      while (!stack.isEmpty() && t > stack.peek()[0]) {
-        int[] pair = stack.pop();
-        res[pair[1]] = i - pair[1];
+      while (!stack.isEmpty() && temperatures[i] > temperatures[stack.peek()]) {
+        var idx = stack.pop();
+        res[idx] = i - idx;
       }
-      stack.push(new int[] {t, i});
+      stack.push(i);
     }
     return res;
   }
@@ -2144,5 +2144,67 @@ public class Arrays {
       }
     }
     return mIndex;
+  }
+
+  /**
+   * https://neetcode.io/problems/trapping-rain-water
+   *
+   * <pre>
+   *   You are given an array non-negative integers height which represent
+   *   an elevation map. Each value height[i] represents the height of a bar, which has a width of 1.
+   *
+   * Return the maximum area of water that can be trapped between the bars.
+   * </pre>
+   *
+   * <img
+   * src="https://imagedelivery.net/CLfkmk9Wzy8_9HRyug4EVA/0c25cb81-1095-4382-fff2-6ef77c1fd100/public"></img>
+   * Input: height = [0,2,0,3,1,0,1,3,2,1]
+   *
+   * <p>Output: 9
+   */
+  public static int trap(int[] height) {
+    // [0,2,2,5,6,6,7,10,12,13]
+    // [13,13,11,11,8,7,7,6,3,1]
+    int n = height.length;
+    if (n == 0) {
+      return 0;
+    }
+    int[] leftMax = new int[n];
+    int[] rightMax = new int[n];
+
+    leftMax[0] = height[0];
+    for (int i = 1; i < n; i++) {
+      leftMax[i] = Math.max(leftMax[i - 1], height[i]);
+    }
+
+    rightMax[n - 1] = height[n - 1];
+    for (int i = n - 2; i >= 0; i--) {
+      rightMax[i] = Math.max(rightMax[i + 1], height[i]);
+    }
+
+    int res = 0;
+    for (int i = 0; i < n; i++) {
+      res += Math.min(leftMax[i], rightMax[i]) - height[i];
+    }
+    return res;
+  }
+
+  public static int trapOptimised(int[] height) {
+    int leftMax = height[0];
+    int rightMax = height[height.length - 1];
+    int l = 0, r = height.length - 1;
+    int water = 0;
+    while (l < r) {
+      if (leftMax < rightMax) {
+        l++;
+        leftMax = Math.max(leftMax, height[l]);
+        water += leftMax - height[l];
+      } else {
+        r--;
+        rightMax = Math.max(rightMax, height[r]);
+        water += rightMax - height[r];
+      }
+    }
+    return water;
   }
 }
