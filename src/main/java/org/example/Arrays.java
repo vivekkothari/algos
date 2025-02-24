@@ -17,9 +17,10 @@ import java.util.TreeSet;
 public class Arrays {
 
   public static void main(String[] args) {
-    trapOptimised(new int[] {0, 2, 0, 3, 1, 0, 1, 3, 2, 1});
-    dominantIndex(new int[] {3, 6, 1, 0});
-    System.out.println(findPivotIndex(new int[] {1, 7, 3, 6, 5, 6}));
+    System.out.println(searchSortedRotated(new int[] {1}, 1));
+    //    trapOptimised(new int[] {0, 2, 0, 3, 1, 0, 1, 3, 2, 1});
+    //    dominantIndex(new int[] {3, 6, 1, 0});
+    //    System.out.println(findPivotIndex(new int[] {1, 7, 3, 6, 5, 6}));
     //    maxSlidingWindow(new int[] {1, 3, -1, -3, 5, 3, 6, 7}, 3);
     //    System.out.println(
     //        java.util.Arrays.toString(dailyTemperatures(new int[] {30, 38, 30, 36, 35, 40, 28})));
@@ -191,8 +192,12 @@ public class Arrays {
     java.util.Arrays.sort(nums);
     List<List<Integer>> triplets = new ArrayList<>();
     for (int i = 0; i < nums.length; i++) {
-      if (nums[i] > 0) break;
-      if (i > 0 && nums[i] == nums[i - 1]) continue;
+      if (nums[i] > 0) {
+        break;
+      }
+      if (i > 0 && nums[i] == nums[i - 1]) {
+        continue;
+      }
 
       int l = i + 1, r = nums.length - 1;
       while (l < r) {
@@ -277,8 +282,11 @@ public class Arrays {
           minDiff = diff;
           ans = sum;
         }
-        if (sum < target) j++;
-        else k--;
+        if (sum < target) {
+          j++;
+        } else {
+          k--;
+        }
       }
     }
     return ans;
@@ -643,7 +651,9 @@ public class Arrays {
     }
     // bucket sort on freq
     List<Integer>[] bucket = new List[nums.length + 1];
-    for (int i = 0; i < bucket.length; i++) bucket[i] = new ArrayList<>();
+    for (int i = 0; i < bucket.length; i++) {
+      bucket[i] = new ArrayList<>();
+    }
     for (int key : freq.keySet()) {
       bucket[freq.get(key)].add(key);
     }
@@ -651,7 +661,9 @@ public class Arrays {
     List<Integer> res = new ArrayList<>();
     for (int i = bucket.length - 1; i >= 0; i--) {
       res.addAll(bucket[i]);
-      if (res.size() >= k) break;
+      if (res.size() >= k) {
+        break;
+      }
     }
     return res.stream().limit(k).mapToInt(Integer::intValue).toArray();
   }
@@ -789,7 +801,9 @@ public class Arrays {
   }
 
   private static void mergeSort(int[] nums, int left, int right) {
-    if (left >= right) return;
+    if (left >= right) {
+      return;
+    }
     int mid = left + (right - left) / 2;
     mergeSort(nums, left, mid);
     mergeSort(nums, mid + 1, right);
@@ -1040,7 +1054,9 @@ public class Arrays {
   public static List<Boolean> kidsWithCandies(int[] candies, int extraCandies) {
     int max = -1;
     for (var candy : candies) {
-      if (max < candy) max = candy;
+      if (max < candy) {
+        max = candy;
+      }
     }
     var res = new ArrayList<Boolean>(candies.length);
     for (int candy : candies) {
@@ -1196,7 +1212,9 @@ public class Arrays {
     for (int r = 0; r < 9; r++) {
       for (int c = 0; c < 9; c++) {
         var element = board[r][c];
-        if (element == '.') continue;
+        if (element == '.') {
+          continue;
+        }
         String squareKey = (r / 3) + "," + (c / 3);
         if (rows.computeIfAbsent(r, k -> new HashSet<>()).contains(element)
             || cols.computeIfAbsent(c, k -> new HashSet<>()).contains(element)
@@ -1237,9 +1255,14 @@ public class Arrays {
     int l = 0, r = nums.length - 1;
     while (l <= r) {
       var m = l + (r - l) / 2;
-      if (nums[m] == target) return m;
-      if (nums[m] > target) r = m - 1;
-      else l = m + 1;
+      if (nums[m] == target) {
+        return m;
+      }
+      if (nums[m] > target) {
+        r = m - 1;
+      } else {
+        l = m + 1;
+      }
     }
     return l;
   }
@@ -1305,9 +1328,13 @@ public class Arrays {
     // Base cases: If there are 0 or 1 stairs,
     // there is only one way to reach the top.
     // If n < 0, it means this is not a valid way so return 0
-    if (n < 0) return 0;
+    if (n < 0) {
+      return 0;
+    }
     // If n = 0, it means we have reached the bottom, so return 1
-    if (n == 0) return 1;
+    if (n == 0) {
+      return 1;
+    }
     if (memo.containsKey(n)) {
       return memo.get(n);
     }
@@ -1688,8 +1715,12 @@ public class Arrays {
         if (sum == target) {
           res.add(List.of(nums[left], nums[right]));
           // Skip duplicates
-          while (left < right && nums[left] == nums[left + 1]) left++;
-          while (left < right && nums[right] == nums[right - 1]) right--;
+          while (left < right && nums[left] == nums[left + 1]) {
+            left++;
+          }
+          while (left < right && nums[right] == nums[right - 1]) {
+            right--;
+          }
           left++;
           right--;
         } else if (sum < target) {
@@ -1702,7 +1733,9 @@ public class Arrays {
     }
     for (int i = start; i <= n - k; i++) {
       // Skip duplicate elements
-      if (i > start && nums[i] == nums[i - 1]) continue;
+      if (i > start && nums[i] == nums[i - 1]) {
+        continue;
+      }
 
       // Recursive call for (k-1)-Sum
       List<List<Integer>> subResults = kSumHelper(nums, k - 1, target - nums[i], i + 1);
@@ -1840,9 +1873,14 @@ public class Arrays {
     int low = 0, high = nums.length - 1;
     while (low <= high) {
       var mid = low + (high - low) / 2;
-      if (nums[mid] == target) return mid;
-      if (nums[mid] > target) high = mid - 1;
-      else low = mid + 1;
+      if (nums[mid] == target) {
+        return mid;
+      }
+      if (nums[mid] > target) {
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
     }
     return low;
   }
@@ -1873,12 +1911,15 @@ public class Arrays {
     for (int i = 0; i < 4; ++i) {
       for (int j = 0; j < 4; ++j) {
         for (int k = 0; k < 4; ++k) {
-          if (i == j || i == k || j == k) continue; // avoid duplicate among i, j & k.
+          if (i == j || i == k || j == k) {
+            continue; // avoid duplicate among i, j & k.
+          }
           String h = "" + arr[i] + arr[j],
               m = "" + arr[k] + arr[6 - i - j - k],
               t = h + ":" + m; // hour, minutes, & time.
-          if (h.compareTo("24") < 0 && m.compareTo("60") < 0 && ans.compareTo(t) < 0)
+          if (h.compareTo("24") < 0 && m.compareTo("60") < 0 && ans.compareTo(t) < 0) {
             ans = t; // hour < 24; minute < 60; update result.
+          }
         }
       }
     }
@@ -2123,7 +2164,9 @@ public class Arrays {
       sumRight[j] = sumRight[j == n ? n : j + 1] + nums[j];
     }
     for (int i = 0; i <= n; i++) {
-      if (sumLeft[i] == sumRight[i]) return i;
+      if (sumLeft[i] == sumRight[i]) {
+        return i;
+      }
     }
     return -1;
   }
@@ -2206,5 +2249,75 @@ public class Arrays {
       }
     }
     return water;
+  }
+
+  /**
+   * https://neetcode.io/problems/find-minimum-in-rotated-sorted-array
+   *
+   * <pre>
+   *   Find min in a rotated sorted array.
+   * </pre>
+   */
+  public static int findMin(int[] nums) {
+    int l = 0, r = nums.length - 1;
+    int min = nums[0];
+    while (l <= r) {
+      if (nums[l] < nums[r]) {
+        min = Math.min(min, nums[l]);
+        break;
+      }
+      var m = l + (r - l) / 2;
+      min = Math.min(min, nums[m]);
+      if (nums[m] >= nums[l]) {
+        l = m + 1;
+      } else {
+        r = m - 1;
+      }
+    }
+    return min;
+  }
+
+  public static int searchSortedRotated(int[] nums, int target) {
+    int l = 0, r = nums.length - 1;
+    while (l < r) {
+      int m = l + (r - l) / 2;
+      if (nums[m] > nums[r]) {
+        l = m + 1;
+      } else {
+        r = m;
+      }
+    }
+    var i = java.util.Arrays.binarySearch(nums, 0, l, target);
+    if (i >= 0) {
+      return i;
+    }
+    i = java.util.Arrays.binarySearch(nums, l, nums.length, target);
+    return i < 0 ? -1 : i;
+  }
+
+  /** https://neetcode.io/problems/find-target-in-rotated-sorted-array */
+  public static int searchSortedRotatedOptimised(int[] nums, int target) {
+    // 3, 4, 5, 6, 1, 2 : target: 1
+    int l = 0, r = nums.length - 1;
+    while (l <= r) {
+      var m = l + (r - l) / 2;
+      if (nums[m] == target) {
+        return m;
+      }
+      if (nums[l] <= nums[m]) {
+        if (target > nums[m] || target < nums[l]) {
+          l = m + 1;
+        } else {
+          r = m - 1;
+        }
+      } else {
+        if (target < nums[m] || target > nums[r]) {
+          r = m - 1;
+        } else {
+          l = m + 1;
+        }
+      }
+    }
+    return -1;
   }
 }

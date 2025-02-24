@@ -10,7 +10,10 @@ class Algos {
     //    System.out.println(binarySearchRecur(largeArray, 10));
     //    System.out.println(powmod(999999999, 999999999, 6));
     //    System.out.println(pow(2.1, 3));
-    System.out.println(binarySearch(new int[] {-1, 0, 2, 4, 6, 8}, 4));
+    //    System.out.println(binarySearch(new int[] {-1, 0, 2, 4, 6, 8}, 4));
+    var nums = new int[] {-1, 0, 2, 4, 6, 8};
+    System.out.println(nums[floor(nums, 7)]);
+    System.out.println(nums[ceil(nums, 7)]);
   }
 
   private static int binarySearch(int[] nums, int target) {
@@ -28,6 +31,46 @@ class Algos {
       }
     }
     return -1;
+  }
+
+  /**
+   * The ceiling of x is the smallest element in the array greater than or equal to x( i.e. smallest
+   * element in the array >= x).
+   */
+  private static int ceil(int[] nums, int target) {
+    var high = nums.length - 1;
+    var low = 0;
+    int res = -1;
+    while (low <= high) {
+      var mid = low + (high - low) / 2;
+      if (target <= nums[mid]) {
+        high = mid - 1;
+        res = mid;
+      } else {
+        low = mid + 1;
+      }
+    }
+    return res;
+  }
+
+  /**
+   * The floor of x is the largest element in the array which is smaller than or equal to x( i.e.
+   * largest element in the array <= x).
+   */
+  private static int floor(int[] nums, int target) {
+    var high = nums.length - 1;
+    var low = 0;
+    int res = -1;
+    while (low <= high) {
+      var mid = low + (high - low) / 2;
+      if (target >= nums[mid]) {
+        low = mid + 1;
+        res = mid;
+      } else {
+        high = mid - 1;
+      }
+    }
+    return res;
   }
 
   static int powmod(int x, int n, int d) {
