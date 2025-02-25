@@ -245,9 +245,10 @@ class Strings {
   }
 
   public static void main(String[] args) {
-    System.out.println(partitionLabels("ababcbacadefegdehijhklij"));
-    System.out.println(checkInclusion("ab", "eidbaooo"));
-    System.out.println(minimizeConcatenatedLength(new String[] {"a", "bc", "c"}));
+    isSubsequence("abc", "ahbgdc");
+    //    System.out.println(partitionLabels("ababcbacadefegdehijhklij"));
+    //    System.out.println(checkInclusion("ab", "eidbaooo"));
+    //    System.out.println(minimizeConcatenatedLength(new String[] {"a", "bc", "c"}));
     //    System.out.println(wordPattern("abba", "dog dog dog dog"));
     //    System.out.println(checkRecord("LALL"));
     //    System.out.println(longestCommonPrefix(new String[] {"flower", "flow"}));
@@ -1767,5 +1768,84 @@ class Strings {
       }
     }
     return res;
+  }
+
+  public int romanToInt(String s) {
+    int res = 0;
+    Map<Character, Integer> roman = new HashMap<>();
+    roman.put('I', 1);
+    roman.put('V', 5);
+    roman.put('X', 10);
+    roman.put('L', 50);
+    roman.put('C', 100);
+    roman.put('D', 500);
+    roman.put('M', 1000);
+
+    for (int i = 0; i < s.length() - 1; i++) {
+      if (roman.get(s.charAt(i)) < roman.get(s.charAt(i + 1))) {
+        res -= roman.get(s.charAt(i));
+      } else {
+        res += roman.get(s.charAt(i));
+      }
+    }
+
+    return res + roman.get(s.charAt(s.length() - 1));
+  }
+
+  public static boolean isSubsequence(String s, String t) {
+    int l = 0, r = 0;
+    while (l < s.length() && r < t.length()) {
+      if (s.charAt(l) == t.charAt(r)) {
+        l++;
+      }
+      r++;
+    }
+    return l == s.length();
+  }
+
+  /** https://leetcode.com/problems/jewels-and-stones/ */
+  public static int numJewelsInStones(String jewels, String stones) {
+    Map<Character, Integer> stoneFreq = new HashMap<>();
+    for (var s : stones.toCharArray()) {
+      stoneFreq.put(s, stoneFreq.getOrDefault(s, 0) + 1);
+    }
+    int counter = 0;
+    for (var j : jewels.toCharArray()) {
+      counter += stoneFreq.getOrDefault(j, 0);
+    }
+    return counter;
+  }
+
+  /** https://leetcode.com/problems/ransom-note/ */
+  public boolean canConstruct(String ransomNote, String magazine) {
+    Map<Character, Integer> magFreqMap = new HashMap<>();
+    for (var c : magazine.toCharArray()) {
+      magFreqMap.put(c, magFreqMap.getOrDefault(c, 0) + 1);
+    }
+    for (var c : ransomNote.toCharArray()) {
+      var count = magFreqMap.getOrDefault(c, 0);
+      if (count == 0) {
+        return false;
+      }
+      magFreqMap.put(c, count - 1);
+    }
+    return true;
+  }
+
+  public int maxNumberOfBalloons(String text) {
+    int[] freqCounter = new int[26];
+    for (var c : text.toCharArray()) {
+      freqCounter[c - 'a']++;
+    }
+
+    var bCount = freqCounter['b' - 'a'];
+    var aCount = freqCounter['a' - 'a'];
+    var lCount = freqCounter['l' - 'a'];
+    var oCount = freqCounter['o' - 'a'];
+    var nCount = freqCounter['n' - 'a'];
+    if (bCount == 0 || aCount == 0 || lCount == 0 || oCount == 0 || nCount == 0) {
+      return 0;
+    }
+    return Math.min(Math.min(bCount, aCount), Math.min(lCount / 2, Math.min(oCount / 2, nCount)));
   }
 }

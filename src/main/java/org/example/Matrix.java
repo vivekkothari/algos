@@ -14,6 +14,7 @@ import java.util.TreeMap;
 class Matrix {
 
   public static void main(String[] args) {
+    rotate(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
     //    System.out.println(
     //        searchMatrixOptimised(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}},
     // 3));
@@ -491,5 +492,34 @@ class Matrix {
       }
     }
     return false;
+  }
+
+  public static void rotate(int[][] matrix) {
+    int n = matrix.length;
+    for (int i = 0; i < n; i++) {
+      for (int j = i + 1; j < n; j++) {
+        swap(matrix, i, j, j, i);
+      }
+    }
+    for (int[] ints : matrix) {
+      reverseArray(ints);
+    }
+  }
+
+  static void reverseArray(int[] row) {
+    int i = 0, j = row.length - 1;
+    while (i < j) {
+      var temp = row[i];
+      row[i] = row[j];
+      row[j] = temp;
+      i++;
+      j--;
+    }
+  }
+
+  static void swap(int[][] matrix, int i1, int j1, int i2, int j2) {
+    var temp = matrix[i1][j1];
+    matrix[i1][j1] = matrix[i2][j2];
+    matrix[i2][j2] = temp;
   }
 }

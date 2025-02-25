@@ -1,7 +1,5 @@
 package org.example;
 
-import static java.lang.Math.max;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -17,7 +15,9 @@ import java.util.TreeSet;
 public class Arrays {
 
   public static void main(String[] args) {
-    System.out.println(searchSortedRotated(new int[] {1}, 1));
+    //    System.out.println(summaryRanges(new int[] {0, 1, 2, 4, 5, 7, 8}));
+    //    System.out.println(findClosestNumber(new int[] {-4, -2, 1, 4, 8}));
+    //    System.out.println(searchSortedRotated(new int[] {1}, 1));
     //    trapOptimised(new int[] {0, 2, 0, 3, 1, 0, 1, 3, 2, 1});
     //    dominantIndex(new int[] {3, 6, 1, 0});
     //    System.out.println(findPivotIndex(new int[] {1, 7, 3, 6, 5, 6}));
@@ -38,8 +38,8 @@ public class Arrays {
     //    System.out.println(maxSubArray(new int[] {-2, 1, -3, 4, -1, 2, 1, -5, 4}));
     //    System.out.println(
     //        Arrays.toString(productExceptSelfUsingDivision(new int[] {-1, 1, 0, -3, 3})));
-    //    System.out.println(
-    //        Arrays.toString(productExceptSelfWithoutDivision(new int[] {-1, 1, 0, -3, 3})));
+    System.out.println(
+        java.util.Arrays.toString(productExceptSelfWithoutDivision(new int[] {1, 2, 3, 4})));
     //    System.out.println(
     //        java.util.Arrays.deepToString(merge(new int[][] {{1, 3}, {2, 6}, {8, 10}, {15,
     // 18}})));
@@ -298,7 +298,7 @@ public class Arrays {
     for (var todaysPrice : stockPrices) {
       minPrice = Math.min(minPrice, todaysPrice);
       var currentProfit = todaysPrice - minPrice;
-      maxProfit = max(maxProfit, currentProfit);
+      maxProfit = Math.max(maxProfit, currentProfit);
     }
     return maxProfit;
   }
@@ -447,8 +447,8 @@ public class Arrays {
     var maxSum = 0;
     var currentSum = nums[0];
     for (int i = 1; i < nums.length; i++) {
-      currentSum = max(nums[i], currentSum + nums[i]);
-      maxSum = max(maxSum, currentSum);
+      currentSum = Math.max(nums[i], currentSum + nums[i]);
+      maxSum = Math.max(maxSum, currentSum);
     }
     return maxSum;
   }
@@ -551,7 +551,7 @@ public class Arrays {
         merged.add(interval);
       } else {
         // If overlap, merge by updating the end of the last interval
-        merged.getLast()[1] = max(merged.getLast()[1], interval[1]);
+        merged.getLast()[1] = Math.max(merged.getLast()[1], interval[1]);
       }
     }
     // Step 4: Convert the list to a 2D array and return it
@@ -1151,7 +1151,8 @@ public class Arrays {
     var maxArea = 0;
     int l = 0, r = heights.length - 1;
     while (l < r) {
-      maxArea = max(maxArea, Math.min(heights[l], heights[r]) * (r - l));
+      var minHeight = Math.min(heights[l], heights[r]);
+      maxArea = Math.max(maxArea, minHeight * (r - l));
       if (heights[l] > heights[r]) {
         r--;
       } else {
@@ -1199,7 +1200,7 @@ public class Arrays {
         while (items.contains(num + length)) {
           length++;
         }
-        longest = max(longest, length);
+        longest = Math.max(longest, length);
       }
     }
     return longest;
@@ -1390,7 +1391,7 @@ public class Arrays {
     if (i >= nums.length) {
       return 0;
     }
-    var max = max(nums[i] + rob(nums, i + 2, memo), rob(nums, i + 1, memo));
+    var max = Math.max(nums[i] + rob(nums, i + 2, memo), rob(nums, i + 1, memo));
     memo.put(i, max);
     return max;
   }
@@ -1698,6 +1699,16 @@ public class Arrays {
       }
     }
     return res;
+  }
+
+  public boolean containsDuplicateSet(int[] nums) {
+    Set<Integer> seen = new HashSet<>();
+    for (var num : nums) {
+      if (!seen.add(num)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public static List<List<Integer>> kSum(int[] nums, int k, int target) {
@@ -2319,5 +2330,83 @@ public class Arrays {
       }
     }
     return -1;
+  }
+
+  /** https://leetcode.com/problems/find-closest-number-to-zero/ */
+  public static int findClosestNumber(int[] nums) {
+    int res = Integer.MIN_VALUE;
+    int minDistanceToZero = Integer.MAX_VALUE;
+    // [2,-1,1]
+    for (var num : nums) {
+      var currMin = Math.min(minDistanceToZero, Math.abs(num));
+      if (currMin < minDistanceToZero) {
+        // Min has changed
+        minDistanceToZero = Math.abs(currMin);
+        res = num;
+      } else if (currMin == minDistanceToZero && res + num == 0) {
+        res = Math.max(res, num);
+      }
+    }
+    return res;
+  }
+
+  /**
+   * https://leetcode.com/problems/summary-ranges/
+   *
+   * <pre>
+   *   Example 1:
+   *
+   * Input: nums = [0,1,2,4,5,7]
+   * Output: ["0->2","4->5","7"]
+   * Explanation: The ranges are:
+   * [0,2] --> "0->2"
+   * [4,5] --> "4->5"
+   * [7,7] --> "7"
+   * Example 2:
+   *
+   * Input: nums = [0,2,3,4,6,8,9]
+   * Output: ["0","2->4","6","8->9"]
+   * Explanation: The ranges are:
+   * [0,0] --> "0"
+   * [2,4] --> "2->4"
+   * [6,6] --> "6"
+   * [8,9] --> "8->9"
+   * </pre>
+   */
+  public static List<String> summaryRanges(int[] nums) {
+    List<String> ans = new ArrayList<>();
+    int n = nums.length;
+    int i = 0;
+    while (i < n) {
+      int start = nums[i];
+      while (i < n - 1 && nums[i] + 1 == nums[i + 1]) {
+        i++;
+      }
+      if (start != nums[i]) {
+        ans.add(start + "->" + nums[i]);
+      } else {
+        ans.add("" + nums[i]);
+      }
+      i++;
+    }
+    return ans;
+  }
+
+  /** https://leetcode.com/problems/squares-of-a-sorted-array/ */
+  public int[] sortedSquares(int[] nums) {
+    int[] sqrs = new int[nums.length];
+    int l = 0, r = nums.length - 1, k = sqrs.length - 1;
+    while (l <= r) {
+      var sqrL = nums[l] * nums[l];
+      var sqrR = nums[r] * nums[r];
+      if (sqrL > sqrR) {
+        sqrs[k--] = sqrL;
+        l++;
+      } else {
+        sqrs[k--] = sqrR;
+        r--;
+      }
+    }
+    return sqrs;
   }
 }

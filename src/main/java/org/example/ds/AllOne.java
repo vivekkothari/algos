@@ -53,9 +53,9 @@ import java.util.Map;
 class AllOne {
 
   public static class Node {
-    String key = "";
-    int count = 0;
-    int pos = 0;
+    String key;
+    int count;
+    int pos;
 
     Node(String key, int count, int pos) {
       this.key = key;
@@ -115,6 +115,7 @@ class AllOne {
     AllOne allOne = new AllOne();
 
     allOne.inc("a");
+    allOne.inc("c");
     allOne.inc("b");
     allOne.inc("c");
 
