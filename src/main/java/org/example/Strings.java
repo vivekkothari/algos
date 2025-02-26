@@ -1848,4 +1848,33 @@ class Strings {
     }
     return Math.min(Math.min(bCount, aCount), Math.min(lCount / 2, Math.min(oCount / 2, nCount)));
   }
+
+  public int characterReplacement(String s, int k) {
+    // Frequency array jo har character (A-Z) ki count store karega
+    int[] freq = new int[26];
+
+    // Variables to track maximum frequency, window boundaries, and result
+    int maxFreq = 0; // Current window mein sabse zyada frequency wala character
+    int left = 0; // Window ka left boundary
+    int maxLength = 0; // Maximum length of valid window
+
+    // Right boundary ko traverse karo
+    for (int right = 0; right < s.length(); right++) {
+      char ch = s.charAt(right); // Current character
+      freq[ch - 'A']++; // Frequency update karo
+      maxFreq = Math.max(maxFreq, freq[ch - 'A']); // Max frequency update karo
+
+      // Agar current window mein replacements ki limit (k) se zyada changes ki zarurat hai
+      while ((right - left + 1) - maxFreq > k) {
+        freq[s.charAt(left) - 'A']--; // Left character ki frequency kam karo
+        left++; // Window ko shrink karo (left boundary ko aage badhao)
+      }
+
+      // Current window ki length check karo aur maxLength update karo
+      maxLength = Math.max(maxLength, right - left + 1);
+    }
+
+    // Final maximum length return karo
+    return maxLength;
+  }
 }

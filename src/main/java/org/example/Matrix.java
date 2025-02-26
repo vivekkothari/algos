@@ -14,6 +14,13 @@ import java.util.TreeMap;
 class Matrix {
 
   public static void main(String[] args) {
+    maxFarmLand(
+        new char[][] {
+          {'1', '0', '1', '0', '0'},
+          {'1', '0', '1', '1', '1'},
+          {'1', '1', '1', '1', '1'},
+          {'1', '0', '0', '1', '0'}
+        });
     rotate(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
     //    System.out.println(
     //        searchMatrixOptimised(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}},
@@ -521,5 +528,24 @@ class Matrix {
     var temp = matrix[i1][j1];
     matrix[i1][j1] = matrix[i2][j2];
     matrix[i2][j2] = temp;
+  }
+
+  public static int maxFarmLand(char[][] land) {
+    int m = land.length;
+    int n = land[0].length;
+    int[][] dp = new int[m][n];
+    int max = Integer.MIN_VALUE;
+    for (int i = 0; i < land.length; i++) {
+      for (int j = 0; j < land[i].length; j++) {
+        if (land[i][j] == '0') continue;
+        int left = 0, right = 0, diag = 0;
+        if (i > 0) left = dp[i - 1][j];
+        if (j > 0) right = dp[i][j - 1];
+        if (i > 0 && j > 0) diag = dp[i - 1][j - 1];
+        dp[i][j] = Collections.min(List.of(left, right, diag)) + 1;
+        max = Math.max(max, dp[i][j]);
+      }
+    }
+    return max * max;
   }
 }

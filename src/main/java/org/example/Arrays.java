@@ -15,6 +15,8 @@ import java.util.TreeSet;
 public class Arrays {
 
   public static void main(String[] args) {
+    System.out.println(maximumUniqueSubarray(new int[] {5, 2, 1, 2, 5, 2, 1, 2, 5}));
+    //    System.out.println(longestOnes(new int[] {1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0}, 3));
     //    System.out.println(summaryRanges(new int[] {0, 1, 2, 4, 5, 7, 8}));
     //    System.out.println(findClosestNumber(new int[] {-4, -2, 1, 4, 8}));
     //    System.out.println(searchSortedRotated(new int[] {1}, 1));
@@ -2408,5 +2410,94 @@ public class Arrays {
       }
     }
     return sqrs;
+  }
+
+  public double findMaxAverage(int[] nums, int k) {
+    var maxSum = 0;
+    for (int i = 0; i < k; i++) {
+      maxSum += nums[i];
+    }
+    int currentSum = maxSum;
+    for (int i = k; i < nums.length; i++) {
+      currentSum += nums[i] - nums[i - k];
+      maxSum = Math.max(maxSum, currentSum);
+    }
+    return (double) maxSum / k;
+  }
+
+  /**
+   * https://leetcode.com/problems/max-consecutive-ones-iii/
+   *
+   * <pre>
+   *   Given a binary array nums and an integer k, return the maximum number
+   *   of consecutive 1's in the array if you can flip at most k 0's.
+   *
+   * Example 1:
+   *
+   * Input: nums = [1,1,1,0,0,0,1,1,1,1,0], k = 2
+   * Output: 6
+   * Explanation: [1,1,1,0,0,1,1,1,1,1,1]
+   * Bolded numbers were flipped from 0 to 1. The longest subarray is underlined.
+   * Example 2:
+   *
+   * Input: nums = [0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1], k = 3
+   * Output: 10
+   * Explanation: [0,0,1,1,1,1,1,1,1,1,1,1,0,0,0,1,1,1,1]
+   * Bolded numbers were flipped from 0 to 1. The longest subarray is underlined.
+   * </pre>
+   */
+  public static int longestOnes(int[] nums, int k) {
+    int left = 0, maxLength = 0, zeroCount = 0;
+    for (int right = 0; right < nums.length; ++right) {
+      if (nums[right] == 0) {
+        zeroCount++;
+      }
+      while (zeroCount > k) {
+        if (nums[left] == 0) {
+          zeroCount--;
+        }
+        left++;
+      }
+      maxLength = Math.max(maxLength, right - left + 1);
+    }
+    return maxLength;
+  }
+
+  /** https://leetcode.com/problems/minimum-size-subarray-sum/ */
+  public int minSubArrayLen(int target, int[] nums) {
+    int minLen = Integer.MAX_VALUE;
+    int curSum = 0;
+    for (int l = 0, r = 0; r < nums.length; r++) {
+      curSum += nums[r];
+
+      while (curSum >= target) {
+        var windowLen = r - l + 1;
+        if (windowLen < minLen) {
+          minLen = windowLen;
+        }
+        curSum -= nums[l];
+        l++;
+      }
+    }
+    return minLen != Integer.MAX_VALUE ? minLen : 0;
+  }
+
+  public static int maximumUniqueSubarray(int[] nums) {
+    int l = 0, r = 0, maxSum = 0, currSum = 0;
+    Map<Integer, Integer> map = new HashMap<>();
+    while (r < nums.length) {
+      var num = nums[r];
+      currSum += num;
+      // count letters
+      map.put(num, map.getOrDefault(num, 0) + 1);
+      while (map.getOrDefault(num, 0) > 1) {
+        currSum -= nums[l];
+        map.put(nums[l], map.get(nums[l]) - 1);
+        l++;
+      }
+      maxSum = Math.max(maxSum, currSum);
+      r++;
+    }
+    return maxSum;
   }
 }
