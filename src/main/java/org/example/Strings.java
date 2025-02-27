@@ -105,6 +105,7 @@ class Strings {
     return ret;
   }
 
+  /** https://leetcode.com/problems/longest-common-prefix/description/ */
   public static String longestCommonPrefix(String[] strs) {
     var commonPrefix = new StringBuilder();
     for (var i = 0; i < strs[0].length(); i++) {
@@ -1876,5 +1877,34 @@ class Strings {
 
     // Final maximum length return karo
     return maxLength;
+  }
+
+  /**
+   * https://leetcode.com/problems/reverse-words-in-a-string-iii/description/
+   *
+   * <pre>
+   *   Given a string s, reverse the order of characters in each word within a
+   *   sentence while still preserving whitespace and initial word order.
+   *   Example 1:
+   *
+   * Input: s = "Let's take LeetCode contest"
+   * Output: "s'teL ekat edoCteeL tsetnoc"
+   * Example 2:
+   *
+   * Input: s = "Mr Ding"
+   * Output: "rM gniD"
+   * </pre>
+   */
+  public static String reverseWordsII(String s) {
+    List<String> words = new LinkedList<>();
+    for (int r = 0; r < s.length(); r++) {
+      var sb = new StringBuilder();
+      while (r < s.length() && s.charAt(r) != ' ') {
+        sb.append(s.charAt(r));
+        r++;
+      }
+      words.addLast(sb.reverse().toString());
+    }
+    return String.join(" ", words);
   }
 }

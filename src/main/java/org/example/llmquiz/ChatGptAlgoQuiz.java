@@ -1,17 +1,19 @@
 package org.example.llmquiz;
 
-import static java.lang.Math.max;
-
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NavigableSet;
 import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 class ChatGptAlgoQuiz {
 
@@ -32,6 +34,11 @@ class ChatGptAlgoQuiz {
   }
 
   public static void main(String[] args) {
+    System.out.println(longestSubarrayWithSumExactlyK(new int[] {3, 1, 1, 1, 5, 2, 3}, 5));
+    //    System.out.println(
+    //        secondLongestConsecutiveSequence(new int[] {100, 4, 200, 1, 3, 2, 8, 9, 10}));
+    //    System.out.println(countConsecutiveSequences(new int[] {100, 4, 200, 1, 3, 2}));
+    //    System.out.println(longestConsecutiveSequenceList(new int[] {100, 4, 200, 1, 3, 2}));
     //    System.out.println(findSecondLargest(List.of(3, 4, 6, 8, 8)));
     //    System.out.println(Arrays.toString(findNextGreaterElement(new int[] {4, 1, 2, 7, 5, 3,
     // 8})));
@@ -41,7 +48,7 @@ class ChatGptAlgoQuiz {
     // 8})));
 
     //    System.out.println(longestSubstringWithoutRepeating("pwwkew"));
-    System.out.println(longestConsecutiveSequence(new int[] {1, 2, 3, 4, 5}));
+    //    System.out.println(longestConsecutiveSequence(new int[] {1, 2, 3, 4, 5}));
   }
 
   /**
@@ -161,9 +168,126 @@ class ChatGptAlgoQuiz {
         while (items.contains(num + length)) {
           length++;
         }
-        longest = max(longest, length);
+        longest = Math.max(longest, length);
       }
     }
     return longest;
+  }
+
+  // Actually return the seq as well.
+  public static List<Integer> longestConsecutiveSequenceList(int[] nums) {
+    var items = new HashSet<Integer>();
+    for (var num : nums) {
+      items.add(num);
+    }
+    var ret = new ArrayList<Integer>();
+    var longest = 0;
+    for (var num : nums) {
+      // no left neighbour
+      if (!items.contains(num - 1)) {
+        var temp = new ArrayList<Integer>();
+        var length = 1;
+        temp.add(num);
+        while (items.contains(num + length)) {
+          temp.add(num);
+          length++;
+        }
+        if (longest < length) {
+          longest = length;
+          ret = temp;
+        }
+      }
+    }
+    return ret;
+  }
+
+  // 100, 4, 200, 1, 3, 2
+  public static int countConsecutiveSequences(int[] nums) {
+    Set<Integer> items = Arrays.stream(nums).boxed().collect(Collectors.toSet());
+    int count = 0;
+    for (var num : nums) {
+      if (!items.contains(num - 1)) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  /**
+   *
+   *
+   * <pre>
+   *   Input: nums = [100, 4, 200, 1, 3, 2, 8, 9, 10]
+   * Output: 3
+   * Explanation:
+   * - Longest sequence is `[1, 2, 3, 4]` (length = 4).
+   * - Second longest sequence is `[8, 9, 10]` (length = 3).
+   *
+   * Input: nums = [1, 2, 3, 4, 5]
+   * Output: -1
+   * Explanation: Only one sequence exists.
+   * </pre>
+   */
+  public static int secondLongestConsecutiveSequence(int[] nums) {
+    Set<Integer> items = Arrays.stream(nums).boxed().collect(Collectors.toSet());
+    NavigableSet<Integer> lenSet = new TreeSet<>(Comparator.reverseOrder());
+    for (var num : nums) {
+      // no left neighbour
+      if (!items.contains(num - 1)) {
+        var length = 1;
+        while (items.contains(num + length)) {
+          length++;
+        }
+        lenSet.add(length);
+      }
+    }
+    var first = lenSet.first();
+    var second = lenSet.higher(first);
+    return second == null ? -1 : second;
+  }
+
+  /**
+   * Input: nums = [2, 3, 5, 7, 1], k = 8 Output: 2 Explanation: The longest valid subarray is `[2,
+   * 3]` (sum = 5) or `[7, 1]` (sum = 8).
+   */
+  public static int longestSubarrayWithSumAtMostK(int[] nums, int k) {
+    int l = 0, maxLen = 0, currSum = 0;
+    for (int r = 0; r < nums.length; r++) {
+      currSum += nums[r];
+      while (currSum > k) {
+        currSum -= nums[l];
+        l++;
+      }
+      maxLen = Math.max(maxLen, r - l + 1);
+    }
+    return maxLen;
+  }
+
+  /**
+   *
+   *
+   * <pre>
+   *   Input: nums = [1, 2, 3, 4, 5], k = 9
+   * Output: 3
+   * Explanation: The longest subarray is `[2, 3, 4]`, which sums to `9`.
+   *
+   * Input: nums = [3, 1, 1, 1, 5, 2, 3], k = 5
+   * Output: 4
+   * Explanation: `[1, 1, 1, 2]` is the longest subarray with sum exactly `5`.
+   * </pre>
+   */
+  public static int longestSubarrayWithSumExactlyK(int[] nums, int k) {
+    int l = 0, maxLen = 0, currSum = 0;
+    for (int r = 0; r < nums.length; r++) {
+      currSum += nums[r];
+      while (currSum >= k) {
+        if (currSum == k) {
+          maxLen = Math.max(maxLen, r - l + 1);
+        }
+        currSum -= nums[l];
+        l++;
+      }
+    }
+    return maxLen;
   }
 }

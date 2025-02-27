@@ -2465,21 +2465,15 @@ public class Arrays {
 
   /** https://leetcode.com/problems/minimum-size-subarray-sum/ */
   public int minSubArrayLen(int target, int[] nums) {
-    int minLen = Integer.MAX_VALUE;
-    int curSum = 0;
-    for (int l = 0, r = 0; r < nums.length; r++) {
-      curSum += nums[r];
-
-      while (curSum >= target) {
-        var windowLen = r - l + 1;
-        if (windowLen < minLen) {
-          minLen = windowLen;
-        }
-        curSum -= nums[l];
-        l++;
+    int l = 0, minLen = Integer.MAX_VALUE, currSum = 0;
+    for (int r = 0; r < nums.length; r++) {
+      currSum += nums[r];
+      while (currSum >= target) {
+        minLen = Math.min(minLen, r - l + 1);
+        currSum -= nums[l++];
       }
     }
-    return minLen != Integer.MAX_VALUE ? minLen : 0;
+    return minLen == Integer.MAX_VALUE ? 0 : minLen;
   }
 
   public static int maximumUniqueSubarray(int[] nums) {

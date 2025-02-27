@@ -14,29 +14,32 @@ import java.util.TreeMap;
 class Matrix {
 
   public static void main(String[] args) {
-    maxFarmLand(
-        new char[][] {
-          {'1', '0', '1', '0', '0'},
-          {'1', '0', '1', '1', '1'},
-          {'1', '1', '1', '1', '1'},
-          {'1', '0', '0', '1', '0'}
-        });
-    rotate(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
+    System.out.println(getRow(4));
+    //    maxFarmLand(
+    //        new char[][] {
+    //          {'1', '0', '1', '0', '0'},
+    //          {'1', '0', '1', '1', '1'},
+    //          {'1', '1', '1', '1', '1'},
+    //          {'1', '0', '0', '1', '0'}
+    //        });
+    //    rotate(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}});
     //    System.out.println(
     //        searchMatrixOptimised(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}},
     // 3));
-    System.out.println(
-        searchMatrixOptimised(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 13));
-    System.out.println(
-        searchMatrixOptimised(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 10));
-
-    System.out.println(
-        searchMatrix(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 3));
-    System.out.println(
-        searchMatrix(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 13));
-    System.out.println(
-        searchMatrix(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 10));
-    generateRecur(5);
+    //    System.out.println(
+    //        searchMatrixOptimised(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}},
+    // 13));
+    //    System.out.println(
+    //        searchMatrixOptimised(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}},
+    // 10));
+    //
+    //    System.out.println(
+    //        searchMatrix(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 3));
+    //    System.out.println(
+    //        searchMatrix(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 13));
+    //    System.out.println(
+    //        searchMatrix(new int[][] {{1, 2, 4, 8}, {10, 11, 12, 13}, {14, 20, 30, 40}}, 10));
+    //    generateRecur(5);
     //    System.out.println(
     //        Arrays.toString(findDiagonalOrder(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}})));
     //    findCircleNum(new int[][] {{1, 0, 0, 1}, {0, 1, 1, 0}, {0, 1, 1, 1}, {1, 0, 1, 1}});
@@ -49,8 +52,7 @@ class Matrix {
     // 2));
     //    var ints = generateMatrix(3);
     //    spiralOrder(new int[][] {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}});
-
-    spiralMatrixIII(5, 6, 1, 4);
+    //    spiralMatrixIII(5, 6, 1, 4);
   }
 
   /**
@@ -412,7 +414,7 @@ class Matrix {
   }
 
   /**
-   * Pascals triangle.
+   * Pascals triangle. https://leetcode.com/problems/pascals-triangle/description/
    *
    * <p><img
    * src="https://upload.wikimedia.org/wikipedia/commons/0/0d/PascalTriangleAnimated2.gif"></img>
@@ -441,6 +443,18 @@ class Matrix {
       res.add(temp);
     }
     return res;
+  }
+
+  public static List<Integer> getRow(int rowIndex) {
+    List<Integer> row = new ArrayList<>();
+    row.add(1);
+    for (int i = 0; i < rowIndex; i++) {
+      for (int j = row.size() - 1; j > 0; j--) {
+        row.set(j, row.get(j - 1) + row.get(j));
+      }
+      row.add(1);
+    }
+    return row;
   }
 
   public static List<List<Integer>> generateRecur(int numRows) {
