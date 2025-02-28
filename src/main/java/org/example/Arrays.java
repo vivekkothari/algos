@@ -15,7 +15,8 @@ import java.util.TreeSet;
 public class Arrays {
 
   public static void main(String[] args) {
-    System.out.println(maximumUniqueSubarray(new int[] {5, 2, 1, 2, 5, 2, 1, 2, 5}));
+    candy(new int[] {1, 0, 2, 3, 6});
+    //    System.out.println(maximumUniqueSubarray(new int[] {5, 2, 1, 2, 5, 2, 1, 2, 5}));
     //    System.out.println(longestOnes(new int[] {1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0}, 3));
     //    System.out.println(summaryRanges(new int[] {0, 1, 2, 4, 5, 7, 8}));
     //    System.out.println(findClosestNumber(new int[] {-4, -2, 1, 4, 8}));
@@ -64,7 +65,7 @@ public class Arrays {
     //    System.out.println(removeElement(new int[] {0, 1, 2, 2, 3, 0, 4, 2}, 2));
     //    System.out.println(java.util.Arrays.toString(sortArray(new int[] {0, 1, 2, 2, 3, 0, 4,
     // 2})));
-    //    System.out.println(java.util.Arrays.toString(sortColours(new int[] {2, 0, 2, 1, 1, 0})));
+    //    System.out.println(java.util.Arrays.toString(sortColors(new int[] {2, 0, 2, 1, 1, 0})));
     //    var nums1 = new int[] {1, 2, 3, 0, 0, 0};
     //    merge(nums1, 3, new int[] {2, 5, 6}, 3);
     //    System.out.println(java.util.Arrays.toString(nums1));
@@ -439,7 +440,7 @@ public class Arrays {
     }
   }
 
-  private static void swap(int[] nums, int j, int i) {
+  public static void swap(int[] nums, int j, int i) {
     var temp = nums[j];
     nums[j] = nums[i];
     nums[i] = temp;
@@ -783,7 +784,7 @@ public class Arrays {
    * Follow up: Could you come up with a one-pass algorithm using only constant extra space?
    * </pre>
    */
-  public static int[] sortColours(int[] nums) {
+  public static int[] sortColors(int[] nums) {
     var cardinality = 3;
     var colourCount = new int[cardinality];
     for (var num : nums) {
@@ -1162,6 +1163,27 @@ public class Arrays {
       }
     }
     return maxArea;
+  }
+
+  public static int candy(int[] ratings) {
+    var candies = new int[ratings.length];
+    // [1,0,2,3,6]
+    // [1,1,1,1,1]
+    // [1,1,2,3,4]
+    // [2,1,2,3,4]
+    java.util.Arrays.fill(candies, 1);
+    // Left to right, if current child is ranked higher, then increment by 1.
+    for (int i = 1; i < candies.length; i++) {
+      if (ratings[i] > ratings[i - 1]) {
+        candies[i] = candies[i - 1] + 1;
+      }
+    }
+    for (int i = candies.length - 2; i >= 0; i--) {
+      if (ratings[i] > ratings[i + 1]) {
+        candies[i] = Math.max(candies[i], candies[i + 1] + 1);
+      }
+    }
+    return java.util.Arrays.stream(candies).sum();
   }
 
   /**

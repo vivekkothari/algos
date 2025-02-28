@@ -6,7 +6,7 @@ import java.util.List;
 class Backtracking {
 
   public static void main(String[] args) {
-    System.out.println(grayCode(16));
+    System.out.println(restoreIpAddresses("101023"));
     //    System.out.println(subsets(new int[] {}));
     //    System.out.println(permute(new int[] {1, 2, 3}));
     //    System.out.println(findAllBinaryStrings(2));
@@ -437,5 +437,40 @@ class Backtracking {
         y--;
       }
     return res;
+  }
+
+  public static List<String> restoreIpAddresses(String s) {
+    var ipes = new ArrayList<String>();
+    f(s, 0, "", 0, ipes);
+    return ipes;
+  }
+
+  private static boolean isIp(String ip) {
+    if (ip.length() > 3 || ip.isEmpty()) return false;
+    if (ip.length() > 1 && ip.charAt(0) == '0') return false;
+    return Integer.parseInt(ip) <= 255;
+  }
+
+  private static void f(String s, int index, String ip, int dot, List<String> ipes) {
+    // base case
+    if (dot == 3) {
+      var lastPart = s.substring(index);
+      if (isIp(lastPart)) {
+        ip += lastPart;
+        ipes.add(ip);
+      }
+      return;
+    }
+
+    // do all the stuff
+    for (int i = index; i < s.length(); i++) {
+      var part = s.substring(index, i + 1);
+      if (isIp(part)) {
+        int k = part.length();
+        ip += part + ".";
+        f(s, i + 1, ip, dot + 1, ipes);
+        ip = ip.substring(0, ip.length() - k - 1);
+      }
+    }
   }
 }

@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 class ArraysTest {
 
   @Test
-  @DisplayName("Test sortColours")
-  void testSortColours() {
+  @DisplayName("Test sortColors")
+  void testSortColors() {
     var nums = new int[] {2, 0, 2, 1, 1, 0};
-    Arrays.sortColours(nums);
+    Arrays.sortColors(nums);
     assertArrayEquals(new int[] {0, 0, 1, 1, 2, 2}, nums);
   }
 

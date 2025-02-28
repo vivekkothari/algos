@@ -246,7 +246,7 @@ class Strings {
   }
 
   public static void main(String[] args) {
-    isSubsequence("abc", "ahbgdc");
+    repeatedSubstringPattern("abab");
     //    System.out.println(partitionLabels("ababcbacadefegdehijhklij"));
     //    System.out.println(checkInclusion("ab", "eidbaooo"));
     //    System.out.println(minimizeConcatenatedLength(new String[] {"a", "bc", "c"}));
@@ -1906,5 +1906,31 @@ class Strings {
       words.addLast(sb.reverse().toString());
     }
     return String.join(" ", words);
+  }
+
+  /**
+   * Given a string s, check if it can be constructed by taking a substring of it and appending
+   * multiple copies of the substring together.
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: s = "abab" Output: true Explanation: It is the substring "ab" twice. Example 2:
+   *
+   * <p>Input: s = "aba" Output: false Example 3:
+   *
+   * <p>Input: s = "abcabcabcabc" Output: true Explanation: It is the substring "abc" four times or
+   * the substring "abcabc" twice
+   */
+  public static boolean repeatedSubstringPattern(String s) {
+    int n = s.length();
+    // We start by n/2 because anything more than that if repeated will not be a substring.
+    for (int i = n / 2; i > 0; i--) {
+      if (n % i == 0) {
+        if (s.substring(0, i).repeat(n / i).equals(s)) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 }
