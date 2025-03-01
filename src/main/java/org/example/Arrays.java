@@ -15,7 +15,9 @@ import java.util.TreeSet;
 public class Arrays {
 
   public static void main(String[] args) {
-    candy(new int[] {1, 0, 2, 3, 6});
+    // [1,2],[2,3],[3,4],[1,3]
+    eraseOverlapIntervals(new int[][] {{1, 2}, {2, 3}, {3, 4}, {1, 3}});
+    //    candy(new int[] {1, 0, 2, 3, 6});
     //    System.out.println(maximumUniqueSubarray(new int[] {5, 2, 1, 2, 5, 2, 1, 2, 5}));
     //    System.out.println(longestOnes(new int[] {1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0}, 3));
     //    System.out.println(summaryRanges(new int[] {0, 1, 2, 4, 5, 7, 8}));
@@ -1184,6 +1186,25 @@ public class Arrays {
       }
     }
     return java.util.Arrays.stream(candies).sum();
+  }
+
+  /**
+   * https://leetcode.com/problems/non-overlapping-intervals/ Input: intervals =
+   * [[1,2],[2,3],[3,4],[1,3]] Output: 1 Explanation: [1,3] can be removed and the rest of the
+   * intervals are non-overlapping.
+   */
+  public static int eraseOverlapIntervals(int[][] intervals) {
+    java.util.Arrays.sort(intervals, (a, b) -> a[1] - b[1]);
+    int end = intervals[0][1];
+    int count = 1;
+
+    for (int i = 1; i < intervals.length; i++) {
+      if (intervals[i][0] >= end) {
+        end = intervals[i][1];
+        count++;
+      }
+    }
+    return intervals.length - count;
   }
 
   /**

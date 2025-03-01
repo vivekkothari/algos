@@ -1,12 +1,20 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Stack;
+import java.util.stream.Collectors;
 
 class Backtracking {
 
   public static void main(String[] args) {
-    System.out.println(restoreIpAddresses("101023"));
+    System.out.println(removeDuplicateLetters("cbacdcbc"));
+    //    largestNumber(new int[] {0, 0, 0, 0});
+    //    canCompleteCircuit(new int[] {1, 2, 3, 4, 5}, new int[] {3, 4, 5, 1, 2});
+    //    jump(new int[] {2, 3, 1, 1, 4});
+    //    System.out.println(isMatch("aabcc", "a*c"));
+    //    System.out.println(restoreIpAddresses("101023"));
     //    System.out.println(subsets(new int[] {}));
     //    System.out.println(permute(new int[] {1, 2, 3}));
     //    System.out.println(findAllBinaryStrings(2));
@@ -15,7 +23,7 @@ class Backtracking {
     //    System.out.println(generateParenthesis(5));
     //    System.out.println(combinationSum(new int[] {2, 3, 6, 7}, 7));
     //    System.out.println(combinationSumNoReuse(new int[] {2, 3, 6, 7}, 7));
-    findSolution(Integer::sum, 5);
+    //    findSolution(Integer::sum, 5);
   }
 
   /**
@@ -472,5 +480,120 @@ class Backtracking {
         ip = ip.substring(0, ip.length() - k - 1);
       }
     }
+  }
+
+  public static boolean isMatch(String s, String p) {
+    int sLen = s.length(), pLen = p.length();
+    int sIdx = 0, pIdx = 0;
+    int starIdx = -1, sTmpIdx = -1;
+
+    while (sIdx < sLen) {
+      // Case 1: Characters match or '?' matches any single character
+      if (pIdx < pLen && (s.charAt(sIdx) == p.charAt(pIdx) || p.charAt(pIdx) == '?')) {
+        sIdx++;
+        pIdx++;
+      }
+      // Case 2: '*' matches zero or more characters
+      else if (pIdx < pLen && p.charAt(pIdx) == '*') {
+        // Remember the index of the star
+        starIdx = pIdx;
+        // Remember the index of the last string character
+        sTmpIdx = sIdx;
+        pIdx++;
+      }
+      // Case 3: Mismatch and backtrack to last '*'
+      else if (starIdx != -1) {
+        // We then need to check if next pattern char is something else.
+        pIdx = starIdx + 1;
+        // Move sIdx to the next character after the last matched character
+        sIdx = ++sTmpIdx;
+      }
+      // Case 4: No match possible
+      else {
+        return false;
+      }
+    }
+
+    // Check remaining characters in pattern are '*'
+    while (pIdx < pLen && p.charAt(pIdx) == '*') {
+      pIdx++;
+    }
+
+    return pIdx == pLen;
+  }
+
+  /** https://leetcode.com/problems/jump-game-ii */
+  public static int jump(int[] nums) {
+    int[] dp = new int[nums.length];
+    Arrays.fill(dp, Integer.MAX_VALUE);
+    dp[0] = 0;
+    for (int i = 0; i < nums.length; i++) {
+      for (int j = i + 1; j < nums.length && j <= i + nums[i]; j++) {
+        dp[j] = Math.min(dp[j], dp[i] + 1);
+      }
+    }
+    return dp[nums.length - 1];
+  }
+
+  public static int canCompleteCircuit(int[] gas, int[] cost) {
+    int tc = Arrays.stream(cost).sum();
+    int tg = Arrays.stream(gas).sum();
+
+    if (tc > tg) return -1;
+
+    int n = gas.length;
+    int start = 0;
+    int tank = 0;
+
+    for (int i = 0; i < n; i++) {
+      tank += gas[i];
+      if (tank >= cost[i]) {
+        tank -= cost[i];
+      } else {
+        // We can't start from i, so we set start as i+1 and reset the tank.
+        start = i + 1;
+        tank = 0;
+      }
+    }
+
+    return start;
+  }
+
+  /** https://leetcode.com/problems/largest-number/solutions/5783508/largest-number/ */
+  public static String largestNumber(int[] nums) {
+    var arr =
+        Arrays.stream(nums)
+            .mapToObj(String::valueOf)
+            .sorted((a, b) -> (b + a).compareTo(a + b))
+            .collect(Collectors.joining());
+    return arr.charAt(0) == '0' ? "0" : arr;
+  }
+
+  /** https://leetcode.com/problems/remove-duplicate-letters */
+  public static String removeDuplicateLetters(String s) {
+    int[] lastIndex = new int[26];
+    for (int i = 0; i < s.length(); i++) {
+      lastIndex[s.charAt(i) - 'a'] = i; // track the lastIndex of character presence
+    }
+    boolean[] seen = new boolean[26]; // keep track seen
+    Stack<Integer> st = new Stack<>();
+    for (int i = 0; i < s.length(); i++) {
+      int curr = s.charAt(i) - 'a';
+      if (seen[curr]) {
+        // if seen continue as we need to pick one char only
+        continue;
+      }
+      while (!st.isEmpty() && st.peek() > curr && i < lastIndex[st.peek()]) {
+        seen[st.pop()] = false; // pop out and mark unseen
+      }
+      st.push(curr); // add into stack
+      seen[curr] = true; // mark seen
+    }
+
+    StringBuilder sb = new StringBuilder();
+    while (!st.isEmpty()) {
+      sb.append((char) (st.pop() + 'a'));
+    }
+    return sb.reverse().toString();
   }
 }
