@@ -9,12 +9,15 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NavigableSet;
 import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
+import java.util.Stack;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
@@ -37,7 +40,26 @@ class ChatGptAlgoQuiz {
   }
 
   public static void main(String[] args) {
-    System.out.println(subarraysDivByK(new int[] {4, 5, 0, -2, -3, 1}, 5));
+    //    var board =
+    //        new char[][] {
+    //          {'X', 'X', 'X', 'X'},
+    //          {'X', 'O', 'O', 'X'},
+    //          {'X', 'X', 'O', 'X'},
+    //          {'X', 'O', 'X', 'X'},
+    //        };
+    //    surroundedRegion(board);
+    //    System.out.println(Arrays.deepToString(board));
+    System.out.println(
+        shortestBridge(
+            new int[][] {
+              {0, 0, 0, 0, 0, 0},
+              {0, 1, 1, 1, 0, 0},
+              {0, 1, 1, 1, 0, 0},
+              {0, 1, 1, 1, 0, 0},
+              {0, 0, 0, 0, 0, 0},
+              {0, 0, 0, 0, 1, 0}
+            }));
+    //    System.out.println(subarraysDivByK(new int[] {4, 5, 0, -2, -3, 1}, 5));
     //    System.out.println(pivotIndex(new int[] {1, 7, 3, 6, 5, 6}));
     //    System.out.println(validPalindrome("abcdeca", 2));
     //    sortColors(new int[] {2, 0, 2, 1, 1, 0});
@@ -599,5 +621,391 @@ class ChatGptAlgoQuiz {
       remainderCount.put(remainder, remainderCount.getOrDefault(remainder, 0) + 1);
     }
     return count;
+  }
+
+  /** https://leetcode.com/problems/number-of-islands/ */
+  public static int numIslands(char[][] grid) {
+    var m = grid.length;
+    var n = grid[0].length;
+    int count = 0;
+    // Explore all 4 directions
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        if (grid[i][j] == '1') {
+          // Found a new island
+          count++;
+          numIslandsDfsRecur(grid, i, j, directions, m, n);
+        }
+      }
+    }
+    return count;
+  }
+
+  private static void numIslandsBfs(char[][] grid, int i, int j, int[][] directions, int m, int n) {
+    Queue<int[]> queue = new LinkedList<>();
+    queue.offer(new int[] {i, j});
+    grid[i][j] = '0';
+    while (!queue.isEmpty()) {
+      var poll = queue.poll();
+      int r = poll[0];
+      int c = poll[1];
+      for (int[] dir : directions) {
+        int nr = r + dir[0];
+        int nc = c + dir[1];
+
+        // Check if within bounds, is land ('1'), and not visited
+        if (nr >= 0 && nr < m && nc >= 0 && nc < n && grid[nr][nc] == '1') {
+          queue.offer(new int[] {nr, nc});
+          grid[nr][nc] = '0';
+        }
+      }
+    }
+  }
+
+  private static void numIslandsDfsIter(
+      char[][] grid, int i, int j, int[][] directions, int m, int n) {
+    Stack<int[]> stack = new Stack<>();
+    stack.push(new int[] {i, j});
+    grid[i][j] = '0';
+    while (!stack.isEmpty()) {
+      var poll = stack.pop();
+      int r = poll[0];
+      int c = poll[1];
+      for (int[] dir : directions) {
+        int nr = r + dir[0];
+        int nc = c + dir[1];
+
+        // Check if within bounds, is land ('1'), and not visited
+        if (nr >= 0 && nr < m && nc >= 0 && nc < n && grid[nr][nc] == '1') {
+          stack.push(new int[] {nr, nc});
+          grid[nr][nc] = '0';
+        }
+      }
+    }
+  }
+
+  private static void numIslandsDfsRecur(
+      char[][] grid, int i, int j, int[][] directions, int m, int n) {
+    if (i < 0 || i >= m || j < 0 || j >= n || grid[i][j] == '0') return; // Base case
+    grid[i][j] = '0'; // Mark as visited
+    for (int[] dir : directions) {
+      numIslandsDfsRecur(grid, i + dir[0], j + dir[1], directions, m, n);
+    }
+  }
+
+  public static void surroundedRegion(char[][] board) {
+    var m = board.length;
+    var n = board[0].length;
+    // Explore all 4 directions, bottom, top, right, left
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+    // Top row
+    for (int j = 0; j < n; j++) {
+      if (board[0][j] == 'O') {
+        surroundedRegionBfs(board, 0, j, directions, m, n);
+      }
+    }
+    // bottom row
+    for (int j = 0; j < n; j++) {
+      if (board[m - 1][j] == 'O') {
+        surroundedRegionBfs(board, m - 1, j, directions, m, n);
+      }
+    }
+    // left column
+    for (int i = 0; i < m; i++) {
+      if (board[i][0] == 'O') {
+        surroundedRegionBfs(board, i, 0, directions, m, n);
+      }
+    }
+    // right column
+    for (int i = 0; i < m; i++) {
+      if (board[i][n - 1] == 'O') {
+        surroundedRegionBfs(board, i, n - 1, directions, m, n);
+      }
+    }
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        if (board[i][j] == 'S') {
+          board[i][j] = 'O';
+        } else if (board[i][j] == 'O') {
+          board[i][j] = 'X';
+        }
+      }
+    }
+  }
+
+  private static void surroundedRegionBfs(
+      char[][] grid, int i, int j, int[][] directions, int m, int n) {
+    grid[i][j] = 'S';
+    Queue<int[]> queue = new LinkedList<>();
+    queue.offer(new int[] {i, j});
+    while (!queue.isEmpty()) {
+      int[] cur = queue.poll();
+      for (int[] direction : directions) {
+        int nextRow = direction[0] + cur[0];
+        int nextCol = direction[1] + cur[1];
+        if (nextRow >= 0
+            && nextRow < m
+            && nextCol >= 0
+            && nextCol < n
+            && grid[nextRow][nextCol] == 'O') {
+          grid[nextRow][nextCol] = 'S';
+          queue.offer(new int[] {nextRow, nextCol});
+        }
+      }
+    }
+  }
+
+  private static void surroundedRegionDfsIter(
+      char[][] grid, int i, int j, int[][] directions, int m, int n) {
+    Stack<int[]> stack = new Stack<>();
+    stack.push(new int[] {i, j});
+    grid[i][j] = 'S';
+    while (!stack.isEmpty()) {
+      int[] cur = stack.pop();
+      for (int[] direction : directions) {
+        int nextRow = direction[0] + cur[0];
+        int nextCol = direction[1] + cur[1];
+        if (nextRow >= 0
+            && nextRow < m
+            && nextCol >= 0
+            && nextCol < n
+            && grid[nextRow][nextCol] == 'O') {
+          grid[nextRow][nextCol] = 'S';
+          stack.push(new int[] {nextRow, nextCol});
+        }
+      }
+    }
+  }
+
+  /** https://leetcode.com/problems/number-of-enclaves/ */
+  public static int numEnclaves(int[][] grid) {
+    var m = grid.length;
+    var n = grid[0].length;
+    // Explore all 4 directions, bottom, top, right, left
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    // Top row
+    for (int j = 0; j < n; j++) {
+      if (grid[0][j] == 1) {
+        numEnclavesBfs(grid, 0, j, directions, m, n);
+      }
+    }
+    // bottom row
+    for (int j = 0; j < n; j++) {
+      if (grid[m - 1][j] == 1) {
+        numEnclavesBfs(grid, m - 1, j, directions, m, n);
+      }
+    }
+    // left column
+    for (int i = 0; i < m; i++) {
+      if (grid[i][0] == 1) {
+        numEnclavesBfs(grid, i, 0, directions, m, n);
+      }
+    }
+    // right column
+    for (int i = 0; i < m; i++) {
+      if (grid[i][n - 1] == 1) {
+        numEnclavesBfs(grid, i, n - 1, directions, m, n);
+      }
+    }
+    int count = 0;
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        if (grid[i][j] == -1) {
+          grid[i][j] = 1;
+        } else if (grid[i][j] == 1) {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+
+  private static void numEnclavesBfs(int[][] grid, int i, int j, int[][] directions, int m, int n) {
+    // Mark as -1 to mark boundary
+    grid[i][j] = -1;
+    Queue<int[]> queue = new LinkedList<>();
+    queue.offer(new int[] {i, j});
+    while (!queue.isEmpty()) {
+      int[] cur = queue.poll();
+      for (int[] direction : directions) {
+        int nextRow = direction[0] + cur[0];
+        int nextCol = direction[1] + cur[1];
+        if (nextRow >= 0
+            && nextRow < m
+            && nextCol >= 0
+            && nextCol < n
+            && grid[nextRow][nextCol] == 1) {
+          grid[nextRow][nextCol] = -1;
+          queue.offer(new int[] {nextRow, nextCol});
+        }
+      }
+    }
+  }
+
+  /** https://leetcode.com/problems/number-of-closed-islands/ */
+  public static int closedIsland(int[][] grid) {
+    var m = grid.length;
+    var n = grid[0].length;
+    // Explore all 4 directions, bottom, top, right, left
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    // Top row
+    for (int j = 0; j < n; j++) {
+      if (grid[0][j] == 0) {
+        closedIslandBfs(grid, 0, j, directions, m, n);
+      }
+    }
+    // bottom row
+    for (int j = 0; j < n; j++) {
+      if (grid[m - 1][j] == 0) {
+        closedIslandBfs(grid, m - 1, j, directions, m, n);
+      }
+    }
+    // left column
+    for (int i = 0; i < m; i++) {
+      if (grid[i][0] == 0) {
+        closedIslandBfs(grid, i, 0, directions, m, n);
+      }
+    }
+    // right column
+    for (int i = 0; i < m; i++) {
+      if (grid[i][n - 1] == 0) {
+        closedIslandBfs(grid, i, n - 1, directions, m, n);
+      }
+    }
+    int closedIslands = 0;
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        if (grid[i][j] == 0) { // Found a new closed island
+          closedIslandBfs(grid, i, j, directions, m, n); // Mark the island
+          closedIslands++; // Increment count
+        }
+      }
+    }
+    return closedIslands;
+  }
+
+  private static void closedIslandBfs(
+      int[][] grid, int i, int j, int[][] directions, int m, int n) {
+    Queue<int[]> queue = new LinkedList<>();
+    queue.offer(new int[] {i, j});
+    grid[i][j] = 1;
+    while (!queue.isEmpty()) {
+      int[] cur = queue.poll();
+      for (int[] direction : directions) {
+        int nextRow = direction[0] + cur[0];
+        int nextCol = direction[1] + cur[1];
+        if (nextRow >= 0
+            && nextRow < m
+            && nextCol >= 0
+            && nextCol < n
+            && grid[nextRow][nextCol] == 0) {
+          grid[nextRow][nextCol] = 1;
+          queue.offer(new int[] {nextRow, nextCol});
+        }
+      }
+    }
+  }
+
+  public static int numDistinctIslands(int[][] grid) {
+    int m = grid.length, n = grid[0].length;
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}}; // Down, Up, Right, Left
+    Set<Set<String>> uniqueIslands = new HashSet<>();
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        if (grid[i][j] == 1) {
+          Set<String> shape = new HashSet<>();
+          numDistinctIslands(grid, i, j, shape, directions, m, n);
+          uniqueIslands.add(shape);
+        }
+      }
+    }
+    return uniqueIslands.size();
+  }
+
+  private static void numDistinctIslands(
+      int[][] grid, int i, int j, Set<String> shape, int[][] directions, int m, int n) {
+    Queue<int[]> queue = new LinkedList<>();
+    queue.offer(new int[] {i, j});
+    grid[i][j] = 0; // Mark as visited
+    while (!queue.isEmpty()) {
+      int[] cur = queue.poll();
+      int r = cur[0], c = cur[1];
+
+      // Store relative position (r - i, c - j)
+      shape.add((r - i) + "," + (c - j));
+      for (int[] dir : directions) {
+        int nr = r + dir[0], nc = c + dir[1];
+        if (nr >= 0 && nr < m && nc >= 0 && nc < n && grid[nr][nc] == 1) {
+          grid[nr][nc] = 0; // Mark visited
+          queue.offer(new int[] {nr, nc});
+        }
+      }
+    }
+  }
+
+  /** https://leetcode.com/problems/shortest-bridge/ */
+  public static int shortestBridge(int[][] grid) {
+    int m = grid.length, n = grid[0].length;
+    Queue<int[]> queue = new LinkedList<>();
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    // Step 1: Find the first island and mark it
+    boolean found = false;
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        if (grid[i][j] == 1) {
+          markIsland(grid, i, j, queue, directions, m, n);
+          found = true;
+          break;
+        }
+      }
+      if (found) break;
+    }
+
+    // Step 2: BFS expansion to find the shortest bridge
+    int distance = 0;
+    while (!queue.isEmpty()) {
+      int size = queue.size();
+      for (int i = 0; i < size; i++) {
+        int[] cur = queue.poll();
+        int r = cur[0], c = cur[1];
+        for (int[] dir : directions) {
+          int nr = r + dir[0], nc = c + dir[1];
+          if (nr >= 0 && nr < m && nc >= 0 && nc < n) {
+            if (grid[nr][nc] == 1) {
+              return distance;
+            } else if (grid[nr][nc] == 0) {
+              queue.offer(new int[] {nr, nc});
+              grid[nr][nc] = -1; // Mark as visited water
+            }
+          }
+        }
+      }
+      distance++; // Move this here for clarity
+    }
+    return -1; // Should never happen
+  }
+
+  // Helper function to mark the first island
+  private static void markIsland(
+      int[][] grid, int i, int j, Queue<int[]> queue, int[][] directions, int m, int n) {
+    Queue<int[]> bfsQueue = new LinkedList<>();
+    bfsQueue.offer(new int[] {i, j});
+    grid[i][j] = 2; // Mark as visited island
+
+    while (!bfsQueue.isEmpty()) {
+      int[] cur = bfsQueue.poll();
+      int r = cur[0], c = cur[1];
+      queue.offer(new int[] {r, c}); // Add border cells to BFS queue
+
+      for (int[] dir : directions) {
+        int nr = r + dir[0], nc = c + dir[1];
+        if (nr >= 0 && nr < m && nc >= 0 && nc < n && grid[nr][nc] == 1) {
+          grid[nr][nc] = 2; // Mark as visited island
+          bfsQueue.offer(new int[] {nr, nc});
+        }
+      }
+    }
   }
 }
