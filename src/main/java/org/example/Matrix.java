@@ -562,4 +562,44 @@ class Matrix {
     }
     return max * max;
   }
+
+  /**
+   * https://leetcode.com/problems/merge-two-2d-arrays-by-summing-values/?envType=daily-question&envId=2025-03-02
+   *
+   * <pre>
+   * Input: nums1 = [[1,2],[2,3],[4,5]], nums2 = [[1,4],[3,2],[4,1]]
+   * Output: [[1,6],[2,3],[3,2],[4,6]]
+   * Explanation: The resulting array contains the following:
+   * - id = 1, the value of this id is 2 + 4 = 6.
+   * - id = 2, the value of this id is 3.
+   * - id = 3, the value of this id is 2.
+   * - id = 4, the value of this id is 5 + 1 = 6.
+   * </pre>
+   */
+  public static int[][] mergeArrays(int[][] nums1, int[][] nums2) {
+    List<int[]> res = new ArrayList<>();
+    int l = 0, r = 0;
+    while (l < nums1.length && r < nums2.length) {
+      if (nums1[l][0] == nums2[r][0]) {
+        res.add(new int[] {nums1[l][0], nums1[l][1] + nums2[r][1]});
+        l++;
+        r++;
+      } else if (nums1[l][0] < nums2[r][0]) {
+        res.add(new int[] {nums1[l][0], nums1[l][1]});
+        l++;
+      } else {
+        res.add(new int[] {nums2[r][0], nums2[r][1]});
+        r++;
+      }
+    }
+    while (l < nums1.length) {
+      res.add(new int[] {nums1[l][0], nums1[l][1]});
+      l++;
+    }
+    while (r < nums2.length) {
+      res.add(new int[] {nums2[r][0], nums2[r][1]});
+      r++;
+    }
+    return res.toArray(int[][]::new);
+  }
 }

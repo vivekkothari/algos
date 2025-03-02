@@ -1,5 +1,6 @@
 package org.example.llmquiz;
 
+import static java.lang.Integer.MAX_VALUE;
 import static org.example.Arrays.swap;
 
 import java.util.ArrayDeque;
@@ -40,6 +41,7 @@ class ChatGptAlgoQuiz {
   }
 
   public static void main(String[] args) {
+    System.out.println(openLock(new String[] {"0201", "0101", "0102", "1212", "2002"}, "0202"));
     //    var board =
     //        new char[][] {
     //          {'X', 'X', 'X', 'X'},
@@ -49,16 +51,15 @@ class ChatGptAlgoQuiz {
     //        };
     //    surroundedRegion(board);
     //    System.out.println(Arrays.deepToString(board));
-    System.out.println(
-        shortestBridge(
-            new int[][] {
-              {0, 0, 0, 0, 0, 0},
-              {0, 1, 1, 1, 0, 0},
-              {0, 1, 1, 1, 0, 0},
-              {0, 1, 1, 1, 0, 0},
-              {0, 0, 0, 0, 0, 0},
-              {0, 0, 0, 0, 1, 0}
-            }));
+    //    System.out.println(
+    //        ladderLength("hit", "cog", List.of("hot", "dot", "dog", "lot", "log", "cog")));
+    //    wallsAndGate(
+    //        new int[][] {
+    //          {MAX_VALUE, -1, 0, MAX_VALUE},
+    //          {MAX_VALUE, MAX_VALUE, MAX_VALUE, -1},
+    //          {MAX_VALUE, -1, MAX_VALUE, -1},
+    //          {0, -1, MAX_VALUE, MAX_VALUE}
+    //        });
     //    System.out.println(subarraysDivByK(new int[] {4, 5, 0, -2, -3, 1}, 5));
     //    System.out.println(pivotIndex(new int[] {1, 7, 3, 6, 5, 6}));
     //    System.out.println(validPalindrome("abcdeca", 2));
@@ -322,7 +323,7 @@ class ChatGptAlgoQuiz {
   }
 
   public static int minSubarrayWithSumAtLeastK(int[] nums, int k) {
-    int l = 0, minLen = Integer.MAX_VALUE, currSum = 0;
+    int l = 0, minLen = MAX_VALUE, currSum = 0;
     for (int r = 0; r < nums.length; r++) {
       currSum += nums[r];
       while (currSum >= k) {
@@ -331,7 +332,7 @@ class ChatGptAlgoQuiz {
         l++;
       }
     }
-    return minLen == Integer.MAX_VALUE ? 0 : minLen;
+    return minLen == MAX_VALUE ? 0 : minLen;
   }
 
   /**
@@ -1007,5 +1008,298 @@ class ChatGptAlgoQuiz {
         }
       }
     }
+  }
+
+  public static int shortestPathBinaryMatrix(int[][] grid) {
+    if (grid[0][0] != 0) {
+      return -1;
+    }
+    int m = grid.length, n = grid[0].length;
+    if (grid[m - 1][n - 1] != 0) {
+      return -1;
+    }
+    Queue<int[]> queue = new LinkedList<>();
+    queue.offer(new int[] {0, 0, 1});
+    // all 8 dirs allowed
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}, {-1, 1}, {1, -1}};
+    while (!queue.isEmpty()) {
+      var cur = queue.poll();
+      int r = cur[0], c = cur[1];
+      if (r == m - 1 && c == n - 1) {
+        return cur[2];
+      }
+      for (int[] dir : directions) {
+        int nr = r + dir[0], nc = c + dir[1];
+        if (nr >= 0
+            && nr < m
+            && nc >= 0
+            && nc < n
+            // Only 0 are allowed
+            && grid[nr][nc] == 0) {
+          grid[nr][nc] = 1;
+          queue.offer(new int[] {nr, nc, cur[2] + 1});
+        }
+      }
+    }
+    return -1;
+  }
+
+  /**
+   * https://leetcode.com/problems/flood-fill/
+   *
+   * <pre>
+   * Input: image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, color = 2
+   * Output: [[2,2,2],[2,2,0],[2,0,1]]
+   * </pre>
+   */
+  public static int[][] floodFill(int[][] image, int sr, int sc, int color) {
+    int m = image.length, n = image[0].length;
+    Queue<int[]> queue = new LinkedList<>();
+    var origColor = image[sr][sc];
+    if (origColor == color) {
+      return image;
+    }
+    queue.offer(new int[] {sr, sc});
+    image[sr][sc] = color;
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    while (!queue.isEmpty()) {
+      var cur = queue.poll();
+      int r = cur[0], c = cur[1];
+      for (var dir : directions) {
+        int nr = r + dir[0], nc = c + dir[1];
+        if (nr >= 0 && nr < m && nc >= 0 && nc < n && image[nr][nc] == origColor) {
+          image[nr][nc] = color;
+          queue.offer(new int[] {nr, nc});
+        }
+      }
+    }
+    return image;
+  }
+
+  /**
+   * https://leetcode.com/problems/rotting-oranges/description/
+   *
+   * <pre>
+   * You are given an m x n grid where each cell can have one of three values:
+   * 0 representing an empty cell,
+   * 1 representing a fresh orange, or
+   * 2 representing a rotten orange.
+   * Every minute, any fresh orange that is 4-directionally adjacent to a rotten orange becomes rotten.
+   *
+   * Return the minimum number of minutes that must elapse until no cell has a fresh orange.
+   * If this is impossible, return -1.
+   * </pre>
+   */
+  public static int orangesRotting(int[][] grid) {
+    int m = grid.length, n = grid[0].length;
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    int minutes = -1;
+    Queue<int[]> queue = new LinkedList<>();
+    int countFreshOrange = 0;
+    // Store all rotting oranges here.
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        if (grid[i][j] == 2) queue.offer(new int[] {i, j});
+        if (grid[i][j] == 1) countFreshOrange++;
+      }
+    }
+    if (countFreshOrange == 0) return 0;
+    if (queue.isEmpty()) return -1;
+
+    while (!queue.isEmpty()) {
+      int size = queue.size();
+      for (int i = 0; i < size; i++) {
+        var cur = queue.poll();
+        int r = cur[0], c = cur[1];
+        for (var dir : directions) {
+          int nr = r + dir[0], nc = c + dir[1];
+          if (nr >= 0 && nr < m && nc >= 0 && nc < n && grid[nr][nc] == 1) {
+            grid[nr][nc] = 2;
+            countFreshOrange--;
+            queue.offer(new int[] {nr, nc});
+          }
+        }
+      }
+      minutes++;
+    }
+    return countFreshOrange == 0 ? minutes : -1;
+  }
+
+  /**
+   * https://leetcode.ca/all/286.html
+   *
+   * <pre>
+   *   You are given a m x n 2D grid initialized with these three possible values.
+   *
+   * -1 - A wall or an obstacle.
+   * 0 - A gate.
+   * INF - Infinity means an empty room. We use the value 231 - 1 = 2147483647 to
+   * represent INF as you may assume that the distance to a gate is less than 2147483647.
+   * Fill each empty room with the distance to its nearest gate. If it is
+   * impossible to reach a gate, it should be filled with INF.
+   *
+   * Example:
+   *
+   * Given the 2D grid:
+   *
+   * INF  -1  0  INF
+   * INF INF INF  -1
+   * INF  -1 INF  -1
+   *   0  -1 INF INF
+   * After running your function, the 2D grid should be:
+   *
+   *   3  -1   0   1
+   *   2   2   1  -1
+   *   1  -1   2  -1
+   *   0  -1   3   4
+   * </pre>
+   */
+  public static void wallsAndGate(int[][] grid) {
+    int m = grid.length, n = grid[0].length;
+    Queue<int[]> queue = new LinkedList<>();
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        // We start from gate
+        if (grid[i][j] == 0) {
+          queue.offer(new int[] {i, j});
+        }
+      }
+    }
+    while (!queue.isEmpty()) {
+      var curr = queue.poll();
+      int r = curr[0], c = curr[1];
+      for (var dir : directions) {
+        int nr = r + dir[0], nc = c + dir[1];
+        if (nr >= 0 && nr < m && nc >= 0 && nc < n && grid[nr][nc] == MAX_VALUE) {
+          grid[nr][nc] = grid[r][c] + 1; // Update distance
+          queue.offer(new int[] {nr, nc});
+        }
+      }
+    }
+  }
+
+  /**
+   * https://leetcode.com/problems/word-ladder/description/
+   *
+   * <p>Example 1:
+   *
+   * <p>Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
+   * Output: 5 Explanation: One shortest transformation sequence is "hit" -> "hot" -> "dot" -> "dog"
+   * -> cog", which is 5 words long.
+   *
+   * <p>Example 2:
+   *
+   * <p>Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log"]
+   * Output: 0 Explanation: The endWord "cog" is not in wordList, therefore there is no valid
+   * transformation sequence.
+   */
+  public static int ladderLength(String beginWord, String endWord, List<String> wordList) {
+    var words = new HashSet<>(wordList);
+    if (!words.contains(endWord)) {
+      return 0;
+    }
+    Queue<String> queue = new LinkedList<>();
+    queue.offer(beginWord);
+    int level = 1; // Level starts from 1 because we count the `beginWord`
+    while (!queue.isEmpty()) {
+      int size = queue.size(); // Process all words at the current level
+      for (int i = 0; i < size; i++) {
+        var word = queue.poll();
+        for (var j = 0; j < word.length(); j++) {
+          var sb = new StringBuilder(word);
+          char originalChar = word.charAt(j);
+          for (char ch = 'a'; ch <= 'z'; ch++) {
+            if (ch == originalChar) continue; // Skip the original character
+            sb.setCharAt(j, ch);
+            var newWord = sb.toString();
+            if (newWord.equals(endWord)) {
+              return level + 1; // Return steps including this last transformation
+            }
+            if (words.contains(newWord)) {
+              queue.offer(newWord);
+              words.remove(newWord); // Remove to avoid re-visiting
+            }
+          }
+        }
+      }
+      level++; // Move to the next BFS level
+    }
+    return 0;
+  }
+
+  /** https://leetcode.com/problems/minimum-genetic-mutation/ */
+  public static int minMutation(String startGene, String endGene, String[] bank) {
+    var words = Arrays.stream(bank).collect(Collectors.toSet());
+    if (!words.contains(endGene)) {
+      return -1;
+    }
+    var allowedChars = List.of('A', 'C', 'G', 'T');
+    Queue<String> queue = new LinkedList<>();
+    queue.offer(startGene);
+    int level = 1; // Level starts from 1 because we count the `beginWord`
+    while (!queue.isEmpty()) {
+      int size = queue.size(); // Process all words at the current level
+      for (int i = 0; i < size; i++) {
+        var word = queue.poll();
+        for (var j = 0; j < word.length(); j++) {
+          var sb = new StringBuilder(word);
+          char originalChar = word.charAt(j);
+          for (var ch : allowedChars) {
+            if (ch == originalChar) continue; // Skip the original character
+            sb.setCharAt(j, ch);
+            var newWord = sb.toString();
+            if (newWord.equals(endGene)) {
+              return level + 1; // Return steps including this last transformation
+            }
+            if (words.contains(newWord)) {
+              queue.offer(newWord);
+              words.remove(newWord); // Remove to avoid re-visiting
+            }
+          }
+        }
+      }
+      level++; // Move to the next BFS level
+    }
+    return -1;
+  }
+
+  public static int openLock(String[] deadends, String target) {
+    var visited = Arrays.stream(deadends).collect(Collectors.toSet());
+    var start = "0000";
+    if (visited.contains(start)) return -1;
+    if (start.equals(target)) return 0;
+    Queue<String> queue = new LinkedList<>();
+    queue.offer(start);
+    visited.add(start);
+    int level = 1; // Level starts from 1 because we count the `beginWord`
+    while (!queue.isEmpty()) {
+      var size = queue.size();
+
+      for (int i = 0; i < size; i++) {
+        var word = queue.poll();
+
+        for (int j = 0; j < word.length(); j++) {
+          var sb = new StringBuilder(word);
+          int originalChar = word.charAt(j) - '0';
+
+          for (int k = 0; k < 2; k++) {
+            var combo = (10 + originalChar + (k == 0 ? 1 : -1)) % 10;
+            sb.setCharAt(j, (char) (combo + '0'));
+            var newWord = sb.toString();
+            if (newWord.equals(target)) {
+              return level;
+            }
+
+            if (!visited.contains(newWord)) {
+              visited.add(newWord);
+              queue.offer(newWord);
+            }
+          }
+        }
+      }
+      level++; // Move to the next BFS level
+    }
+    return -1;
   }
 }
