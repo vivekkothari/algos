@@ -392,6 +392,40 @@ public class Arrays {
     return goalPost == 0;
   }
 
+  /**
+   * https://leetcode.com/problems/partition-array-according-to-given-pivot/?envType=daily-question&envId=2025-03-03
+   *
+   * <pre>
+   * Input: nums = [9,12,5,10,14,3,10], pivot = 10
+   * Output: [9,5,3,10,10,12,14]
+   * Explanation:
+   * The elements 9, 5, and 3 are less than the pivot so they are on the left side of the array.
+   * The elements 12 and 14 are greater than the pivot so they are on the right side of the array.
+   * The relative ordering of the elements less than and greater than pivot is also maintained.
+   * [9, 5, 3] and [12, 14] are the respective orderings.
+   * </pre>
+   */
+  public static int[] pivotArray(int[] nums, int pivot) {
+    int[] res = new int[nums.length];
+    int k = 0;
+    for (var num : nums) {
+      if (num < pivot) {
+        res[k++] = num;
+      }
+    }
+    for (var num : nums) {
+      if (num == pivot) {
+        res[k++] = num;
+      }
+    }
+    for (var num : nums) {
+      if (num > pivot) {
+        res[k++] = num;
+      }
+    }
+    return res;
+  }
+
   static int minJumpsRecur(int i, int[] arr, Map<Integer, Integer> memo) {
 
     // Return 0 when last element is reached.

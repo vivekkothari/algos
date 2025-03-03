@@ -41,7 +41,15 @@ class ChatGptAlgoQuiz {
   }
 
   public static void main(String[] args) {
-    System.out.println(openLock(new String[] {"0201", "0101", "0102", "1212", "2002"}, "0202"));
+    findWords(
+        new char[][] {
+          {'o', 'a', 'a', 'n'}, {'e', 't', 'a', 'e'}, {'i', 'h', 'k', 'r'}, {'i', 'f', 'l', 'v'}
+        },
+        new String[] {"oath", "pea", "eat", "rain"});
+    //    System.out.println(cutOffTree(List.of(List.of(1, 2, 3), List.of(0, 0, 4), List.of(7, 6,
+    // 5))));
+    //    System.out.println(openLock(new String[] {"0201", "0101", "0102", "1212", "2002"},
+    // "0202"));
     //    var board =
     //        new char[][] {
     //          {'X', 'X', 'X', 'X'},
@@ -1301,5 +1309,127 @@ class ChatGptAlgoQuiz {
       level++; // Move to the next BFS level
     }
     return -1;
+  }
+
+  /**
+   * https://leetcode.com/problems/cut-off-trees-for-golf-event/ Input: forest =
+   * [[1,2,3],[0,0,4],[7,6,5]] Output: 6
+   */
+  public static int cutOffTree(List<List<Integer>> forest) {
+    int m = forest.size(), n = forest.get(0).size();
+    List<int[]> trees = new ArrayList<>();
+
+    // Step 1: Extract trees and sort by height
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        if (forest.get(i).get(j) >= 1) {
+          trees.add(new int[] {i, j, forest.get(i).get(j)});
+        }
+      }
+    }
+    trees.sort(Comparator.comparingInt(a -> a[2])); // Sort by height
+
+    int totalSteps = 0;
+    int startX = 0, startY = 0;
+
+    // Step 2: BFS to find the shortest path between trees
+    for (int[] tree : trees) {
+      int steps = cutOffTreeBfs(forest, startX, startY, tree[0], tree[1]);
+      if (steps == -1) return -1; // If a tree is unreachable, return -1
+      totalSteps += steps;
+      startX = tree[0]; // Move to the next starting position
+      startY = tree[1];
+    }
+    return totalSteps;
+  }
+
+  // BFS function to find the shortest path from (sr, sc) to (tr, tc)
+  private static int cutOffTreeBfs(List<List<Integer>> forest, int sr, int sc, int tr, int tc) {
+    if (sr == tr && sc == tc) return 0; // Already at the target
+
+    int m = forest.size(), n = forest.getFirst().size();
+    Queue<int[]> queue = new LinkedList<>();
+    boolean[][] visited = new boolean[m][n];
+    queue.offer(new int[] {sr, sc, 0}); // {row, col, steps}
+    visited[sr][sc] = true;
+
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+    while (!queue.isEmpty()) {
+      int[] curr = queue.poll();
+      int r = curr[0], c = curr[1], steps = curr[2];
+
+      for (int[] dir : directions) {
+        int nr = r + dir[0], nc = c + dir[1];
+        if (nr >= 0
+            && nr < m
+            && nc >= 0
+            && nc < n
+            && !visited[nr][nc]
+            && forest.get(nr).get(nc) != 0) {
+
+          if (nr == tr && nc == tc) return steps + 1; // Reached target
+
+          queue.offer(new int[] {nr, nc, steps + 1});
+          visited[nr][nc] = true;
+        }
+      }
+    }
+    return -1; // Target tree is unreachable
+  }
+
+  public static List<String> findWords(char[][] board, String[] words) {
+    Trie trie = buildTrie(words);
+    Set<String> res = new HashSet<>();
+    for (int i = 0; i < board.length; i++) {
+      for (int j = 0; j < board[0].length; j++) {
+        dfs(board, trie, res, i, j);
+      }
+    }
+    return new ArrayList<>(res);
+  }
+
+  private static void dfs(char[][] board, Trie node, Set<String> res, int i, int j) {
+    if (i < 0
+        || i >= board.length
+        || j < 0
+        || j >= board[0].length
+        || board[i][j] == '#'
+        || node.next[board[i][j] - 'a'] == null) {
+      return;
+    }
+    if (node.next[board[i][j] - 'a'].word != null) {
+      res.add(node.next[board[i][j] - 'a'].word);
+    }
+
+    // Go to next char
+    node = node.next[board[i][j] - 'a'];
+    char c = board[i][j];
+    board[i][j] = '#';
+    dfs(board, node, res, i - 1, j);
+    dfs(board, node, res, i + 1, j);
+    dfs(board, node, res, i, j - 1);
+    dfs(board, node, res, i, j + 1);
+    board[i][j] = c;
+  }
+
+  private static Trie buildTrie(String[] words) {
+    Trie root = new Trie();
+    for (String w : words) {
+      Trie p = root;
+      for (char c : w.toCharArray()) {
+        if (p.next[c - 'a'] == null) {
+          p.next[c - 'a'] = new Trie();
+        }
+        p = p.next[c - 'a']; // will point to curr char
+      }
+      p.word = w;
+    }
+    return root;
+  }
+
+  private static class Trie {
+    Trie[] next = new Trie[26];
+    String word = null;
   }
 }
