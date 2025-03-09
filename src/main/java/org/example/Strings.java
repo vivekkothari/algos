@@ -1,16 +1,9 @@
 package org.example;
 
 import java.time.LocalTime;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Arrays;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -246,7 +239,8 @@ class Strings {
   }
 
   public static void main(String[] args) {
-    repeatedSubstringPattern("abab");
+    System.out.println(minWindow("aab", "aab"));
+    //        repeatedSubstringPattern("abab");
     //    System.out.println(partitionLabels("ababcbacadefegdehijhklij"));
     //    System.out.println(checkInclusion("ab", "eidbaooo"));
     //    System.out.println(minimizeConcatenatedLength(new String[] {"a", "bc", "c"}));
@@ -1932,5 +1926,38 @@ class Strings {
       }
     }
     return false;
+  }
+
+  public static String minWindow(String s, String t) {
+    if (t.length() > s.length()) return "";
+    var tFreq = new HashMap<Character, Integer>();
+    for (var c : t.toCharArray()) {
+      tFreq.put(c, tFreq.getOrDefault(c, 0) + 1);
+    }
+    var windowFreq = new HashMap<Character, Integer>();
+    int l = 0, r = 0, minLen = Integer.MAX_VALUE;
+    int[] res = new int[] {-1, -1}; // store l and r pointer for current minLen
+    int have = 0, need = tFreq.size();
+    for (; r < s.length(); r++) {
+      var c = s.charAt(r);
+      windowFreq.put(c, windowFreq.getOrDefault(c, 0) + 1);
+      if (tFreq.containsKey(c) && windowFreq.get(c).equals(tFreq.get(c))) {
+        have++;
+      }
+      while (have == need) {
+        if (minLen > (r - l + 1)) {
+          minLen = r - l + 1;
+          res[0] = l;
+          res[1] = r;
+        }
+        var lc = s.charAt(l);
+        windowFreq.put(lc, windowFreq.getOrDefault(lc, 0) - 1);
+        if (tFreq.containsKey(lc) && windowFreq.get(lc) < tFreq.get(lc)) {
+          have--;
+        }
+        l++;
+      }
+    }
+    return minLen == Integer.MAX_VALUE ? "" : s.substring(res[0], res[1] + 1);
   }
 }

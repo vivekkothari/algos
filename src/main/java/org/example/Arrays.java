@@ -2289,7 +2289,7 @@ public class Arrays {
    * Return the maximum area of water that can be trapped between the bars.
    * </pre>
    *
-   * <img
+   * <p><img
    * src="https://imagedelivery.net/CLfkmk9Wzy8_9HRyug4EVA/0c25cb81-1095-4382-fff2-6ef77c1fd100/public"></img>
    * Input: height = [0,2,0,3,1,0,1,3,2,1]
    *
@@ -2570,5 +2570,42 @@ public class Arrays {
       r++;
     }
     return maxSum;
+  }
+
+  /**
+   * https://neetcode.io/problems/median-of-two-sorted-arrays
+   *
+   * <p>https://leetcode.com/problems/median-of-two-sorted-arrays/description/
+   */
+  public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+    int n1 = nums1.length, n2 = nums2.length;
+    // Ensure nums1 is the smaller array for simplicity
+    if (n1 > n2) return findMedianSortedArrays(nums2, nums1);
+    int total = nums1.length + nums2.length;
+    int half = (total + 1) / 2;
+
+    int l = 0;
+    int r = nums1.length;
+    while (l <= r) {
+      int m1 = l + (r - l) / 2;
+      int m2 = half - m1;
+
+      int left1 = m1 > 0 ? nums1[m1 - 1] : Integer.MIN_VALUE;
+      int right1 = m1 < nums1.length ? nums1[m1] : Integer.MAX_VALUE;
+      int left2 = m2 > 0 ? nums2[m2 - 1] : Integer.MIN_VALUE;
+      int right2 = m2 < nums2.length ? nums2[m2] : Integer.MAX_VALUE;
+
+      if (left1 <= right2 && left2 <= right1) {
+        if (total % 2 != 0) {
+          return Math.max(left1, left2);
+        }
+        return (Math.max(left1, left2) + Math.min(right1, right2)) / 2.0;
+      } else if (left1 > right2) {
+        r = m1 - 1;
+      } else {
+        l = m1 + 1;
+      }
+    }
+    return -1;
   }
 }
