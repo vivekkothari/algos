@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 import org.example.ds.NestedInteger;
@@ -11,9 +12,16 @@ import org.example.ds.NestedInteger;
 public class LinkedInQuestions {
 
   public static void main(String[] args) {
+    RandomizedSet set = new RandomizedSet();
+    System.out.println(set.remove(0));
+    System.out.println(set.remove(0));
+    System.out.println(set.insert(0));
+    System.out.println(set.getRandom());
+    System.out.println(set.remove(0));
+    System.out.println(set.insert(0));
+    //    maxPoints(new int[][] {{1, 1}, {3, 2}, {5, 3}, {4, 1}, {2, 3}, {1, 4}});
     //    System.out.println(getFactors(32));
-    System.out.println(minCost(new int[][] {{17, 2, 17}, {16, 16, 5}, {14, 3, 19}}));
-    System.out.println(counter);
+    //    System.out.println(minCostII(new int[][] {{17, 2, 17}, {16, 16, 5}, {14, 3, 19}}));
     //    var binaryNode =
     //        new Trees.TreeNode(
     //            4,
@@ -303,31 +311,172 @@ public class LinkedInQuestions {
     return currentHeight;
   }
 
-  static int counter = 0;
-
   /** https://leetcode.ca/all/256.html */
   public static int minCost(int[][] costs) {
     if (costs == null || costs.length == 0) return 0;
     // 0 = read, 1 = blue, 2 = green
-    Map<String, Integer> memo = new HashMap<>();
+    int[][] memo = new int[costs.length][3];
+    for (int[] ints : memo) {
+      Arrays.fill(ints, -1);
+    }
     return Math.min(
         paint(costs, 0, 0, memo), Math.min(paint(costs, 0, 1, memo), paint(costs, 0, 2, memo)));
   }
 
-  private static int paint(int[][] costs, int i, int color, Map<String, Integer> memo) {
-    if (memo.containsKey("%d,%d".formatted(i, color))) {
-      return memo.get("%d,%d".formatted(i, color));
-    }
-    counter++;
+  private static int paint(int[][] costs, int i, int color, int[][] memo) {
     if (i == costs.length) return 0;
-
+    if (memo[i][color] != -1) return memo[i][color];
     int next1 = (color + 1) % 3; // Choose a different color
     int next2 = (color + 2) % 3; // Choose another different color
 
     int cost =
         costs[i][color]
             + Math.min(paint(costs, i + 1, next1, memo), paint(costs, i + 1, next2, memo));
-    memo.put("%d,%d".formatted(i, color), cost);
+    memo[i][color] = cost;
     return cost;
+  }
+
+  public static int minCostBottomsUp(int[][] costs) {
+    if (costs == null || costs.length == 0) return 0;
+
+    int n = costs.length;
+
+    // Bottom-up DP: Modify the costs array itself to save space
+    for (int i = n - 2; i >= 0; i--) {
+      costs[i][0] += Math.min(costs[i + 1][1], costs[i + 1][2]); // Red cost
+      costs[i][1] += Math.min(costs[i + 1][0], costs[i + 1][2]); // Blue cost
+      costs[i][2] += Math.min(costs[i + 1][0], costs[i + 1][1]); // Green cost
+    }
+
+    // The answer is the min cost to paint the first house with any of the three colors
+    return Math.min(costs[0][0], Math.min(costs[0][1], costs[0][2]));
+  }
+
+  /** https://leetcode.ca/2016-08-21-265-Paint-House-II/ */
+  public static int minCostII(int[][] costs) {
+    if (costs == null || costs.length == 0) {
+      return 0;
+    }
+    int min1 = -1, min2 = -1;
+    for (int i = 0; i < costs.length; i++) {
+      int last1 = min1;
+      int last2 = min2;
+      min1 = -1;
+      min2 = -1;
+      for (int j = 0; j < costs[i].length; j++) {
+        if (j != last1) {
+          costs[i][j] += last1 < 0 ? 0 : costs[i - 1][last1];
+        } else {
+          costs[i][j] += last2 < 0 ? 0 : costs[i - 1][last2];
+        }
+
+        if (min1 < 0 || costs[i][j] < costs[i][min1]) {
+          min2 = min1;
+          min1 = j;
+        } else if (min2 < 0 || costs[i][j] < costs[i][min2]) {
+          min2 = j;
+        }
+      }
+    }
+
+    return costs[costs.length - 1][min1];
+  }
+
+  /** https://leetcode.com/problems/max-points-on-a-line/description/ */
+  public static int maxPoints(int[][] points) {
+    int max = 1;
+    for (int i = 0; i < points.length; i++) {
+      Map<Double, Integer> map = new HashMap<>();
+      for (int j = 0; j < points.length; j++) {
+        if (i == j) {
+          continue;
+        }
+        double slope;
+        if (points[i][0] - points[j][0] == 0) {
+          slope = Double.POSITIVE_INFINITY;
+        } else {
+          slope = (double) (points[j][1] - points[i][1]) / (points[j][0] - points[i][0]);
+        }
+        map.put(slope, map.getOrDefault(slope, 1) + 1);
+      }
+      if (!map.isEmpty()) {
+        max = Math.max(max, Collections.max(map.values()));
+      }
+    }
+    return max;
+  }
+
+  public boolean isNumber(String s) {
+    boolean isdot = false, ise = false, nums = false;
+    for (int i = 0; i < s.length(); i++) {
+      char c = s.charAt(i);
+      if (Character.isDigit(c)) nums = true;
+      else if (c == '+' || c == '-') {
+        if (i > 0 && s.charAt(i - 1) != 'e' && s.charAt(i - 1) != 'E') return false;
+      } else if (c == 'e' || c == 'E') {
+        if (ise || !nums) return false;
+        ise = true;
+        nums = false;
+      } else if (c == '.') {
+        if (isdot || ise) return false;
+        isdot = true;
+      } else return false;
+    }
+    return nums;
+  }
+
+  /** https://leetcode.com/problems/can-place-flowers/description/ */
+  public static boolean canPlaceFlowers(int[] flowerbed, int n) {
+    for (int i = 0; i < flowerbed.length && n > 0; i++) {
+      if (canPlaceFlowersAt(flowerbed, i)) {
+        n--;
+      }
+    }
+    return n == 0;
+  }
+
+  private static boolean canPlaceFlowersAt(int[] flowerbed, int i) {
+    // Already has flower
+    if (flowerbed[i] == 1) return false;
+    boolean leftEmpty = i == 0 || flowerbed[i - 1] == 0;
+    boolean rightEmpty = i == flowerbed.length - 1 || flowerbed[i + 1] == 0;
+    if (leftEmpty && rightEmpty) {
+      flowerbed[i] = 1;
+      return true;
+    }
+    return false;
+  }
+
+  /** https://leetcode.com/problems/insert-delete-getrandom-o1/ */
+  static class RandomizedSet {
+
+    private final Random random = new Random();
+    // Element to its position in list.
+    private final Map<Integer, Integer> map = new HashMap<>();
+    private final List<Integer> list = new ArrayList<>();
+
+    public RandomizedSet() {}
+
+    public boolean insert(int val) {
+      if (map.containsKey(val)) return false;
+      list.add(val);
+      map.put(val, list.size() - 1);
+      return true;
+    }
+
+    public boolean remove(int val) {
+      if (!map.containsKey(val)) return false;
+      var posOfRemoved = map.get(val);
+      var temp = list.getLast();
+      list.set(posOfRemoved, temp);
+      map.put(temp, posOfRemoved);
+      list.removeLast();
+      map.remove(val);
+      return true;
+    }
+
+    public int getRandom() {
+      return list.get(random.nextInt(list.size()));
+    }
   }
 }

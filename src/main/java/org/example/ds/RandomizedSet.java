@@ -6,7 +6,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-/** https://www.youtube.com/watch?v=46dZH7LDbf8 */
+/**
+ * https://www.youtube.com/watch?v=46dZH7LDbf8
+ * https://leetcode.com/problems/insert-delete-getrandom-o1/submissions/1528528444/
+ */
 class RandomizedSet {
 
   private final Map<Integer, Integer> map = new HashMap<>();

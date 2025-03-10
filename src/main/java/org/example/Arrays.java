@@ -1147,6 +1147,33 @@ public class Arrays {
     return false;
   }
 
+  // https://leetcode.com/problems/insert-interval/
+  public static int[][] insert(int[][] intervals, int[] newInterval) {
+    List<int[]> res = new ArrayList<>();
+    int i = 0;
+    var toBeInserted = newInterval.clone();
+    while (i < intervals.length) {
+      var curr = intervals[i];
+      if (curr[1] < newInterval[0]) {
+        res.add(curr);
+        i++;
+        continue;
+      }
+      if (curr[0] < newInterval[0]) {
+        toBeInserted[0] = curr[0];
+      }
+      if (newInterval[1] < curr[0]) break;
+      toBeInserted[1] = Math.max(curr[1], newInterval[1]);
+      i++;
+    }
+    res.add(toBeInserted);
+    while (i < intervals.length) {
+      res.add(intervals[i++]);
+    }
+
+    return res.stream().toArray(int[][]::new);
+  }
+
   /**
    *
    *
