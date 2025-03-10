@@ -21,7 +21,7 @@ class Trees {
     }
   }
 
-  static final class TreeNode {
+  public static final class TreeNode {
     int val;
     TreeNode left;
     TreeNode right;
