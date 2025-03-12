@@ -12,13 +12,20 @@ import org.example.ds.NestedInteger;
 public class LinkedInQuestions {
 
   public static void main(String[] args) {
-    RandomizedSet set = new RandomizedSet();
-    System.out.println(set.remove(0));
-    System.out.println(set.remove(0));
-    System.out.println(set.insert(0));
-    System.out.println(set.getRandom());
-    System.out.println(set.remove(0));
-    System.out.println(set.insert(0));
+    System.out.println(nestedListSum("[[1,1],2,[1,1]]"));
+    //    rob(new int[] {1, 2, 3});
+    //    isIsomorphic("egg", "add");
+    //    evalRPN(new String[] {"4", "13", "5", "/", "+"});
+    //    fullJustify(new String[] {"This", "is", "an", "example", "of", "text", "justification."},
+    // 20)
+    //        .forEach(System.out::println);
+    //    RandomizedSet set = new RandomizedSet();
+    //    System.out.println(set.remove(0));
+    //    System.out.println(set.remove(0));
+    //    System.out.println(set.insert(0));
+    //    System.out.println(set.getRandom());
+    //    System.out.println(set.remove(0));
+    //    System.out.println(set.insert(0));
     //    maxPoints(new int[][] {{1, 1}, {3, 2}, {5, 3}, {4, 1}, {2, 3}, {1, 4}});
     //    System.out.println(getFactors(32));
     //    System.out.println(minCostII(new int[][] {{17, 2, 17}, {16, 16, 5}, {14, 3, 19}}));
@@ -478,5 +485,181 @@ public class LinkedInQuestions {
     public int getRandom() {
       return list.get(random.nextInt(list.size()));
     }
+  }
+
+  public static List<String> fullJustify(String[] words, int maxWidth) {
+    List<String> result = new ArrayList<>();
+    int n = words.length;
+    int index = 0;
+
+    while (index < n) {
+      int totalChars = words[index].length();
+      int last = index + 1;
+
+      // Determine the last word that fits on the current line
+      while (last < n) {
+        if (totalChars + 1 + words[last].length() > maxWidth) break;
+        totalChars += 1 + words[last].length();
+        last++;
+      }
+
+      StringBuilder sb = new StringBuilder();
+      int diff = last - index - 1; // number of gaps between words
+
+      // If this is the last line or contains only one word, left-justify
+      if (last == n || diff == 0) {
+        for (int i = index; i < last; i++) {
+          sb.append(words[i]);
+          if (i < last - 1) {
+            sb.append(" ");
+          }
+        }
+        int remainingSpaces = maxWidth - sb.length();
+        appendSpaces(sb, remainingSpaces);
+      } else {
+        int spaces = (maxWidth - totalChars) / diff;
+        int extraSpaces = (maxWidth - totalChars) % diff;
+
+        for (int i = index; i < last; i++) {
+          sb.append(words[i]);
+          if (i < last - 1) {
+            int spacesToApply = spaces + (i - index < extraSpaces ? 1 : 0);
+            appendSpaces(sb, spacesToApply + 1); // one space for word separation
+          }
+        }
+      }
+      result.add(sb.toString());
+      index = last;
+    }
+
+    return result;
+  }
+
+  private static void appendSpaces(StringBuilder sb, int count) {
+    sb.append(" ".repeat(Math.max(0, count)));
+  }
+
+  class NestedIterator implements Iterator<Integer> {
+
+    private final Stack<NestedInteger> stack;
+
+    public NestedIterator(List<NestedInteger> nestedList) {
+      stack = new Stack<>();
+      for (int i = nestedList.size() - 1; i >= 0; i--) {
+        stack.push(nestedList.get(i));
+      }
+    }
+
+    @Override
+    public Integer next() {
+      return stack.pop().getInteger();
+    }
+
+    @Override
+    public boolean hasNext() {
+      while (!stack.isEmpty()) {
+        NestedInteger current = stack.peek();
+        if (current.isInteger()) {
+          return true;
+        }
+        current = stack.pop();
+        var currentList = current.getList();
+        for (int i = currentList.size() - 1; i >= 0; i--) {
+          stack.push(currentList.get(i));
+        }
+      }
+      return false;
+    }
+  }
+
+  /** https://leetcode.com/problems/evaluate-reverse-polish-notation/ */
+  public static int evalRPN(String[] tokens) {
+    Stack<Integer> stack = new Stack<>();
+    for (String token : tokens) {
+      switch (token) {
+        case "+":
+          stack.push(stack.pop() + stack.pop());
+          break;
+        case "-":
+          Integer rhs = stack.pop();
+          stack.push(stack.pop() - rhs);
+          break;
+        case "*":
+          stack.push(stack.pop() * stack.pop());
+          break;
+        case "/":
+          Integer den = stack.pop();
+          stack.push(stack.pop() / den);
+          break;
+        default:
+          stack.push(Integer.parseInt(token));
+          break;
+      }
+    }
+    return stack.pop();
+  }
+
+  /** https://leetcode.com/problems/isomorphic-strings/ */
+  public static boolean isIsomorphic(String s, String t) {
+    if (s.length() != t.length()) return false;
+    Map<Character, Integer> sIndices = new HashMap<>();
+    Map<Character, Integer> tIndices = new HashMap<>();
+    for (int i = 0; i < s.length(); i++) {
+      sIndices.putIfAbsent(s.charAt(i), i);
+      tIndices.putIfAbsent(t.charAt(i), i);
+      if (!sIndices.get(s.charAt(i)).equals(tIndices.get(t.charAt(i)))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static int rob(int[] nums) {
+    if (nums.length == 1) {
+      return nums[0];
+    }
+    return Math.max(
+        robUtil(Arrays.copyOfRange(nums, 0, nums.length - 2)),
+        robUtil(Arrays.copyOfRange(nums, 0, nums.length - 2)));
+  }
+
+  public static int robUtil(int[] nums) {
+    if (nums.length == 1) {
+      return nums[0];
+    }
+    nums[nums.length - 2] = Math.max(nums[nums.length - 2], nums[nums.length - 1]);
+    for (int i = nums.length - 3; i >= 0; i--) {
+      nums[i] = Math.max(nums[i] + nums[i + 2], nums[i + 1]);
+    }
+    return nums[0];
+  }
+
+  /** Input: [[1,1],2,[1,1]] Output: 10 Explanation: Four 1's at depth 2, one 2 at depth 1. */
+  public static int nestedListSum(String nums) {
+    int sum = 0;
+    Stack<Character> stack = new Stack<>();
+    for (int i = 0; i < nums.length(); i++) {
+      char c = nums.charAt(i);
+      if (c == '[') {
+        stack.push(c);
+      } else if (c == ']') {
+        stack.pop();
+      } else if (c == ',') {
+        continue;
+      } else {
+        StringBuilder sb = new StringBuilder();
+        while (i < nums.length()) {
+          if (nums.charAt(i) != ']' || nums.charAt(i) != ',') {
+            sb.append(nums.charAt(i));
+            i++;
+          } else {
+            break;
+          }
+        }
+        sum +=
+            Arrays.stream(sb.toString().split(",")).mapToInt(Integer::valueOf).sum() * stack.size();
+      }
+    }
+    return sum;
   }
 }

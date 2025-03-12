@@ -1,22 +1,22 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
+
+import java.util.*;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 public class Arrays {
 
   public static void main(String[] args) {
+    System.out.println(
+        java.util.Arrays.deepToString(
+            highFive(
+                new int[][] {
+                  {1, 91}, {1, 92}, {2, 93}, {2, 97}, {1, 60}, {2, 77}, {1, 65}, {1, 87}, {1, 100},
+                  {2, 100}, {2, 76}
+                })));
     // [1,2],[2,3],[3,4],[1,3]
-    eraseOverlapIntervals(new int[][] {{1, 2}, {2, 3}, {3, 4}, {1, 3}});
+    //    eraseOverlapIntervals(new int[][] {{1, 2}, {2, 3}, {3, 4}, {1, 3}});
     //    candy(new int[] {1, 0, 2, 3, 6});
     //    System.out.println(maximumUniqueSubarray(new int[] {5, 2, 1, 2, 5, 2, 1, 2, 5}));
     //    System.out.println(longestOnes(new int[] {1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0}, 3));
@@ -93,7 +93,7 @@ public class Arrays {
     //    System.out.println(maxArea(new int[] {1, 7, 2, 5, 4, 7, 3, 6}));
     //    System.out.println(searchInsert(new int[] {1, 3, 5, 6}, 7));
 
-    //    System.out.println(climbStairs(5));
+    System.out.println(climbStairsDp(3));
     //    System.out.println(fib(50));
     //    System.out.println(rob(new int[] {2, 7, 9, 3, 1}));
     //    System.out.println(java.util.Arrays.toString(plusOne(new int[] {9})));
@@ -1427,6 +1427,17 @@ public class Arrays {
     return res;
   }
 
+  public static int climbStairsDp(int n) {
+    if (n <= 2) return n;
+    int last1 = 2, last2 = 1;
+    for (int i = 3; i <= n; i++) {
+      var temp = last1;
+      last1 = last1 + last2;
+      last2 = temp;
+    }
+    return last1;
+  }
+
   public static int climbStairs(int n) {
     return climbStairs(n, new HashMap<>());
   }
@@ -2634,5 +2645,32 @@ public class Arrays {
       }
     }
     return -1;
+  }
+
+  /** https://leetcode.ca/all/1086.html */
+  public static int[][] highFive(int[][] nums) {
+    return java.util.Arrays.stream(nums)
+        .collect(
+            Collectors.groupingBy(
+                i -> i[0],
+                TreeMap::new,
+                Collectors.collectingAndThen(
+                    Collectors.mapping(i -> i[1], Collectors.toCollection(PriorityQueue::new)),
+                    scores -> {
+                      // Min Heap for top 5 scores
+                      var minHeap = new PriorityQueue<Integer>();
+                      for (int score : scores) {
+                        minHeap.offer(score);
+                        if (minHeap.size() > 5) {
+                          minHeap.poll(); // Remove smallest element if more than 5 exist
+                        }
+                      }
+                      return minHeap.stream().mapToInt(Integer::intValue).sum()
+                          / 5; // Integer division
+                    })))
+        .entrySet()
+        .stream()
+        .map(e -> new int[] {e.getKey(), e.getValue()})
+        .toArray(int[][]::new);
   }
 }
