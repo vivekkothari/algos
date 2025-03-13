@@ -1,12 +1,7 @@
 package org.example;
 
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-import java.util.Set;
-import java.util.Stack;
 
 class Trees {
 
@@ -361,6 +356,75 @@ class Trees {
     inorderTraversal(root.left, res);
     res.add(root.val);
     inorderTraversal(root.right, res);
+  }
+
+  /** https://leetcode.com/problems/validate-binary-search-tree/submissions/1572171765/ */
+  public boolean isValidBST(TreeNode root) {
+    return valid(root, Long.MIN_VALUE, Long.MAX_VALUE);
+  }
+
+  public boolean valid(TreeNode node, long left, long right) {
+    if (node == null) {
+      return true;
+    }
+    if (left >= node.val || node.val >= right) {
+      return false;
+    }
+    return valid(node.left, left, node.val) && valid(node.right, node.val, right);
+  }
+
+  /** https://leetcode.com/problems/kth-smallest-element-in-a-bst/ */
+  public static int kthSmallest(TreeNode root, int k) {
+    var nodes = new ArrayList<Integer>();
+    kthSmallest(root, nodes);
+    return nodes.get(k - 1);
+  }
+
+  private static void kthSmallest(TreeNode root, List<Integer> nodes) {
+    if (root == null) {
+      return;
+    }
+    kthSmallest(root.left, nodes);
+    nodes.add(root.val);
+    kthSmallest(root.right, nodes);
+  }
+
+  public static int kthSmallestOptimal(TreeNode root, int k) {
+    int[] nodes = new int[] {k, 0}; // index, val
+    kthSmallestOptimal(root, nodes);
+    return nodes[1];
+  }
+
+  private static void kthSmallestOptimal(TreeNode root, int[] nodes) {
+    if (root == null) {
+      return;
+    }
+    kthSmallestOptimal(root.left, nodes);
+    nodes[0]--;
+    if (nodes[0] == 0) {
+      nodes[1] = root.val;
+      return;
+    }
+    kthSmallestOptimal(root.right, nodes);
+  }
+
+  /** https://neetcode.io/problems/binary-tree-from-preorder-and-inorder-traversal */
+  public static TreeNode buildTree(int[] preorder, int[] inorder) {
+    Map<Integer, Integer> inorderMap = new HashMap<>(); // value -> index
+    for (int i = 0; i < inorder.length; i++) {
+      inorderMap.put(inorder[i], i);
+    }
+    return buildTree(preorder, inorderMap, new int[] {0}, 0, inorder.length - 1);
+  }
+
+  private static TreeNode buildTree(
+      int[] preorder, Map<Integer, Integer> inorderMap, int[] preIndex, int l, int r) {
+    if (l > r) return null;
+    TreeNode root = new TreeNode(preorder[preIndex[0]++]);
+    var idx = inorderMap.get(root.val);
+    root.left = buildTree(preorder, inorderMap, preIndex, l, idx - 1);
+    root.right = buildTree(preorder, inorderMap, preIndex, idx + 1, r);
+    return root;
   }
 
   /** https://leetcode.com/problems/binary-tree-level-order-traversal/description/ */
