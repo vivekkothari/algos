@@ -1133,6 +1133,51 @@ class ChatGptAlgoQuiz {
     return countFreshOrange == 0 ? minutes : -1;
   }
 
+  /** https://leetcode.com/problems/word-search/ */
+  public boolean exist(char[][] board, String word) {
+    // Try to start DFS from every cell
+    for (int i = 0; i < board.length; i++) {
+      for (int j = 0; j < board[i].length; j++) {
+        if (existDfs(board, word, i, j, 0)) {
+          return true; // If word is found, return true
+        }
+      }
+    }
+    return false;
+  }
+
+  private boolean existDfs(char[][] board, String word, int r, int c, int index) {
+    // Base Case: If we matched all characters in word
+    if (index == word.length()) {
+      return true;
+    }
+
+    // Boundary Check & Character Match Check
+    if (r < 0
+        || c < 0
+        || r >= board.length
+        || c >= board[0].length
+        || board[r][c] != word.charAt(index)) {
+      return false;
+    }
+
+    // Mark as visited by modifying the board temporarily
+    char temp = board[r][c];
+    board[r][c] = '#';
+
+    // Explore all 4 directions
+    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+    for (int[] dir : directions) {
+      if (existDfs(board, word, r + dir[0], c + dir[1], index + 1)) {
+        return true;
+      }
+    }
+
+    // Backtrack (restore the original character)
+    board[r][c] = temp;
+    return false;
+  }
+
   /**
    * https://leetcode.ca/all/286.html
    *

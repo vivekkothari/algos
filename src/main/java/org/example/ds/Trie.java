@@ -14,7 +14,7 @@ class Trie {
   public void insert(String word) {
     var curr = root;
     for (char c : word.toLowerCase().toCharArray()) {
-      curr.children.computeIfAbsent(c, k -> new TrieNode());
+      curr.children.computeIfAbsent(c, _ -> new TrieNode());
       curr = curr.children.get(c);
     }
     curr.wordCount++;
@@ -79,7 +79,10 @@ class Trie {
 
   public static void main(String[] args) {
     Trie trie = new Trie();
-    trie.insert("apple");
+    //    trie.insert("apple");
+    trie.insert("app");
+    trie.insert("and");
+    trie.delete("app");
     System.out.println(trie.search("apple")); // return True
     System.out.println(trie.search("app")); // return False
     System.out.println(trie.startsWith("app")); // return True

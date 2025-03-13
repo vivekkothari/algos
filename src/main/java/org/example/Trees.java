@@ -569,4 +569,40 @@ class Trees {
     sum += sumOfLeftLeaves(root.right);
     return sum;
   }
+
+  /** https://leetcode.com/problems/binary-tree-maximum-path-sum/submissions/1572490240/ */
+  public int maxPathSum(TreeNode root) {
+    int[] res = new int[] {root.val};
+    maxPathSum(root, res);
+    return res[0];
+  }
+
+  private int maxPathSum(TreeNode root, int[] res) {
+    if (root == null) {
+      return 0;
+    }
+    int leftMax = Math.max(0, maxPathSum(root.left, res));
+    int rightMax = Math.max(0, maxPathSum(root.right, res));
+    res[0] = Math.max(res[0], root.val + leftMax + rightMax);
+    return root.val + Math.max(leftMax, rightMax);
+  }
+
+  /** https://leetcode.com/problems/sum-root-to-leaf-numbers/ */
+  public int sumNumbers(TreeNode root) {
+    int[] sum = new int[] {0};
+    sumNumbers(root, sum, 0);
+    return sum[0];
+  }
+
+  private void sumNumbers(TreeNode root, int[] sum, int curSum) {
+    if (root == null) {
+      return;
+    }
+    if (root.left == null && root.right == null) {
+      sum[0] += (curSum * 10) + root.val;
+      return;
+    }
+    sumNumbers(root.left, sum, curSum * 10 + root.val);
+    sumNumbers(root.right, sum, curSum * 10 + root.val);
+  }
 }
