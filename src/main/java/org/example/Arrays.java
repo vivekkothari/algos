@@ -1,6 +1,5 @@
 package org.example;
 
-
 import java.util.*;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
@@ -8,6 +7,7 @@ import java.util.stream.Collectors;
 public class Arrays {
 
   public static void main(String[] args) {
+    minZeroArray(new int[] {2, 0, 2}, new int[][] {{0, 2, 1}, {0, 2, 1}, {1, 1, 3}});
     System.out.println(
         java.util.Arrays.deepToString(
             highFive(
@@ -2672,5 +2672,22 @@ public class Arrays {
         .stream()
         .map(e -> new int[] {e.getKey(), e.getValue()})
         .toArray(int[][]::new);
+  }
+
+  public static int minZeroArray(int[] nums, int[][] queries) {
+    for (int i = 0; i < queries.length; i++) {
+      var query = queries[i];
+      for (int j = query[0]; j <= query[1]; j++) {
+        nums[j] = Math.max(0, nums[j] - query[2]);
+      }
+      boolean allZeros = true;
+      for (int num : nums) {
+        if (num == 0) continue;
+        allZeros = false;
+        break;
+      }
+      if (allZeros) return i + 1;
+    }
+    return -1;
   }
 }

@@ -12,7 +12,8 @@ import org.example.ds.NestedInteger;
 public class LinkedInQuestions {
 
   public static void main(String[] args) {
-    System.out.println(nestedListSum("[[1,1],2,[1,1]]"));
+    validTree(5, new int[][] {{0, 1}, {0, 2}, {0, 3}, {1, 4}});
+    //    System.out.println(nestedListSum("[[1,1],2,[1,1]]"));
     //    rob(new int[] {1, 2, 3});
     //    isIsomorphic("egg", "add");
     //    evalRPN(new String[] {"4", "13", "5", "/", "+"});
@@ -637,29 +638,100 @@ public class LinkedInQuestions {
   /** Input: [[1,1],2,[1,1]] Output: 10 Explanation: Four 1's at depth 2, one 2 at depth 1. */
   public static int nestedListSum(String nums) {
     int sum = 0;
-    Stack<Character> stack = new Stack<>();
+    int depth = 0;
+
     for (int i = 0; i < nums.length(); i++) {
       char c = nums.charAt(i);
       if (c == '[') {
-        stack.push(c);
+        depth++;
       } else if (c == ']') {
-        stack.pop();
-      } else if (c == ',') {
-        continue;
-      } else {
+        depth--;
+      } else if (Character.isDigit(c) || c == '-') { // Handle negative numbers too
         StringBuilder sb = new StringBuilder();
-        while (i < nums.length()) {
-          if (nums.charAt(i) != ']' || nums.charAt(i) != ',') {
-            sb.append(nums.charAt(i));
-            i++;
-          } else {
-            break;
-          }
+        while (i < nums.length() && (Character.isDigit(nums.charAt(i)) || nums.charAt(i) == '-')) {
+          sb.append(nums.charAt(i));
+          i++;
         }
-        sum +=
-            Arrays.stream(sb.toString().split(",")).mapToInt(Integer::valueOf).sum() * stack.size();
+        sum += Integer.parseInt(sb.toString()) * depth;
+        i--; // Adjust to not skip next character
       }
     }
     return sum;
+  }
+
+  /** https://leetcode.com/problems/serialize-and-deserialize-binary-tree/ */
+  public static class Codec {
+
+    // Encodes a tree to a single string.
+    public String serialize(Trees.TreeNode root) {
+      var sb = new StringBuilder();
+      preOrder(root, sb);
+      return sb.deleteCharAt(sb.length() - 1).toString();
+    }
+
+    private void preOrder(Trees.TreeNode root, StringBuilder sb) {
+      if (root == null) {
+        sb.append("null").append("~");
+        return;
+      }
+      sb.append(root.val).append("~");
+      preOrder(root.left, sb);
+      preOrder(root.right, sb);
+    }
+
+    // Decodes your encoded data to tree without using class variables.
+    public Trees.TreeNode deserialize(String data) {
+      var nodes = data.split("~");
+      return buildTree(nodes, new int[] {0}); // Pass index wrapped in an array
+    }
+
+    private Trees.TreeNode buildTree(String[] nodes, int[] index) {
+      if (nodes[index[0]].equals("null")) {
+        index[0]++;
+        return null;
+      }
+      var node = new Trees.TreeNode(Integer.parseInt(nodes[index[0]++]));
+      node.left = buildTree(nodes, index);
+      node.right = buildTree(nodes, index);
+      return node;
+    }
+  }
+
+  /** https://neetcode.io/problems/valid-tree */
+  public static boolean validTree(int n, int[][] edges) {
+    if (edges.length > n - 1) {
+      return false;
+    }
+
+    List<List<Integer>> adj = new ArrayList<>();
+    for (int i = 0; i < n; i++) {
+      adj.add(new ArrayList<>());
+    }
+
+    for (int[] edge : edges) {
+      adj.get(edge[0]).add(edge[1]);
+      adj.get(edge[1]).add(edge[0]);
+    }
+
+    Set<Integer> visit = new HashSet<>();
+    Queue<int[]> q = new LinkedList<>();
+    q.offer(new int[] {0, -1}); // {current node, parent node}
+    visit.add(0);
+
+    while (!q.isEmpty()) {
+      int[] pair = q.poll();
+      int node = pair[0], parent = pair[1];
+      for (int nei : adj.get(node)) {
+        if (nei == parent) {
+          continue;
+        }
+        if (visit.contains(nei)) {
+          return false;
+        }
+        visit.add(nei);
+        q.offer(new int[] {nei, node});
+      }
+    }
+    return visit.size() == n;
   }
 }
