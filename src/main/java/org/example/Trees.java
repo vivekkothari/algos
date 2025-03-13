@@ -301,6 +301,33 @@ class Trees {
     return isSameTree(t1.left, t2.left) && isSameTree(t1.right, t2.right);
   }
 
+  /**
+   * https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/description/ Tree
+   * is a BST.
+   */
+  public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+    if (root == null || p == null || q == null) return null;
+    if (Math.max(p.val, q.val) < root.val) {
+      // left tree
+      return lowestCommonAncestor(root.left, p, q);
+    } else if (Math.min(p.val, q.val) > root.val) {
+      // right tree
+      return lowestCommonAncestor(root.right, p, q);
+    }
+    return root;
+  }
+
+  /** https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/ tree is NOT a BST. */
+  public TreeNode lowestCommonAncestorBinaryTree(TreeNode root, TreeNode p, TreeNode q) {
+    if (root == null || root == p || root == q) return root;
+    var left = lowestCommonAncestorBinaryTree(root.left, p, q);
+    var right = lowestCommonAncestorBinaryTree(root.right, p, q);
+    if (left != null && right != null) {
+      return root;
+    }
+    return left != null ? left : right;
+  }
+
   public boolean isSubtree(TreeNode root, TreeNode subRoot) {
     if (root == subRoot) return true;
     if (root == null) return false;

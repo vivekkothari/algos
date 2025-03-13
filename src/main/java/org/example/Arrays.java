@@ -2674,20 +2674,26 @@ public class Arrays {
         .toArray(int[][]::new);
   }
 
+  /**
+   * https://leetcode.com/problems/zero-array-transformation-ii/description/?envType=daily-question&envId=2025-03-13
+   */
   public static int minZeroArray(int[] nums, int[][] queries) {
-    for (int i = 0; i < queries.length; i++) {
-      var query = queries[i];
-      for (int j = query[0]; j <= query[1]; j++) {
-        nums[j] = Math.max(0, nums[j] - query[2]);
+    int n = nums.length, k = 0, sum = 0;
+    int[] prefixSum = new int[n + 1];
+    for (int i = 0; i < n; i++) {
+      while (sum + prefixSum[i] < nums[i]) {
+        if (k == queries.length) {
+          return -1;
+        }
+        int left = queries[k][0], right = queries[k][1], val = queries[k][2];
+        if (i <= right) {
+          prefixSum[Math.max(left, i)] += val;
+          prefixSum[right + 1] -= val;
+        }
+        k++;
       }
-      boolean allZeros = true;
-      for (int num : nums) {
-        if (num == 0) continue;
-        allZeros = false;
-        break;
-      }
-      if (allZeros) return i + 1;
+      sum += prefixSum[i];
     }
-    return -1;
+    return k;
   }
 }
