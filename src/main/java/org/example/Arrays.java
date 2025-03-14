@@ -7,14 +7,16 @@ import java.util.stream.Collectors;
 public class Arrays {
 
   public static void main(String[] args) {
-    minZeroArray(new int[] {2, 0, 2}, new int[][] {{0, 2, 1}, {0, 2, 1}, {1, 1, 3}});
-    System.out.println(
-        java.util.Arrays.deepToString(
-            highFive(
-                new int[][] {
-                  {1, 91}, {1, 92}, {2, 93}, {2, 97}, {1, 60}, {2, 77}, {1, 65}, {1, 87}, {1, 100},
-                  {2, 100}, {2, 76}
-                })));
+    maximumCandies(new int[] {5, 8, 6}, 3);
+    //    minZeroArray(new int[] {2, 0, 2}, new int[][] {{0, 2, 1}, {0, 2, 1}, {1, 1, 3}});
+    //    System.out.println(
+    //        java.util.Arrays.deepToString(
+    //            highFive(
+    //                new int[][] {
+    //                  {1, 91}, {1, 92}, {2, 93}, {2, 97}, {1, 60}, {2, 77}, {1, 65}, {1, 87}, {1,
+    // 100},
+    //                  {2, 100}, {2, 76}
+    //                })));
     // [1,2],[2,3],[3,4],[1,3]
     //    eraseOverlapIntervals(new int[][] {{1, 2}, {2, 3}, {3, 4}, {1, 3}});
     //    candy(new int[] {1, 0, 2, 3, 6});
@@ -43,8 +45,8 @@ public class Arrays {
     //    System.out.println(maxSubArray(new int[] {-2, 1, -3, 4, -1, 2, 1, -5, 4}));
     //    System.out.println(
     //        Arrays.toString(productExceptSelfUsingDivision(new int[] {-1, 1, 0, -3, 3})));
-    System.out.println(
-        java.util.Arrays.toString(productExceptSelfWithoutDivision(new int[] {1, 2, 3, 4})));
+    //    System.out.println(
+    //        java.util.Arrays.toString(productExceptSelfWithoutDivision(new int[] {1, 2, 3, 4})));
     //    System.out.println(
     //        java.util.Arrays.deepToString(merge(new int[][] {{1, 3}, {2, 6}, {8, 10}, {15,
     // 18}})));
@@ -93,7 +95,7 @@ public class Arrays {
     //    System.out.println(maxArea(new int[] {1, 7, 2, 5, 4, 7, 3, 6}));
     //    System.out.println(searchInsert(new int[] {1, 3, 5, 6}, 7));
 
-    System.out.println(climbStairsDp(3));
+    //    System.out.println(climbStairsDp(3));
     //    System.out.println(fib(50));
     //    System.out.println(rob(new int[] {2, 7, 9, 3, 1}));
     //    System.out.println(java.util.Arrays.toString(plusOne(new int[] {9})));
@@ -1422,6 +1424,30 @@ public class Arrays {
         r = k - 1;
       } else {
         l = k + 1;
+      }
+    }
+    return res;
+  }
+
+  /**
+   * https://leetcode.com/problems/maximum-candies-allocated-to-k-children/?envType=daily-question&envId=2025-03-14
+   */
+  public static int maximumCandies(int[] candies, long k) {
+    int l = 1;
+    int r = java.util.Arrays.stream(candies).max().getAsInt();
+    int res = 0;
+    while (l <= r) {
+      var m = l + (r - l) / 2;
+      int count = 0;
+      for (int candy : candies) {
+        count += candy / m;
+      }
+
+      if (count >= k) {
+        res = m;
+        l = m + 1;
+      } else {
+        r = m - 1;
       }
     }
     return res;
