@@ -22,7 +22,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-class ChatGptAlgoQuiz {
+public class ChatGptAlgoQuiz {
 
   /** Write a Java function to find the second largest element in an ArrayList<Integer>. */
   public static Integer findSecondLargest(List<Integer> list) {
@@ -588,6 +588,8 @@ class ChatGptAlgoQuiz {
    * Output: -1
    * Explanation: No valid pivot index.
    * </pre>
+   *
+   * Also see {@link org.example.Arrays#findPivotIndex(int[])}.
    */
   public static int pivotIndex(int[] nums) {
     var totalSum = Arrays.stream(nums).sum();

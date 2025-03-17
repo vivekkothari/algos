@@ -196,6 +196,27 @@ class Trees {
     return 1 + Math.max(maxDepth(root.left), maxDepth(root.right));
   }
 
+  public static int maxDepthIter(TreeNode root) {
+    if (root == null) {
+      return 0;
+    }
+    Stack<Map.Entry<TreeNode, Integer>> stack = new Stack<>();
+    stack.push(Map.entry(root, 1));
+    int maxDepth = 0;
+    while (!stack.isEmpty()) {
+      var node = stack.pop();
+      int depth = node.getValue();
+      maxDepth = Math.max(maxDepth, depth);
+      if (node.getKey().left != null) {
+        stack.push(Map.entry(node.getKey().left, depth + 1));
+      }
+      if (node.getKey().right != null) {
+        stack.push(Map.entry(node.getKey().right, depth + 1));
+      }
+    }
+    return maxDepth;
+  }
+
   /**
    * https://leetcode.com/problems/minimum-depth-of-binary-tree/description/
    *

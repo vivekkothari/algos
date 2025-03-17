@@ -12,6 +12,9 @@ import org.example.ds.NestedInteger;
 public class LinkedInQuestions {
 
   public static void main(String[] args) {
+    isRobotBounded("GL");
+    System.out.println(minDistance("orange", "range"));
+    System.out.println(isPerfectSquare(2147483647));
     validTree(5, new int[][] {{0, 1}, {0, 2}, {0, 3}, {1, 4}});
     //    System.out.println(nestedListSum("[[1,1],2,[1,1]]"));
     //    rob(new int[] {1, 2, 3});
@@ -216,31 +219,31 @@ public class LinkedInQuestions {
   }
 
   public static List<Integer> closestKValuesOptimal(Trees.TreeNode root, double target, int k) {
-    List<Integer> maxHeap = new LinkedList<>();
-    inorderTraversalOptimal(root, target, maxHeap, k);
-    return maxHeap;
+    List<Integer> list = new LinkedList<>();
+    inorderTraversalOptimal(root, target, list, k);
+    return list;
   }
 
   private static void inorderTraversalOptimal(
-      Trees.TreeNode root, double target, List<Integer> maxHeap, int k) {
+      Trees.TreeNode root, double target, List<Integer> list, int k) {
     if (root == null) {
       return;
     }
-    inorderTraversalOptimal(root.left, target, maxHeap, k);
-    if (maxHeap.size() < k) {
-      maxHeap.add(root.val);
+    inorderTraversalOptimal(root.left, target, list, k);
+    if (list.size() < k) {
+      list.add(root.val);
     } else {
       // The list is iterated in-order making sure that the list is always sorted.
-      if (Math.abs(root.val - target) >= Math.abs(maxHeap.getFirst() - target)) {
+      if (Math.abs(root.val - target) >= Math.abs(list.getFirst() - target)) {
         // At this point the current element diff is larger than the largest diff.
         return;
       }
       // If not, we remove the smallest elements (thus the largest diff)
-      maxHeap.removeFirst();
+      list.removeFirst();
       // And add the current
-      maxHeap.add(root.val);
+      list.add(root.val);
     }
-    inorderTraversalOptimal(root.right, target, maxHeap, k);
+    inorderTraversalOptimal(root.right, target, list, k);
   }
 
   public static List<List<Integer>> getFactors(int n) {
@@ -733,5 +736,176 @@ public class LinkedInQuestions {
       }
     }
     return visit.size() == n;
+  }
+
+  /** https://leetcode.com/problems/intersection-of-two-arrays/ */
+  public int[] intersection(int[] nums1, int[] nums2) {
+    Set<Integer> set1 = new HashSet<>();
+    for (var num : nums1) {
+      set1.add(num);
+    }
+    Set<Integer> res = new HashSet<>();
+    for (var num : nums2) {
+      if (set1.contains(num)) {
+        res.add(num);
+      }
+    }
+    return res.stream().mapToInt(i -> i).toArray();
+  }
+
+  /** https://leetcode.com/problems/valid-perfect-square/ */
+  public static boolean isPerfectSquare(int num) {
+    long l = 1, r = num;
+    while (l <= r) {
+      long m = l + (r - l) / 2;
+      long product = m * m;
+      if (product == num) return true;
+      if (product > num) r = m - 1;
+      else l = m + 1;
+    }
+    return false;
+  }
+
+  /** https://leetcode.com/problems/design-authentication-manager/ */
+  class AuthenticationManager {
+
+    private final Map<String, Integer> ttlMap = new HashMap<>();
+    private final int timeToLive;
+
+    public AuthenticationManager(int timeToLive) {
+      this.timeToLive = timeToLive;
+    }
+
+    public void generate(String tokenId, int currentTime) {
+      ttlMap.put(tokenId, currentTime + timeToLive);
+    }
+
+    public void renew(String tokenId, int currentTime) {
+      Integer expiryTime = ttlMap.get(tokenId);
+      if (expiryTime == null || expiryTime < currentTime) {
+        return;
+      }
+      ttlMap.put(tokenId, currentTime + timeToLive);
+    }
+
+    public int countUnexpiredTokens(int currentTime) {
+      ttlMap.entrySet().removeIf(e -> e.getValue() <= currentTime);
+      return ttlMap.size();
+    }
+  }
+
+  /** https://leetcode.com/problems/edit-distance/ */
+  public static int minDistance(String word1, String word2) {
+    int m = word1.length();
+    int n = word2.length();
+    if (m == 0) return n;
+    if (n == 0) return m;
+    int[][] dp = new int[m + 1][n + 1];
+
+    for (int i = 0; i <= m; i++) {
+      for (int j = 0; j <= n; j++) {
+        if (i == 0) {
+          dp[i][j] = j;
+        } else if (j == 0) {
+          dp[i][j] = i;
+        } else if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
+          dp[i][j] = dp[i - 1][j - 1];
+        } else {
+          dp[i][j] = 1 + Math.min(dp[i - 1][j - 1], Math.min(dp[i - 1][j], dp[i][j - 1]));
+        }
+      }
+    }
+    return dp[m][n];
+  }
+
+  /** https://leetcode.com/problems/robot-bounded-in-circle/ */
+  public static boolean isRobotBounded(String instructions) {
+    // move up, left, down, right. The order matters.
+    int[][] dir = {{0, 1}, {-1, 0}, {0, -1}, {1, 0}};
+    int i = 0;
+    int x = 0;
+    int y = 0;
+
+    for (int s = 0; s < instructions.length(); s++) {
+      if (instructions.charAt(s) == 'L') {
+        i = (i + 1) % 4;
+      } else if (instructions.charAt(s) == 'R') {
+        i = (i + 3) % 4;
+      } else {
+        x = x + dir[i][0];
+        y = y + dir[i][1];
+      }
+    }
+    // if we come back to 0,0, or we are no longer facing up, we will end up in a loop eventually.
+    return x == 0 && y == 0 || i != 0;
+  }
+
+  /**
+   * https://leetcode.com/problems/valid-triangle-number
+   *
+   * <pre>
+   * <img src="https://assets.leetcode.com/users/images/494bd84a-a716-41d9-9d21-cee1a4cb1df5_1626399365.2078004.png"/>
+   * </pre>
+   */
+  public int triangleNumber(int[] nums) {
+    // sort to make sure comparison is easy later.
+    Arrays.sort(nums);
+    int n = nums.length, ans = 0;
+    for (int k = 2; k < n; k++) {
+      // first iter = 0th, 1st element
+      int i = 0, j = k - 1;
+      while (i < j) {
+        // is a valid triangle
+        if (nums[i] + nums[j] > nums[k]) {
+          // we increment by j - i because, check the image.
+          ans += j - i;
+          j--;
+        } else {
+          i++;
+        }
+      }
+    }
+    return ans;
+  }
+
+  record Dto(int funcId, boolean isStart, int ts) {}
+
+  /** https://leetcode.com/problems/exclusive-time-of-functions/ */
+  public int[] exclusiveTime(int n, List<String> logs) {
+    Stack<Dto> stack = new Stack<>();
+    int[] res = new int[n];
+    for (var log : logs) {
+      var dto = parse(log);
+      if (dto.isStart) {
+        stack.push(dto);
+      } else {
+        var top = stack.pop();
+        var currentCallTime = dto.ts - top.ts + 1;
+        res[top.funcId] += currentCallTime;
+        if (!stack.isEmpty()) {
+          res[stack.peek().funcId] -= currentCallTime;
+        }
+      }
+    }
+    return res;
+  }
+
+  private Dto parse(String log) {
+    var parts = log.split(":");
+    return new Dto(
+        Integer.parseInt(parts[0]), "start".equals(parts[1]), Integer.parseInt(parts[2]));
+  }
+
+  /** https://leetcode.com/problems/minimum-time-to-type-word-using-special-typewriter/ */
+  public static int minTimeToType(String word) {
+    int cnt = word.length();
+    char prev = 'a';
+    for (int i = 0; i < word.length(); ++i) {
+      char cur = word.charAt(i);
+      int diff = Math.abs(cur - prev);
+      cnt += Math.min(diff, 26 - diff);
+      prev = cur;
+    }
+    return cnt;
   }
 }

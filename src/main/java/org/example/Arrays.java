@@ -1149,6 +1149,22 @@ public class Arrays {
     return false;
   }
 
+  /**
+   * https://leetcode.com/problems/divide-array-into-equal-pairs/description/?envType=daily-question&envId=2025-03-17
+   */
+  public boolean divideArray(int[] nums) {
+    Map<Integer, Integer> freq = new HashMap<>();
+    for (var num : nums) {
+      freq.put(num, freq.getOrDefault(num, 0) + 1);
+    }
+    for (var entry : freq.values()) {
+      if (entry % 2 != 0) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   // https://leetcode.com/problems/insert-interval/
   public static int[][] insert(int[][] intervals, int[] newInterval) {
     List<int[]> res = new ArrayList<>();
@@ -2308,6 +2324,8 @@ public class Arrays {
    *
    * <p>Input: nums = [1,7,3,6,5,6] Output: 3 Explanation: The pivot index is 3. Left sum = nums[0]
    * + nums[1] + nums[2] = 1 + 7 + 3 = 11 Right sum = nums[4] + nums[5] = 5 + 6 = 11
+   *
+   * <p>Also see {@link org.example.llmquiz.ChatGptAlgoQuiz#pivotIndex(int[])}.
    */
   public static int findPivotIndex(int[] nums) {
     var n = nums.length - 1;
