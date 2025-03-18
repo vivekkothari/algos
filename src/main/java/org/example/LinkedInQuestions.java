@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.example.ds.NestedInteger;
 
 /**
@@ -707,9 +708,7 @@ public class LinkedInQuestions {
     }
 
     List<List<Integer>> adj = new ArrayList<>();
-    for (int i = 0; i < n; i++) {
-      adj.add(new ArrayList<>());
-    }
+    IntStream.range(0, n).forEach(_ -> adj.add(new ArrayList<>()));
 
     for (int[] edge : edges) {
       adj.get(edge[0]).add(edge[1]);

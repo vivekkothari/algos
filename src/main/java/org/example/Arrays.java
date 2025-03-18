@@ -2740,4 +2740,20 @@ public class Arrays {
     }
     return k;
   }
+
+  /**
+   * https://leetcode.com/problems/longest-nice-subarray/?envType=daily-question&envId=2025-03-18
+   */
+  public int longestNiceSubarray(int[] nums) {
+    int l = 0, maxLen = Integer.MIN_VALUE, usedBits = 0;
+    for (int r = 0; r < nums.length; r++) {
+      while ((usedBits & nums[r]) != 0) {
+        usedBits ^= nums[l];
+        l++;
+      }
+      usedBits |= nums[r];
+      maxLen = Math.max(maxLen, r - l + 1);
+    }
+    return maxLen;
+  }
 }
