@@ -626,6 +626,7 @@ public class LinkedInQuestions {
     return true;
   }
 
+  /** House robber variation. */
   public static int rob(int[] nums) {
     if (nums.length == 1) {
       return nums[0];
@@ -817,11 +818,38 @@ public class LinkedInQuestions {
         } else if (word1.charAt(i - 1) == word2.charAt(j - 1)) {
           dp[i][j] = dp[i - 1][j - 1];
         } else {
-          dp[i][j] = 1 + Math.min(dp[i - 1][j - 1], Math.min(dp[i - 1][j], dp[i][j - 1]));
+          dp[i][j] = 1 + Collections.min(List.of(dp[i - 1][j - 1], dp[i - 1][j], dp[i][j - 1]));
         }
       }
     }
     return dp[m][n];
+  }
+
+  public int minDistanceRecur(String word1, String word2) {
+    int[][] dp = new int[word1.length()][word2.length()];
+
+    for (int[] I : dp) Arrays.fill(I, -1);
+
+    return minDistanceRecur(word1.length() - 1, word2.length() - 1, word1, word2, dp);
+  }
+
+  private int minDistanceRecur(int i, int j, String s1, String s2, int[][] dp) {
+    if (i == 0 && j == 0) {
+      if (s1.charAt(i) == s2.charAt(j)) return 0;
+      else return 1;
+    }
+    if (j == -1) return i + 1;
+    if (i == -1) return j + 1;
+
+    if (dp[i][j] != -1) return dp[i][j];
+
+    if (s1.charAt(i) == s2.charAt(j)) {
+      return dp[i][j] = minDistanceRecur(i - 1, j - 1, s1, s2, dp);
+    }
+    int insert = 1 + minDistanceRecur(i, j - 1, s1, s2, dp);
+    int replace = 1 + minDistanceRecur(i - 1, j - 1, s1, s2, dp);
+    int delete = 1 + minDistanceRecur(i - 1, j, s1, s2, dp);
+    return dp[i][j] = Math.min(insert, Math.min(replace, delete));
   }
 
   /** https://leetcode.com/problems/robot-bounded-in-circle/ */
@@ -889,6 +917,7 @@ public class LinkedInQuestions {
         var currentCallTime = dto.ts - top.ts + 1;
         res[top.funcId] += currentCallTime;
         if (!stack.isEmpty()) {
+          // reduce time of currently finished function from parent.
           res[stack.peek().funcId] -= currentCallTime;
         }
       }
