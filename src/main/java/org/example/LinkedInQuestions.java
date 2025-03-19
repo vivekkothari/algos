@@ -32,14 +32,14 @@ public class LinkedInQuestions {
     //    System.out.println(set.remove(0));
     //    System.out.println(set.insert(0));
     //    maxPoints(new int[][] {{1, 1}, {3, 2}, {5, 3}, {4, 1}, {2, 3}, {1, 4}});
-    //    System.out.println(getFactors(32));
+    System.out.println(getFactors(32));
     //    System.out.println(minCostII(new int[][] {{17, 2, 17}, {16, 16, 5}, {14, 3, 19}}));
-    //    var binaryNode =
-    //        new Trees.TreeNode(
-    //            4,
-    //            new Trees.TreeNode(2, new Trees.TreeNode(1), new Trees.TreeNode(3)),
-    //            new Trees.TreeNode(5, null, null));
-    //    System.out.println(findLeavesOptimised(binaryNode));
+    var binaryNode =
+        new Trees.TreeNode(
+            4,
+            new Trees.TreeNode(2, new Trees.TreeNode(1), new Trees.TreeNode(3)),
+            new Trees.TreeNode(5, null, null));
+    System.out.println(findLeavesOptimised(binaryNode));
     //    System.out.println(closestKValuesOptimal(binaryNode, 3.714286, 2));
     // [[1,1],2,[1,1]]
     //    ShortestDistance shortestDistance =
@@ -247,6 +247,7 @@ public class LinkedInQuestions {
     inorderTraversalOptimal(root.right, target, list, k);
   }
 
+  /** https://leetcode.ca/all/254.html */
   public static List<List<Integer>> getFactors(int n) {
     List<List<Integer>> factors = new ArrayList<>();
     getFactors(factors, new ArrayList<>(), n, 2);
@@ -259,6 +260,12 @@ public class LinkedInQuestions {
       cp.add(n);
       ans.add(cp);
     }
+    // n=32
+    // i = 2
+    // loop1: j = 2 -> 16 [2]
+    //        j = 3 -> 10 [2]
+    //        j = 4 -> 8  [2,4]
+    //        j = 5 -> 6  [2,4]
     for (int j = i; j <= n / j; ++j) {
       if (n % j == 0) {
         t.add(j);
@@ -268,7 +275,7 @@ public class LinkedInQuestions {
     }
   }
 
-  /** https://leetcode.com/problems/find-leaves-of-binary-tree */
+  /** https://leetcode.com/problems/find-leaves-of-binary-tree https://leetcode.ca/all/366.html */
   public static List<List<Integer>> findLeaves(Trees.TreeNode root) {
     List<List<Integer>> res = new ArrayList<>();
     var prev = new Trees.TreeNode(0, root, null);
@@ -418,6 +425,7 @@ public class LinkedInQuestions {
     return max;
   }
 
+  /** https://leetcode.com/problems/valid-number/description/ */
   public boolean isNumber(String s) {
     boolean isdot = false, ise = false, nums = false;
     for (int i = 0; i < s.length(); i++) {
@@ -492,6 +500,7 @@ public class LinkedInQuestions {
     }
   }
 
+  /** https://leetcode.com/problems/text-justification/description/ */
   public static List<String> fullJustify(String[] words, int maxWidth) {
     List<String> result = new ArrayList<>();
     int n = words.length;
@@ -544,12 +553,12 @@ public class LinkedInQuestions {
     sb.append(" ".repeat(Math.max(0, count)));
   }
 
+  /** https://leetcode.com/problems/flatten-nested-list-iterator/description/ */
   class NestedIterator implements Iterator<Integer> {
 
-    private final Stack<NestedInteger> stack;
+    private final Stack<NestedInteger> stack = new Stack<>();
 
     public NestedIterator(List<NestedInteger> nestedList) {
-      stack = new Stack<>();
       for (int i = nestedList.size() - 1; i >= 0; i--) {
         stack.push(nestedList.get(i));
       }
@@ -563,12 +572,10 @@ public class LinkedInQuestions {
     @Override
     public boolean hasNext() {
       while (!stack.isEmpty()) {
-        NestedInteger current = stack.peek();
-        if (current.isInteger()) {
+        if (stack.peek().isInteger()) {
           return true;
         }
-        current = stack.pop();
-        var currentList = current.getList();
+        var currentList = stack.pop().getList();
         for (int i = currentList.size() - 1; i >= 0; i--) {
           stack.push(currentList.get(i));
         }
