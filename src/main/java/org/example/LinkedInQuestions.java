@@ -13,6 +13,7 @@ import org.example.ds.NestedInteger;
 public class LinkedInQuestions {
 
   public static void main(String[] args) {
+    System.out.println(findTallestTower(new int[][] {{1, 1, 1}, {100, 3, 100}, {10, 2, 10}}));
     isRobotBounded("GL");
     System.out.println(minDistance("orange", "range"));
     System.out.println(isPerfectSquare(2147483647));
@@ -942,5 +943,80 @@ public class LinkedInQuestions {
       prev = cur;
     }
     return cnt;
+  }
+
+  /**
+   * Suppose you are trying to build a very tall tower. You have a collection of blocks to make your
+   * tower out of. For each block type, you are given the number of blocks you have of that type,
+   * its weight, and the maximum weight that block can support above it and including itself.
+   * Suppose (for now) that all blocks have the same height (1 meter). What's the tallest tower you
+   * can construct by stacking these blocks?
+   *
+   * <p>Example input, with each row representing a block type, of format "<number_of_blocks>
+   * <weight> <max_support_weight>"
+   *
+   * <pre>
+   * <p># Format: <number_of_blocks> <weight> <max_support_weight>
+   *     1 1 1
+   *     100 3 100
+   *     10 2 10
+   * </pre>
+   *
+   * <p>Example output: 35
+   *
+   * <p>For this sample problem, the best solution is to stack the single (1,1) block on top, then
+   * four (2,10) blocks under it, giving a total weight of 9; we can then stack 30 more (3,100)
+   * blocks at the base for a total weight of 99.
+   */
+  public static int findTallestTower(int[][] blocks) {
+    Arrays.sort(blocks, Comparator.comparingInt(b -> b[1]));
+    Map<Integer, Integer> dp = new HashMap<>();
+    dp.put(0, 0); // Base case: weight 0, height 0
+
+    for (int[] block : blocks) {
+      int count = block[0], weight = block[1], maxSupport = block[2];
+      Map<Integer, Integer> newDp = new HashMap<>(dp);
+
+      List<Integer> weights = dp.keySet().stream().sorted(Collections.reverseOrder()).toList();
+
+      for (int w : weights) {
+        int h = dp.get(w);
+        int currWeight = w;
+
+        for (int i = 1; i <= count; i++) {
+          currWeight += weight;
+          if (currWeight > maxSupport) break;
+
+          newDp.put(currWeight, Math.max(newDp.getOrDefault(currWeight, 0), h + i));
+        }
+      }
+
+      dp = newDp;
+    }
+    return Collections.max(dp.values());
+  }
+
+  public static int findTallestTowerBad(int[][] blocks) {
+    Arrays.sort(blocks, Comparator.comparingInt(b -> b[1]));
+    return backtrack(blocks, 0, 0, Integer.MAX_VALUE);
+  }
+
+  private static int backtrack(int[][] blocks, int index, int currentWeight, int maxSupport) {
+    if (index == blocks.length) return 0;
+
+    int maxHeight = 0;
+    int count = blocks[index][0], weight = blocks[index][1], support = blocks[index][2];
+
+    for (int used = 0; used <= count; used++) {
+      int newWeight = currentWeight + (used * weight);
+      if (newWeight > maxSupport) break;
+
+      maxHeight =
+          Math.max(
+              maxHeight,
+              used + backtrack(blocks, index + 1, newWeight, Math.min(support, maxSupport)));
+    }
+
+    return maxHeight;
   }
 }
