@@ -7,7 +7,8 @@ import java.util.stream.Collectors;
 public class Arrays {
 
   public static void main(String[] args) {
-    maximumCandies(new int[] {5, 8, 6}, 3);
+    countDays(10, new int[][] {{5, 7}, {1, 3}, {9, 10}});
+    //    maximumCandies(new int[] {5, 8, 6}, 3);
     //    minZeroArray(new int[] {2, 0, 2}, new int[][] {{0, 2, 1}, {0, 2, 1}, {1, 1, 3}});
     //    System.out.println(
     //        java.util.Arrays.deepToString(
@@ -597,6 +598,27 @@ public class Arrays {
     }
     // Step 4: Convert the list to a 2D array and return it
     return merged.toArray(new int[merged.size()][]);
+  }
+
+  /**
+   * https://leetcode.com/problems/count-days-without-meetings/solutions/?envType=daily-question&envId=2025-03-24
+   */
+  public static int countDays(int days, int[][] meetings) {
+    java.util.Arrays.sort(meetings, (a, b) -> Integer.compare(a[0], b[0]));
+    List<int[]> merged = new ArrayList<>();
+    for (int[] meeting : meetings) {
+      if (merged.isEmpty() || merged.getLast()[1] < meeting[0]) {
+        merged.add(meeting);
+      } else {
+        merged.getLast()[1] = Math.max(merged.getLast()[1], meeting[1]);
+      }
+    }
+    int count = merged.getFirst()[0] - 1;
+    for (int i = 1; i < merged.size(); i++) {
+      count += (merged.get(i)[0] - merged.get(i - 1)[1] - 1);
+    }
+    count += (days - merged.getLast()[1]);
+    return count;
   }
 
   public static int binarySearch(int[] nums, int target) {

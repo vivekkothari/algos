@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 class Backtracking {
 
   public static void main(String[] args) {
-    System.out.println(removeDuplicateLetters("cbacdcbc"));
+    //    System.out.println(removeDuplicateLetters("cbacdcbc"));
     //    largestNumber(new int[] {0, 0, 0, 0});
     //    canCompleteCircuit(new int[] {1, 2, 3, 4, 5}, new int[] {3, 4, 5, 1, 2});
     //    jump(new int[] {2, 3, 1, 1, 4});
@@ -21,8 +21,8 @@ class Backtracking {
     //    System.out.println(permute("ABC", true));
     //    System.out.println(permute("ABC", false));
     //    System.out.println(generateParenthesis(5));
-    //    System.out.println(combinationSum(new int[] {2, 3, 6, 7}, 7));
-    //    System.out.println(combinationSumNoReuse(new int[] {2, 3, 6, 7}, 7));
+    System.out.println(combinationSum(new int[] {2, 3, 6, 7}, 7));
+    System.out.println(combinationSumNoReuse(new int[] {2, 3, 6, 7}, 7));
     //    findSolution(Integer::sum, 5);
   }
 
@@ -595,5 +595,32 @@ class Backtracking {
       sb.append((char) (st.pop() + 'a'));
     }
     return sb.reverse().toString();
+  }
+
+  /** https://leetcode.com/problems/binary-watch/ */
+  public List<String> readBinaryWatch(int num) {
+    int[] nums = {1, 2, 4, 8, 1, 2, 4, 8, 16, 32};
+    List<String> result = new ArrayList<>();
+    readBinaryWatch(nums, 0, 0, 0, num, result);
+    return result;
+  }
+
+  private void readBinaryWatch(
+      int[] nums, int position, int hours, int minutes, int limit, List<String> result) {
+    if (limit == 0) {
+      if (hours <= 11 && minutes <= 59) {
+        result.add(hours + ":" + (minutes <= 9 ? "0" + minutes : minutes));
+      }
+      return;
+    }
+    for (int i = position; i < nums.length; i++) {
+      boolean isHour = i >= 0 && i <= 3;
+      if (isHour) hours += nums[i];
+      else minutes += nums[i];
+
+      readBinaryWatch(nums, i + 1, hours, minutes, limit - 1, result);
+      if (isHour) hours -= nums[i];
+      else minutes -= nums[i];
+    }
   }
 }

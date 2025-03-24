@@ -2,6 +2,7 @@ package org.example;
 
 import java.util.*;
 import java.util.LinkedList;
+import java.util.stream.Collectors;
 
 class Trees {
 
@@ -625,5 +626,64 @@ class Trees {
     }
     sumNumbers(root.left, sum, curSum * 10 + root.val);
     sumNumbers(root.right, sum, curSum * 10 + root.val);
+  }
+
+  /** https://leetcode.com/problems/binary-tree-right-side-view/ */
+  public List<Integer> rightSideView(TreeNode root) {
+    Map<Integer, List<Integer>> map = new HashMap<>();
+    dfs(root, map, 0);
+    return map.values().stream().map(List::getLast).toList();
+  }
+
+  private void dfs(TreeNode root, Map<Integer, List<Integer>> map, int level) {
+    if (root == null) {
+      return;
+    }
+    map.computeIfAbsent(level, _ -> new ArrayList<>());
+    map.get(level).add(root.val);
+    dfs(root.left, map, level + 1);
+    dfs(root.right, map, level + 1);
+  }
+
+  public List<Integer> rightSideViewBfs(TreeNode root) {
+    List<Integer> rsv = new ArrayList<>();
+    if (root == null) return rsv;
+    Queue<TreeNode> queue = new LinkedList<>();
+    queue.offer(root);
+    while (!queue.isEmpty()) {
+      int size = queue.size();
+      TreeNode rv = null;
+      while (size-- > 0) {
+        rv = queue.poll();
+        if (rv.left != null) {
+          queue.offer(rv.left);
+        }
+        if (rv.right != null) {
+          queue.offer(rv.right);
+        }
+      }
+      rsv.add(rv.val);
+    }
+    return rsv;
+  }
+
+  /** https://leetcode.com/problems/binary-tree-paths/ */
+  public static List<String> binaryTreePaths(TreeNode root) {
+    List<String> paths = new ArrayList<>();
+    binaryTreePaths(root, new ArrayList<>(), paths);
+    return paths;
+  }
+
+  private static void binaryTreePaths(TreeNode root, List<Integer> current, List<String> paths) {
+    if (root == null) {
+      return;
+    }
+    current.add(root.val);
+    binaryTreePaths(root.left, current, paths);
+    binaryTreePaths(root.right, current, paths);
+    if (root.left == null && root.right == null) {
+      paths.add(current.stream().map(String::valueOf).collect(Collectors.joining("->")));
+    }
+    current.removeLast();
   }
 }
