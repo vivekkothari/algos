@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 class Backtracking {
 
   public static void main(String[] args) {
+    combine(4, 2);
+    //    permuteUnique(new int[] {1, 1, 2});
     //    System.out.println(removeDuplicateLetters("cbacdcbc"));
     //    largestNumber(new int[] {0, 0, 0, 0});
     //    canCompleteCircuit(new int[] {1, 2, 3, 4, 5}, new int[] {3, 4, 5, 1, 2});
@@ -102,6 +104,25 @@ class Backtracking {
     }
   }
 
+  /** https://leetcode.com/problems/subsets-ii/ */
+  public List<List<Integer>> subsetsWithDup(int[] nums) {
+    List<List<Integer>> list = new ArrayList<>();
+    java.util.Arrays.sort(nums);
+    subsetsWithDup(list, new ArrayList<>(), nums, 0);
+    return list;
+  }
+
+  private static void subsetsWithDup(
+      List<List<Integer>> list, List<Integer> tempList, int[] nums, int start) {
+    list.add(new ArrayList<>(tempList));
+    for (int i = start; i < nums.length; i++) {
+      if (i > start && nums[i] == nums[i - 1]) continue; // Skip duplicates
+      tempList.add(nums[i]);
+      subsetsWithDup(list, tempList, nums, i + 1);
+      tempList.removeLast();
+    }
+  }
+
   /**
    * https://leetcode.com/problems/combination-sum/solutions/6146998/simple-solution/
    *
@@ -189,6 +210,30 @@ class Backtracking {
     }
   }
 
+  /** https://leetcode.com/problems/combination-sum-ii/ */
+  public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+    Arrays.sort(candidates);
+    var res = new ArrayList<List<Integer>>();
+    combinationSum2(res, new ArrayList<>(), candidates, target, 0);
+    return res;
+  }
+
+  private void combinationSum2(
+      List<List<Integer>> res, List<Integer> temp, int[] nums, int target, int start) {
+    if (target == 0) {
+      res.add(new ArrayList<>(temp));
+      return;
+    }
+    for (int i = start; i < nums.length; i++) {
+      if (i > start && nums[i] == nums[i - 1]) continue; // Skip duplicates
+      if (nums[i] > target) break; // Optimization: Stop early
+
+      temp.add(nums[i]);
+      combinationSum2(res, temp, nums, target - nums[i], i + 1); // i + 1 to avoid reuse
+      temp.removeLast();
+    }
+  }
+
   /**
    * https://leetcode.com/problems/permutations/?envType=daily-question&envId=2025-02-19 Given an
    * array nums of distinct integers, return all the possible permutations . You can return the
@@ -221,6 +266,55 @@ class Backtracking {
       permute(list, tempList, nums, used); // explore more options
       used[i] = false;
       tempList.removeLast(); // undo the last choice
+    }
+  }
+
+  /** https://leetcode.com/problems/permutations-ii/description/ */
+  public static List<List<Integer>> permuteUnique(int[] nums) {
+    List<List<Integer>> list = new ArrayList<>();
+    Arrays.sort(nums);
+    boolean[] used = new boolean[nums.length];
+    permuteUnique(list, new ArrayList<>(), nums, used);
+    return list;
+  }
+
+  private static void permuteUnique(
+      List<List<Integer>> list, List<Integer> curr, int[] nums, boolean[] used) {
+    if (curr.size() == nums.length) {
+      list.add(List.copyOf(curr));
+      return;
+    }
+    for (int i = 0; i < nums.length; i++) {
+      if (used[i]) {
+        continue;
+      }
+      if (i > 0 && (nums[i - 1] == nums[i]) && !used[i - 1]) {
+        continue;
+      }
+      curr.add(nums[i]);
+      used[i] = true;
+      permuteUnique(list, curr, nums, used);
+      curr.removeLast();
+      used[i] = false;
+    }
+  }
+
+  /** https://leetcode.com/problems/combinations/ */
+  public static List<List<Integer>> combine(int n, int k) {
+    List<List<Integer>> res = new ArrayList<>();
+    combine(res, new ArrayList<>(), k, 1, n);
+    return res;
+  }
+
+  private static void combine(List<List<Integer>> res, List<Integer> curr, int k, int idx, int n) {
+    if (curr.size() == k) {
+      res.add(List.copyOf(curr));
+      return;
+    }
+    for (int i = idx; i <= n; i++) {
+      curr.add(i);
+      combine(res, curr, k, i + 1, n); // Move to next index (i + 1)
+      curr.removeLast(); // Proper removal
     }
   }
 
@@ -449,7 +543,7 @@ class Backtracking {
 
   public static List<String> restoreIpAddresses(String s) {
     var ipes = new ArrayList<String>();
-    f(s, 0, "", 0, ipes);
+    restoreIpAddresses(s, 0, "", 0, ipes);
     return ipes;
   }
 
@@ -459,7 +553,8 @@ class Backtracking {
     return Integer.parseInt(ip) <= 255;
   }
 
-  private static void f(String s, int index, String ip, int dot, List<String> ipes) {
+  private static void restoreIpAddresses(
+      String s, int index, String ip, int dot, List<String> ipes) {
     // base case
     if (dot == 3) {
       var lastPart = s.substring(index);
@@ -476,7 +571,7 @@ class Backtracking {
       if (isIp(part)) {
         int k = part.length();
         ip += part + ".";
-        f(s, i + 1, ip, dot + 1, ipes);
+        restoreIpAddresses(s, i + 1, ip, dot + 1, ipes);
         ip = ip.substring(0, ip.length() - k - 1);
       }
     }
@@ -622,5 +717,72 @@ class Backtracking {
       if (isHour) hours -= nums[i];
       else minutes -= nums[i];
     }
+  }
+
+  // Helper function to check if placing a queen at position (row,col) is safe
+  private static boolean isSafePlace(int n, char[][] nQueens, int row, int col) {
+    // Check if there's any queen in the same column above current position
+    for (int i = 0; i < n; i++) {
+      if (nQueens[i][col] == 'Q') {
+        return false;
+      }
+    }
+
+    // Check upper-left diagonal for any queen
+    for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+      if (nQueens[i][j] == 'Q') {
+        return false;
+      }
+    }
+
+    // Check upper-right diagonal for any queen
+    for (int i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
+      if (nQueens[i][j] == 'Q') {
+        return false;
+      }
+    }
+
+    // If no conflicts found, position is safe
+    return true;
+  }
+
+  // Recursive helper function to solve N-Queens problem
+  private static void solveNQueens(int n, List<List<String>> output, char[][] nQueens, int row) {
+    // Base case: if we've placed queens in all rows, we found a valid solution
+    if (row == n) {
+      List<String> solution = new ArrayList<>();
+      for (char[] rowArray : nQueens) {
+        solution.add(new String(rowArray));
+      }
+      output.add(solution);
+      return;
+    }
+
+    // Try placing queen in each column of current row
+    for (int col = 0; col < n; col++) {
+      // If current position is safe
+      if (isSafePlace(n, nQueens, row, col)) {
+        // Place queen
+        nQueens[row][col] = 'Q';
+        // Recursively solve for next row
+        solveNQueens(n, output, nQueens, row + 1);
+        // Backtrack: remove queen for trying next position
+        nQueens[row][col] = '.';
+      }
+    }
+  }
+
+  // Main function to solve N-Queens problem
+  public static List<List<String>> solveNQueens(int n) {
+    List<List<String>> output = new ArrayList<>(); // Stores all valid solutions
+    char[][] nQueens = new char[n][n]; // Initialize empty board
+
+    // Fill the board with dots
+    for (int i = 0; i < n; i++) {
+      Arrays.fill(nQueens[i], '.');
+    }
+
+    solveNQueens(n, output, nQueens, 0); // Start solving from row 0
+    return output;
   }
 }
