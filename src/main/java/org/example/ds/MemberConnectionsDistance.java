@@ -52,25 +52,57 @@ class MemberConnectionsDistanceImpl implements MemberConnectionsDistance {
     if (member1.memberId() == member2.memberId()) {
       return 0;
     }
-    Queue<Member> queue = new LinkedList<>();
-    queue.offer(member1);
-    Set<Integer> visited = new HashSet<>();
-    visited.add(member1.memberId());
-    int memberDistance = 1;
-    while (!queue.isEmpty()) {
-      int size = queue.size();
-      for (int i = 0; i < size; i++) {
-        Member member = queue.poll();
-        for (Member connection : memberConnections.getConnections(member)) {
-          if (connection.memberId() == member2.memberId()) {
-            return memberDistance;
-          }
-          if (visited.add(connection.memberId())) {
-            queue.offer(connection);
-          }
+    Queue<Member> queue1 = new LinkedList<>();
+    Queue<Member> queue2 = new LinkedList<>();
+    queue1.offer(member1);
+    queue2.offer(member2);
+
+    Map<Member, Integer> visited1 = new HashMap<>();
+    Map<Member, Integer> visited2 = new HashMap<>();
+    visited1.put(member1, 0);
+    visited2.put(member2, 0);
+    while (!queue1.isEmpty() && !queue2.isEmpty()) {
+      int result = searchLevel(queue1, visited1, visited2);
+      if (result != -1) {
+        return result;
+      }
+
+      result = searchLevel(queue2, visited2, visited1);
+      if (result != -1) {
+        return result;
+      }
+    }
+    while (!queue1.isEmpty()) {
+      int result = searchLevel(queue1, visited1, visited2);
+      if (result != -1) {
+        return result;
+      }
+    }
+    while (!queue2.isEmpty()) {
+      int result = searchLevel(queue2, visited2, visited1);
+      if (result != -1) {
+        return result;
+      }
+    }
+    return -1;
+  }
+
+  private int searchLevel(
+      Queue<Member> queue, Map<Member, Integer> visited, Map<Member, Integer> otherVisited) {
+    int size = queue.size();
+    for (int i = 0; i < size; i++) {
+      Member member = queue.poll();
+      int distance = visited.get(member);
+
+      for (Member connection : memberConnections.getConnections(member)) {
+        if (otherVisited.containsKey(connection)) {
+          return distance + 1 + otherVisited.get(connection);
+        }
+        if (!visited.containsKey(connection)) {
+          visited.put(connection, distance + 1);
+          queue.offer(connection);
         }
       }
-      memberDistance++;
     }
     return -1;
   }
