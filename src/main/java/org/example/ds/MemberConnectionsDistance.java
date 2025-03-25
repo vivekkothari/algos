@@ -129,6 +129,6 @@ class MemberConnectionsDistanceImpl implements MemberConnectionsDistance {
                 kunal, List.of(kaushal)));
 
     MemberConnectionsDistance distance = new MemberConnectionsDistanceImpl(memberConnections);
-    System.out.println(distance.calculateDistance(vivek, kunal));
+    System.out.println(distance.calculateDistance(vivek, gaurav)); // Expected 3
   }
 }
