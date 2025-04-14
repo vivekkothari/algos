@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 public class Arrays {
 
   public static void main(String[] args) {
+    trap(new int[] {0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1});
     countDays(10, new int[][] {{5, 7}, {1, 3}, {9, 10}});
     //    maximumCandies(new int[] {5, 8, 6}, 3);
     //    minZeroArray(new int[] {2, 0, 2}, new int[][] {{0, 2, 1}, {0, 2, 1}, {1, 1, 3}});

@@ -34,6 +34,7 @@ class Trees {
   }
 
   public static void main(String[] args) {
+    numBusesToDestination(new int[][] {{1, 2, 7}, {3, 6, 7}}, 1, 6);
     //    var root =
     //        new Node(
     //            1,
@@ -61,8 +62,78 @@ class Trees {
     //        new Node(5, new Node(3, new Node(2), new Node(4)), new Node(6, null, new Node(7))),
     // 9);
 
-    var node = sortedArrayToBST(new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
-    preOrder(node, "");
+    //    var node = sortedArrayToBST(new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10});
+    //    preOrder(node, "");
+    largestValues(
+        new TreeNode(
+            1,
+            new TreeNode(3, new TreeNode(5), new TreeNode(3)),
+            new TreeNode(2, null, new TreeNode(9))));
+  }
+
+  public static List<Integer> largestValues(TreeNode root) {
+    List<Integer> res = new ArrayList<>();
+    Queue<TreeNode> bfs = new LinkedList<>();
+    bfs.offer(root);
+    Integer levelMax = null;
+    while (!bfs.isEmpty()) {
+      var size = bfs.size();
+      for (int i = 0; i < size; i++) {
+        var node = bfs.poll();
+        if (node == null) {
+          continue;
+        }
+        bfs.offer(node.left);
+        bfs.offer(node.right);
+        levelMax = levelMax == null ? node.val : Math.max(levelMax, node.val);
+      }
+      if (levelMax != null) {
+        res.add(levelMax);
+        levelMax = null;
+      }
+    }
+    return res;
+  }
+
+  public static int numBusesToDestination(int[][] routes, int source, int target) {
+    if (source == target) {
+      return 0;
+    }
+    Map<Integer, Set<Integer>> stopsToRoutes = new HashMap<>();
+    for (int i = 0; i < routes.length; i++) {
+      for (int stop : routes[i]) {
+        stopsToRoutes.computeIfAbsent(stop, _ -> new HashSet<>()).add(i);
+      }
+    }
+    Queue<int[]> queue = new LinkedList<>();
+    queue.offer(new int[] {source, 0});
+    Set<Integer> visitedBuses = new HashSet<>();
+    Set<Integer> visitedStops = new HashSet<>();
+    while (!queue.isEmpty()) {
+      var size = queue.size();
+      for (int i = 0; i < size; i++) {
+        var node = queue.poll();
+        if (node[0] == target) {
+          return node[1];
+        }
+        for (int bus : stopsToRoutes.getOrDefault(node[0], Set.of())) {
+          if (visitedBuses.contains(bus)) {
+            continue;
+          }
+          visitedBuses.add(bus);
+          for (int stop : routes[bus]) {
+            if (visitedStops.contains(stop)) {
+              continue;
+            }
+            visitedStops.add(stop);
+            if (stop != node[0]) {
+              queue.offer(new int[] {stop, node[1] + 1});
+            }
+          }
+        }
+      }
+    }
+    return -1;
   }
 
   static List<List<Integer>> bfs(NaryTreeNode root) {
