@@ -14,6 +14,7 @@ import java.util.TreeMap;
 class Matrix {
 
   public static void main(String[] args) {
+    System.out.println(longestIncreasingPath(new int[][] {{9, 9, 4}, {6, 6, 8}, {2, 1, 1}}));
     System.out.println(getRow(4));
     //    maxFarmLand(
     //        new char[][] {
@@ -601,5 +602,37 @@ class Matrix {
       r++;
     }
     return res.toArray(int[][]::new);
+  }
+
+  /** https://leetcode.com/problems/longest-increasing-path-in-a-matrix/ */
+  public static int longestIncreasingPath(int[][] matrix) {
+    int[][] directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+    int m = matrix.length;
+    int n = matrix[0].length;
+    int[][] dp = new int[m][n];
+    int max = 0;
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        max = Math.max(max, longestIncreasingPath(matrix, dp, directions, i, j));
+      }
+    }
+    return max;
+  }
+
+  public static int longestIncreasingPath(
+      int[][] matrix, int[][] dp, int[][] directions, int i, int j) {
+    if (dp[i][j] != 0) return dp[i][j];
+    for (int[] dir : directions) {
+      int x = i + dir[0];
+      int y = j + dir[1];
+      if (x >= 0
+          && x < matrix.length
+          && y >= 0
+          && y < matrix[0].length
+          && matrix[x][y] > matrix[i][j]) {
+        dp[i][j] = Math.max(dp[i][j], longestIncreasingPath(matrix, dp, directions, x, y));
+      }
+    }
+    return ++dp[i][j];
   }
 }

@@ -1,11 +1,7 @@
 package org.example;
 
-import java.util.HashSet;
+import java.util.*;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 
 class Graphs {
 
@@ -25,6 +21,47 @@ class Graphs {
     //        "A");
 
     bfs(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}, 0, 0);
+  }
+
+  public List<Integer> mergeSequences(List<List<Integer>> sequences) {
+    Map<Integer, Set<Integer>> adjList = new HashMap<>();
+    Map<Integer, Integer> indegree = new HashMap<>();
+
+    // Build graph and calculate indegree
+    for (List<Integer> seq : sequences) {
+      for (int i = 1; i < seq.size(); i++) {
+        int from = seq.get(i - 1), to = seq.get(i);
+        adjList.computeIfAbsent(from, k -> new HashSet<>()).add(to);
+        adjList.putIfAbsent(to, new HashSet<>());
+        indegree.put(to, indegree.getOrDefault(to, 0) + 1);
+        indegree.putIfAbsent(from, 0);
+      }
+    }
+
+    // Topological Sort using Kahn's Algorithm
+    Queue<Integer> queue = new LinkedList<>();
+    indegree.forEach(
+        (node, count) -> {
+          if (count == 0) queue.offer(node);
+        });
+
+    List<Integer> result = new ArrayList<>();
+    while (!queue.isEmpty()) {
+      int current = queue.poll();
+      result.add(current);
+      for (int neighbor : adjList.getOrDefault(current, Collections.emptySet())) {
+        if (indegree.merge(neighbor, -1, Integer::sum) == 0) {
+          queue.offer(neighbor);
+        }
+      }
+    }
+
+    // Check for cycle
+    if (result.size() != indegree.size()) {
+      throw new IllegalStateException("Cycle detected! No valid order exists.");
+    }
+
+    return result;
   }
 
   static void bfs(Map<String, List<String>> graph, String startAt) {

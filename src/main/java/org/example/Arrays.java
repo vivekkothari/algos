@@ -637,6 +637,31 @@ public class Arrays {
     return -1;
   }
 
+  public static int minMeetingRooms(int[][] intervals) {
+    java.util.Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));
+    PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+    for (int[] interval : intervals) {
+      if (!minHeap.isEmpty() && minHeap.peek() <= interval[0]) {
+        minHeap.poll();
+      }
+      minHeap.offer(interval[1]);
+    }
+    return minHeap.size();
+  }
+
+  /**
+   * https://leetcode.com/problems/minimum-number-of-increments-on-subarrays-to-form-a-target-array/
+   */
+  public int minNumberOperations(int[] target) {
+    int ans = target[0];
+    for (int i = 1; i < target.length; i++) {
+      if (target[i] > target[i - 1]) {
+        ans += target[i] - target[i - 1];
+      }
+    }
+    return ans;
+  }
+
   /**
    *
    *
