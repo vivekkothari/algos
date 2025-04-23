@@ -3,6 +3,7 @@ package org.example;
 import java.util.*;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
+import org.example.llmquiz.ChatGptAlgoQuiz;
 
 public class Arrays {
 
@@ -37,7 +38,7 @@ public class Arrays {
     //    System.out.println(
     //        java.util.Arrays.toString(nextGreaterElement(new int[] {4, 1, 2}, new int[] {1, 3, 4,
     // 2})));
-    //    nextPermutation(new int[] {3, 1, 2});
+    nextPermutation1(new int[] {1, 4, 5, 8, 7});
     //    System.out.println(Arrays.toString(twoSum(new int[] {3, 2, 4}, 6)));
     //    System.out.println(maxStockProfit(new int[] {7, 1, 5, 3, 6, 4}));
     //    var nums = new int[] {1, 2, 3, 0, 4, 0, 5};
@@ -2073,6 +2074,26 @@ public class Arrays {
     reverse(nums, i + 1, n - 1);
   }
 
+  public static void nextPermutation1(int[] nums) {
+    int pivot = 0;
+    for (int i = nums.length - 1; i >= 0; i--) {
+      if (i == 0 || nums[i] > nums[i - 1]) {
+        pivot = i - 1;
+        break;
+      }
+    }
+    if (pivot < 0) {
+      reverse(nums);
+      return;
+    }
+    int swapIndex = nums.length - 1;
+    while (swapIndex >= 0 && nums[swapIndex] <= nums[pivot]) {
+      swapIndex--;
+    }
+    swap(nums, pivot, swapIndex);
+    reverse(nums, pivot + 1, nums.length - 1);
+  }
+
   /**
    * Given a sorted array of distinct integers and a target value, return the index if the target is
    * found. If not, return the index where it would be if it were inserted in order.
@@ -2373,7 +2394,7 @@ public class Arrays {
    * <p>Input: nums = [1,7,3,6,5,6] Output: 3 Explanation: The pivot index is 3. Left sum = nums[0]
    * + nums[1] + nums[2] = 1 + 7 + 3 = 11 Right sum = nums[4] + nums[5] = 5 + 6 = 11
    *
-   * <p>Also see {@link org.example.llmquiz.ChatGptAlgoQuiz#pivotIndex(int[])}.
+   * <p>Also see {@link ChatGptAlgoQuiz#pivotIndex(int[])}.
    */
   public static int findPivotIndex(int[] nums) {
     var n = nums.length - 1;
