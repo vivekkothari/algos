@@ -2076,6 +2076,7 @@ public class Arrays {
 
   public static void nextPermutation1(int[] nums) {
     int pivot = 0;
+    // find first decreasing element index
     for (int i = nums.length - 1; i >= 0; i--) {
       if (i == 0 || nums[i] > nums[i - 1]) {
         pivot = i - 1;
@@ -2092,6 +2093,39 @@ public class Arrays {
     }
     swap(nums, pivot, swapIndex);
     reverse(nums, pivot + 1, nums.length - 1);
+  }
+
+  /**
+   * https://leetcode.com/problems/largest-rectangle-in-histogram/?envType=company&envId=google&favoriteSlug=google-thirty-days
+   */
+  public static int largestRectangleArea(int[] heights) {
+    int maxArea = 0;
+    Stack<int[]> stack = new Stack<>(); // pair: (index, height)
+
+    for (int i = 0; i < heights.length; i++) {
+      int start = i;
+      // If the current height is less than the height of the top of the stack, then keep on popping
+      while (!stack.isEmpty() && stack.peek()[1] > heights[i]) {
+        int[] top = stack.pop();
+        int index = top[0];
+        int height = top[1];
+        // compute the max area, i - index gives us the width
+        maxArea = Math.max(maxArea, height * (i - index));
+        start = index;
+      }
+      stack.push(new int[] {start, heights[i]});
+    }
+
+    // stack can be non-empty here as we might have some heights left
+    while (!stack.isEmpty()) {
+      int[] top = stack.pop();
+      int index = top[0];
+      int height = top[1];
+      // compute the max area, heights.length - index gives us the width. we use heights.length
+      // because now we are dealing with the last height
+      maxArea = Math.max(maxArea, height * (heights.length - index));
+    }
+    return maxArea;
   }
 
   /**
