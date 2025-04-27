@@ -8,13 +8,18 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 
 /** Asked in UBER DSA round 2. */
+@SuppressWarnings("unchecked")
 public class TaskScheduler implements AutoCloseable {
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     closed = true;
     poller.interrupt();
-    poller.join();
+    try {
+      poller.join();
+    } catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public void awaitTermination() {
@@ -79,19 +84,30 @@ public class TaskScheduler implements AutoCloseable {
           new Task<>((Callable<Object>) task, result, Instant.now().plus(delay).toEpochMilli()));
       mutex.notifyAll(); // Notify waiting threads about the new task
     }
-    //noinspection unchecked
     return (CompletableFuture<T>) result;
   }
 
   public static void main(String[] args) {
     TaskScheduler scheduler = new TaskScheduler();
     scheduler.poller.start();
-    CompletableFuture<String> future =
-        scheduler.scheduleTask(() -> "Hello world", Duration.ofSeconds(10));
-    future.thenAccept(TaskScheduler::log);
-    CompletableFuture<String> future1 =
-        scheduler.scheduleTask(() -> "Hello world earlier", Duration.ofSeconds(5));
-    future1.thenAccept(TaskScheduler::log);
+    var future10 = scheduler.scheduleTask(() -> "Hello world 10", Duration.ofSeconds(10));
+    future10.thenAccept(TaskScheduler::log);
+    var future5 = scheduler.scheduleTask(() -> "Hello world 5", Duration.ofSeconds(5));
+    future5.thenAccept(TaskScheduler::log);
+    var future15 = scheduler.scheduleTask(() -> "Hello world 15", Duration.ofSeconds(15));
+    future15.thenAccept(TaskScheduler::log);
+    var futureErr =
+        scheduler.scheduleTask(
+            () -> {
+              throw new RuntimeException("failing");
+            },
+            Duration.ofSeconds(15));
+    futureErr.thenAccept(_ -> log("This will not be printed"));
+    futureErr.exceptionally(
+        ex -> {
+          log(ex.toString());
+          return "";
+        });
     scheduler.awaitTermination();
   }
 
