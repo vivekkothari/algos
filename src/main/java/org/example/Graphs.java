@@ -104,4 +104,96 @@ class Graphs {
       }
     }
   }
+
+  /** https://leetcode.com/problems/course-schedule/ */
+  public boolean canFinish(int numCourses, int[][] prerequisites) {
+    List<List<Integer>> adjacencyList = new ArrayList<>(numCourses);
+    for (int i = 0; i < numCourses; i++) {
+      adjacencyList.add(new ArrayList<>());
+    }
+    for (var edge : prerequisites) {
+      adjacencyList.get(edge[1]).add(edge[0]);
+    }
+
+    Set<Integer> visited = new HashSet<>();
+    Set<Integer> onPath = new HashSet<>();
+
+    for (int i = 0; i < numCourses; i++) {
+      if (!visited.contains(i)) {
+        if (hasCycle(adjacencyList, visited, onPath, i)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private boolean hasCycle(
+      List<List<Integer>> adjacencyList, Set<Integer> visited, Set<Integer> onPath, int node) {
+    if (onPath.contains(node)) {
+      return true; // cycle detected
+    }
+    if (visited.contains(node)) {
+      return false; // already processed
+    }
+
+    visited.add(node);
+    onPath.add(node);
+    for (var next : adjacencyList.get(node)) {
+      if (hasCycle(adjacencyList, visited, onPath, next)) {
+        return true;
+      }
+    }
+    onPath.remove(node); // backtrack
+    return false;
+  }
+
+  /** https://leetcode.com/problems/course-schedule-ii/ */
+  public int[] findOrder(int numCourses, int[][] prerequisites) {
+    List<List<Integer>> adjacencyList = new ArrayList<>(numCourses);
+    for (int i = 0; i < numCourses; i++) {
+      adjacencyList.add(new ArrayList<>());
+    }
+    for (var edge : prerequisites) {
+      adjacencyList.get(edge[1]).add(edge[0]);
+    }
+
+    Set<Integer> visited = new HashSet<>();
+    Set<Integer> onPath = new HashSet<>();
+    List<Integer> result = new LinkedList<>();
+
+    for (int i = 0; i < numCourses; i++) {
+      if (!visited.contains(i)) {
+        if (hasCycle(adjacencyList, visited, onPath, i, result)) {
+          return new int[] {};
+        }
+      }
+    }
+    return result.stream().mapToInt(i -> i).toArray();
+  }
+
+  private boolean hasCycle(
+      List<List<Integer>> adjacencyList,
+      Set<Integer> visited,
+      Set<Integer> onPath,
+      int node,
+      List<Integer> result) {
+    if (onPath.contains(node)) {
+      return true; // cycle detected
+    }
+    if (visited.contains(node)) {
+      return false; // already processed
+    }
+
+    visited.add(node);
+    onPath.add(node);
+    for (var next : adjacencyList.get(node)) {
+      if (hasCycle(adjacencyList, visited, onPath, next, result)) {
+        return true;
+      }
+    }
+    onPath.remove(node); // backtrack
+    result.addFirst(node);
+    return false;
+  }
 }

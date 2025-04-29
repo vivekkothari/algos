@@ -8,8 +8,10 @@ import org.example.llmquiz.ChatGptAlgoQuiz;
 public class Arrays {
 
   public static void main(String[] args) {
-    trap(new int[] {0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1});
-    countDays(10, new int[][] {{5, 7}, {1, 3}, {9, 10}});
+    System.out.println(
+        longestIncreasingSubsequencePatienceSort(new int[] {10, 9, 2, 5, 3, 7, 101, 18}));
+    //    trap(new int[] {0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1});
+    //    countDays(10, new int[][] {{5, 7}, {1, 3}, {9, 10}});
     //    maximumCandies(new int[] {5, 8, 6}, 3);
     //    minZeroArray(new int[] {2, 0, 2}, new int[][] {{0, 2, 1}, {0, 2, 1}, {1, 1, 3}});
     //    System.out.println(
@@ -925,6 +927,32 @@ public class Arrays {
     for (i = left; i <= right; i++) {
       nums[i] = temp.get(i - left);
     }
+  }
+
+  /**
+   * https://leetcode.com/problems/move-pieces-to-obtain-a-string/?envType=company&envId=google&favoriteSlug=google-thirty-days
+   */
+  public boolean canChange(String start, String target) {
+    if (start.equals(target)) return true;
+    if (start.length() != target.length()) return false;
+    int n = start.length();
+    int sid = 0, tid = 0;
+    while (sid < n || tid < n) {
+      while (sid < n && start.charAt(sid) == '_') sid++;
+      while (tid < n && target.charAt(tid) == '_') tid++;
+
+      if (sid == n && tid == n) return true;
+      if (sid == n || tid == n) return false;
+
+      if (start.charAt(sid) != target.charAt(tid)
+          || (start.charAt(sid) == 'L' && sid < tid)
+          || (start.charAt(sid) == 'R' && sid > tid)) {
+        return false;
+      }
+      sid++;
+      tid++;
+    }
+    return true;
   }
 
   public static int[] reverse(int[] nums) {
@@ -2028,7 +2056,9 @@ public class Arrays {
   }
 
   /**
-   * A permutation of an array of integers is an arrangement of its members into a sequence or
+   * https://leetcode.com/problems/next-permutation/?envType=company&envId=google&favoriteSlug=google-thirty-days
+   *
+   * <p>A permutation of an array of integers is an arrangement of its members into a sequence or
    * linear order.
    *
    * <p>For example, for arr = [1,2,3], the following are all the permutations of arr: [1,2,3],
@@ -2074,6 +2104,7 @@ public class Arrays {
     reverse(nums, i + 1, n - 1);
   }
 
+  /** https://leetcode.com/problems/next-permutation/ */
   public static void nextPermutation1(int[] nums) {
     int pivot = 0;
     // find first decreasing element index
@@ -2858,5 +2889,55 @@ public class Arrays {
       maxLen = Math.max(maxLen, r - l + 1);
     }
     return maxLen;
+  }
+
+  public static int longestIncreasingSubsequence(int[] nums) {
+    int[] dp = new int[nums.length];
+    int max = 1;
+    java.util.Arrays.fill(dp, 1);
+    for (int i = 1; i < nums.length; i++) {
+      for (int j = 0; j < i; j++) {
+        if (nums[i] > nums[j]) {
+          dp[i] = Math.max(dp[i], dp[j] + 1);
+        }
+      }
+      max = Math.max(max, dp[i]);
+    }
+    return max;
+  }
+
+  public static int longestIncreasingSubsequencePatienceSort(int[] nums) {
+    TreeSet<Integer> set = new TreeSet<>();
+    for (int num : nums) {
+      Integer ceil = set.ceiling(num);
+      if (ceil != null) {
+        set.remove(ceil);
+      }
+      set.add(num);
+    }
+    return set.size();
+  }
+
+  public int lengthOfLIS(int[] nums) {
+    TreeSet<Integer> set = new TreeSet<>();
+    for (int num : nums) {
+      Integer ceil = set.ceiling(num);
+      if (ceil != null) {
+        set.remove(ceil);
+      }
+      set.add(num);
+    }
+    return set.size();
+  }
+
+  public int maxEnvelopes(int[][] envelopes) {
+    // sort on increasing in first dimension and decreasing in second
+    java.util.Arrays.sort(envelopes, (a, b) -> a[0] == b[0] ? b[1] - a[1] : a[0] - b[0]);
+    // extract the second dimension and run LIS
+    int[] secondDim = new int[envelopes.length];
+    for (int i = 0; i < envelopes.length; ++i) {
+      secondDim[i] = envelopes[i][1];
+    }
+    return lengthOfLIS(secondDim);
   }
 }

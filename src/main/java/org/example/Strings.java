@@ -46,6 +46,42 @@ class Strings {
     return true;
   }
 
+  /**
+   * https://leetcode.com/problems/remove-k-digits/?envType=company&envId=google&favoriteSlug=google-thirty-days
+   */
+  public String removeKdigits(String num, int k) {
+    Stack<Character> stack = new Stack<>();
+    for (var ch : num.toCharArray()) {
+      while (k > 0 && !stack.isEmpty() && stack.peek() > ch) {
+        stack.pop();
+        k--;
+      }
+      stack.push(ch);
+    }
+    // If still need to remove digits
+    while (k > 0 && !stack.isEmpty()) {
+      stack.pop();
+      k--;
+    }
+    // Build the result
+    StringBuilder sb = new StringBuilder();
+    for (char ch : stack) {
+      sb.append(ch);
+    }
+
+    // Remove leading zeros
+    int idx = 0;
+    while (!sb.isEmpty() && sb.charAt(0) == '0') {
+      if (sb.charAt(idx) == '0') {
+        idx++;
+      } else {
+        break;
+      }
+    }
+    var ans = sb.substring(idx);
+    return ans.isEmpty() ? "0" : ans;
+  }
+
   public static List<List<String>> groupAnagrams(String[] strs) {
     Map<String, List<String>> groupedAnagrams = new HashMap<>();
     for (var str : strs) {

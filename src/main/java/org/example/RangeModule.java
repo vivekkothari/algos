@@ -1,56 +1,59 @@
 package org.example;
 
-import java.util.NavigableMap;
-import java.util.TreeMap;
+import java.util.*;
 
 public class RangeModule {
 
-  private final NavigableMap<Integer, Integer> ranges = new TreeMap<>();
+  record Interval(int left, int right) {}
 
-  public RangeModule() {}
+  private final NavigableSet<Interval> intervals;
+
+  public RangeModule() {
+    intervals = new TreeSet<>((a, b) -> a.right - b.right);
+  }
 
   public void addRange(int left, int right) {
-    if (left >= right) return;
-    Integer start = ranges.floorKey(left);
-    if (start != null && ranges.get(start) >= left) {
-      left = start;
-      right = Math.max(right, ranges.get(start));
-      ranges.remove(start);
+    var tailSet = intervals.tailSet(new Interval(0, left));
+    var iterator = tailSet.iterator();
+    while (iterator.hasNext()) {
+      var current = iterator.next();
+      if (current.left > right) {
+        break;
+      }
+      left = Math.min(left, current.left);
+      right = Math.max(right, current.right);
+      iterator.remove();
     }
-    Integer end = ranges.floorKey(right);
-    while (end != null && ranges.get(end) >= left) {
-      right = Math.max(right, ranges.get(end));
-      ranges.remove(end);
-      end = ranges.floorKey(right);
-    }
-    ranges.put(left, right);
+    intervals.add(new Interval(left, right));
   }
 
   public boolean queryRange(int left, int right) {
-    Integer start = ranges.floorKey(left);
-    return start != null && ranges.get(start) >= right;
+    var higher = intervals.higher(new Interval(0, left));
+    return higher != null && higher.left <= left && right <= higher.right;
   }
 
   public void removeRange(int left, int right) {
-    if (left >= right) return;
-    Integer start = ranges.floorKey(left);
-    Integer end = ranges.floorKey(right);
-    if (start != null && ranges.get(start) > left) {
-      int rangeEnd = ranges.get(start);
-      ranges.remove(start);
-      if (start < left) ranges.put(start, left);
-      if (rangeEnd > right) ranges.put(right, rangeEnd);
+    var tailSet = intervals.tailSet(new Interval(0, left));
+    var iterator = tailSet.iterator();
+    List<Interval> toAdd = new ArrayList<>();
+    while (iterator.hasNext()) {
+      var current = iterator.next();
+      if (current.left > right) {
+        break;
+      }
+      if (current.left < left) {
+        toAdd.add(new Interval(current.left, left));
+      }
+      if (right < current.right) {
+        toAdd.add(new Interval(right, current.right));
+      }
+      iterator.remove();
     }
-    while (end != null && ranges.get(end) > left) {
-      int rangeEnd = ranges.get(end);
-      ranges.remove(end);
-      if (rangeEnd > right) ranges.put(right, rangeEnd);
-      end = ranges.floorKey(right);
-    }
+    intervals.addAll(toAdd);
   }
 
   public static void main(String[] args) {
-    RangeModule rangeModule = new RangeModule();
+    var rangeModule = new RangeModule();
     rangeModule.addRange(10, 12);
     rangeModule.addRange(14, 16);
     rangeModule.addRange(18, 24);
