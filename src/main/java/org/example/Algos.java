@@ -82,11 +82,11 @@ class Algos {
   }
 
   static double myPow(double a, int b) {
-    var pow = pow(a, Math.abs(b));
+    var pow = pow(a, Math.abs((long) b));
     return b < 0 ? 1 / pow : pow;
   }
 
-  static double pow(double a, int b) {
+  static double pow(double a, long b) {
     if (a == 0) return 0;
     if (b == 0) return 1;
     if (b == 1) return a;

@@ -82,6 +82,29 @@ class Strings {
     return ans.isEmpty() ? "0" : ans;
   }
 
+  /** https://leetcode.com/problems/apply-substitutions/ */
+  public static String applySubstitutions(List<List<String>> replacements, String text) {
+    Map<Character, String> mapping = new HashMap<>();
+    for (var kv : replacements) {
+      mapping.put(kv.get(0).charAt(0), kv.get(1));
+    }
+    StringBuilder sb = new StringBuilder();
+    validateString(text, mapping, sb);
+    return sb.toString();
+  }
+
+  public static void validateString(String text, Map<Character, String> mem, StringBuilder sb) {
+    for (char ch : text.toCharArray()) {
+      if (mem.containsKey(ch)) {
+        validateString(mem.get(ch), mem, sb);
+      } else if (ch == '%') {
+        continue;
+      } else {
+        sb.append(ch);
+      }
+    }
+  }
+
   public static List<List<String>> groupAnagrams(String[] strs) {
     Map<String, List<String>> groupedAnagrams = new HashMap<>();
     for (var str : strs) {
@@ -275,6 +298,8 @@ class Strings {
   }
 
   public static void main(String[] args) {
+    applySubstitutions(
+        List.of(List.of("A", "bce"), List.of("B", "ace"), List.of("C", "abc%B%")), "%A%_%B%_%C%");
     System.out.println(minWindow("aab", "aab"));
     //        repeatedSubstringPattern("abab");
     //    System.out.println(partitionLabels("ababcbacadefegdehijhklij"));

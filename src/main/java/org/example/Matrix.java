@@ -635,4 +635,46 @@ class Matrix {
     }
     return ++dp[i][j];
   }
+
+  /** https://leetcode.com/problems/available-captures-for-rook/ */
+  public int numRookCaptures(char[][] board) {
+    int[] rookPos = findRookPos(board);
+    int numPawns = 0;
+    int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}}; // up, down, left, right
+
+    for (int[] dir : directions) {
+      numPawns += countPawnsInDirection(board, rookPos, dir);
+    }
+
+    return numPawns;
+  }
+
+  private int countPawnsInDirection(char[][] board, int[] rookPos, int[] dir) {
+    int x = rookPos[0] + dir[0];
+    int y = rookPos[1] + dir[1];
+
+    while (x >= 0 && x < board.length && y >= 0 && y < board[0].length) {
+      if (board[x][y] == 'B') {
+        break;
+      }
+      if (board[x][y] == 'p') {
+        return 1;
+      }
+      x += dir[0];
+      y += dir[1];
+    }
+
+    return 0;
+  }
+
+  private int[] findRookPos(char[][] board) {
+    for (int i = 0; i < board.length; i++) {
+      for (int j = 0; j < board[i].length; j++) {
+        if (board[i][j] == 'R') {
+          return new int[] {i, j};
+        }
+      }
+    }
+    throw new RuntimeException("rook not found");
+  }
 }

@@ -559,14 +559,70 @@ public class Arrays {
     return res;
   }
 
+  /**
+   * https://leetcode.com/problems/missing-number/?envType=company&envId=google&favoriteSlug=google-thirty-days
+   */
   public static int missingNumber(int[] nums) {
-    var n = nums.length;
-    var expectedSum = n * (n + 1) / 2;
-    var actualSum = 0;
-    for (var num : nums) {
-      actualSum += num;
+    var sum = java.util.Arrays.stream(nums).sum();
+    var actualSum = (nums.length * (nums.length + 1)) / 2;
+    return actualSum - sum;
+  }
+
+  /** https://leetcode.com/problems/count-subarrays-where-max-element-appears-at-least-k-times/ */
+  public long countSubarrays(int[] nums, int k) {
+    var max = java.util.Arrays.stream(nums).max().getAsInt();
+    int l = 0;
+    int maxCount = 0;
+    long res = 0;
+    for (int r = 0; r < nums.length; r++) {
+      if (nums[r] == max) {
+        maxCount++;
+      }
+      while (maxCount >= k) {
+        if (nums[l] == max) {
+          maxCount--;
+        }
+        l++;
+      }
+      res += l;
     }
-    return expectedSum - actualSum;
+    return res;
+  }
+
+  /** https://takeuforward.org/plus/dsa/problems/second-largest-element */
+  public static int secondLargestElement(int[] nums) {
+    int largest = Integer.MIN_VALUE;
+    int sLargest = Integer.MIN_VALUE;
+    for (int num : nums) {
+      if (num > largest) {
+        largest = num;
+      }
+      if (num > sLargest && num < largest) {
+        sLargest = num;
+      }
+    }
+    return sLargest;
+  }
+
+  public String kthLargestNumber(String[] nums, int k) {
+    java.util.Arrays.sort(
+        nums,
+        (a, b) -> {
+          if (a.length() == b.length()) {
+            return a.compareTo(b);
+          }
+          return Integer.compare(a.length(), b.length());
+        });
+    return nums[nums.length - k];
+  }
+
+  public boolean checkIfArrayIsSorted(int[] nums) {
+    for (int i = 0; i < nums.length - 2; i++) {
+      if (nums[i] > nums[i + 1]) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**
@@ -1075,6 +1131,19 @@ public class Arrays {
         i++;
       }
       nums[k++] = nums[i];
+    }
+    return k;
+  }
+
+  // 1,1,2,2,2,3,3
+  public static int removeDuplicatesOptimal(int[] nums) {
+    int prev = nums[0];
+    int k = 1;
+    for (int i = 1; i < nums.length; i++) {
+      if (nums[i] != prev) {
+        nums[k++] = nums[i];
+        prev = nums[i];
+      }
     }
     return k;
   }

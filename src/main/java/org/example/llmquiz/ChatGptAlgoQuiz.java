@@ -59,8 +59,9 @@ public class ChatGptAlgoQuiz {
     //        };
     //    surroundedRegion(board);
     //    System.out.println(Arrays.deepToString(board));
-    //    System.out.println(
-    //        ladderLength("hit", "cog", List.of("hot", "dot", "dog", "lot", "log", "cog")));
+    System.out.println(
+        ladderLengthBiDirectionalBfs(
+            "hit", "cog", List.of("hot", "dot", "dog", "lot", "log", "cog")));
     //    wallsAndGate(
     //        new int[][] {
     //          {MAX_VALUE, -1, 0, MAX_VALUE},
@@ -1280,6 +1281,56 @@ public class ChatGptAlgoQuiz {
       }
       level++; // Move to the next BFS level
     }
+    return 0;
+  }
+
+  public static int ladderLengthBiDirectionalBfs(
+      String beginWord, String endWord, List<String> wordList) {
+    Set<String> wordSet = new HashSet<>(wordList);
+    if (!wordSet.contains(endWord)) return 0;
+
+    Set<String> beginSet = new HashSet<>();
+    Set<String> endSet = new HashSet<>();
+
+    beginSet.add(beginWord);
+    endSet.add(endWord);
+    int level = 1;
+
+    while (!beginSet.isEmpty() && !endSet.isEmpty()) {
+      // Always expand the smaller set to optimize
+      if (beginSet.size() > endSet.size()) {
+        Set<String> temp = beginSet;
+        beginSet = endSet;
+        endSet = temp;
+      }
+
+      Set<String> nextLevel = new HashSet<>();
+      for (String word : beginSet) {
+        char[] wordChars = word.toCharArray();
+        for (int i = 0; i < wordChars.length; i++) {
+          char originalChar = wordChars[i];
+          for (char c = 'a'; c <= 'z'; c++) {
+            if (c == originalChar) continue;
+            wordChars[i] = c;
+            String newWord = new String(wordChars);
+
+            if (endSet.contains(newWord)) {
+              return level + 1; // Found the connection point
+            }
+
+            if (wordSet.contains(newWord)) {
+              nextLevel.add(newWord);
+              wordSet.remove(newWord); // Avoid re-visiting
+            }
+          }
+          wordChars[i] = originalChar;
+        }
+      }
+
+      beginSet = nextLevel;
+      level++;
+    }
+
     return 0;
   }
 
