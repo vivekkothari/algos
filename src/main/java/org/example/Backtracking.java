@@ -9,7 +9,8 @@ import java.util.stream.Collectors;
 class Backtracking {
 
   public static void main(String[] args) {
-    combine(4, 2);
+    //    combine(4, 2);
+    //    System.out.println(subsetSum(new int[] {3, 1, 2}));
     //    permuteUnique(new int[] {1, 1, 2});
     //    System.out.println(removeDuplicateLetters("cbacdcbc"));
     //    largestNumber(new int[] {0, 0, 0, 0});
@@ -18,13 +19,13 @@ class Backtracking {
     //    System.out.println(isMatch("aabcc", "a*c"));
     //    System.out.println(restoreIpAddresses("101023"));
     //    System.out.println(subsets(new int[] {}));
-    //    System.out.println(permute(new int[] {1, 2, 3}));
+    System.out.println(permuteOptimised(new int[] {1, 2, 3}));
     //    System.out.println(findAllBinaryStrings(2));
     //    System.out.println(permute("ABC", true));
     //    System.out.println(permute("ABC", false));
     //    System.out.println(generateParenthesis(5));
-    System.out.println(combinationSum(new int[] {2, 3, 6, 7}, 7));
-    System.out.println(combinationSumNoReuse(new int[] {2, 3, 6, 7}, 7));
+    //    System.out.println(combinationSum(new int[] {2, 3, 6, 7}, 7));
+    //    System.out.println(combinationSumNoReuse(new int[] {2, 3, 6, 7}, 7));
     //    findSolution(Integer::sum, 5);
   }
 
@@ -103,6 +104,22 @@ class Backtracking {
       tempList.removeLast();
     }
   }
+
+  /// //////////////////////
+  public static List<Integer> subsetSum(int[] nums) {
+    List<Integer> res = new ArrayList<>();
+    subsetSum(res, nums, 0, 0);
+    return res;
+  }
+
+  private static void subsetSum(List<Integer> res, int[] nums, int currSum, int start) {
+    res.add(currSum);
+    for (int i = start; i < nums.length; i++) {
+      subsetSum(res, nums, currSum + nums[i], i + 1);
+    }
+  }
+
+  /// //////////////////////
 
   /** https://leetcode.com/problems/subsets-ii/ */
   public List<List<Integer>> subsetsWithDup(int[] nums) {
@@ -266,6 +283,24 @@ class Backtracking {
       permute(list, tempList, nums, used); // explore more options
       used[i] = false;
       tempList.removeLast(); // undo the last choice
+    }
+  }
+
+  public static List<List<Integer>> permuteOptimised(int[] nums) {
+    List<List<Integer>> list = new ArrayList<>();
+    permuteOptimised(list, nums, 0);
+    return list;
+  }
+
+  private static void permuteOptimised(List<List<Integer>> list, int[] nums, int start) {
+    if (start == nums.length) {
+      list.add(Arrays.stream(nums).boxed().toList());
+      return;
+    }
+    for (int i = start; i < nums.length; i++) {
+      org.example.Arrays.swap(nums, i, start);
+      permuteOptimised(list, nums, i + 1);
+      org.example.Arrays.swap(nums, start, i);
     }
   }
 
@@ -719,61 +754,50 @@ class Backtracking {
     }
   }
 
-  // Helper function to check if placing a queen at position (row,col) is safe
-  private static boolean isSafePlace(int n, char[][] nQueens, int row, int col) {
-    // Check if there's any queen in the same column above current position
-    for (int i = 0; i < n; i++) {
-      if (nQueens[i][col] == 'Q') {
+  /** https://leetcode.com/problems/sudoku-solver/ */
+  public void solveSudoku(char[][] board) {
+    boolean[][] rows = new boolean[9][9];
+    boolean[][] cols = new boolean[9][9];
+    boolean[][] boxes = new boolean[9][9];
+    // Fill initial state
+    for (int row = 0; row < 9; row++) {
+      for (int col = 0; col < 9; col++) {
+        if (board[row][col] != '.') {
+          int num = board[row][col] - '1';
+          int box = (row / 3) * 3 + (col / 3);
+          rows[row][num] = cols[col][num] = boxes[box][num] = true;
+        }
+      }
+    }
+    solve(board, rows, cols, boxes);
+  }
+
+  private boolean solve(char[][] board, boolean[][] rows, boolean[][] cols, boolean[][] boxes) {
+    for (int row = 0; row < 9; row++) {
+      for (int col = 0; col < 9; col++) {
+        if (board[row][col] != '.') continue;
+
+        for (int num = 0; num < 9; num++) {
+          int box = (row / 3) * 3 + (col / 3);
+          if (rows[row][num] || cols[col][num] || boxes[box][num]) continue;
+
+          board[row][col] = (char) (num + '1');
+          rows[row][num] = cols[col][num] = boxes[box][num] = true;
+
+          if (solve(board, rows, cols, boxes)) return true;
+
+          board[row][col] = '.';
+          rows[row][num] = cols[col][num] = boxes[box][num] = false;
+        }
+
         return false;
       }
     }
-
-    // Check upper-left diagonal for any queen
-    for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
-      if (nQueens[i][j] == 'Q') {
-        return false;
-      }
-    }
-
-    // Check upper-right diagonal for any queen
-    for (int i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
-      if (nQueens[i][j] == 'Q') {
-        return false;
-      }
-    }
-
-    // If no conflicts found, position is safe
     return true;
   }
 
   // Recursive helper function to solve N-Queens problem
-  private static void solveNQueens(int n, List<List<String>> output, char[][] nQueens, int row) {
-    // Base case: if we've placed queens in all rows, we found a valid solution
-    if (row == n) {
-      List<String> solution = new ArrayList<>();
-      for (char[] rowArray : nQueens) {
-        solution.add(new String(rowArray));
-      }
-      output.add(solution);
-      return;
-    }
-
-    // Try placing queen in each column of current row
-    for (int col = 0; col < n; col++) {
-      // If current position is safe
-      if (isSafePlace(n, nQueens, row, col)) {
-        // Place queen
-        nQueens[row][col] = 'Q';
-        // Recursively solve for next row
-        solveNQueens(n, output, nQueens, row + 1);
-        // Backtrack: remove queen for trying next position
-        nQueens[row][col] = '.';
-      }
-    }
-  }
-
-  // Main function to solve N-Queens problem
-  public static List<List<String>> solveNQueens(int n) {
+  public List<List<String>> solveNQueens(int n) {
     List<List<String>> output = new ArrayList<>(); // Stores all valid solutions
     char[][] nQueens = new char[n][n]; // Initialize empty board
 
@@ -781,8 +805,45 @@ class Backtracking {
     for (int i = 0; i < n; i++) {
       Arrays.fill(nQueens[i], '.');
     }
+    boolean[] leftRow = new boolean[n];
+    boolean[] upperDiag = new boolean[2 * n - 1];
+    boolean[] lowerDiag = new boolean[2 * n - 1];
 
-    solveNQueens(n, output, nQueens, 0); // Start solving from row 0
+    solveNQueens(0, nQueens, output, leftRow, upperDiag, lowerDiag, n); // Start solving from row 0
     return output;
+  }
+
+  private static void solveNQueens(
+      int col,
+      char[][] nQueens,
+      List<List<String>> output,
+      boolean[] leftRow,
+      boolean[] upperDiag,
+      boolean[] lowerDiag,
+      int n) {
+    // Base case: if we've placed queens in all rows, we found a valid solution
+    if (col == n) {
+      output.add(Arrays.stream(nQueens).map(String::new).toList());
+      return;
+    }
+
+    // Try placing queen in each column of current row
+    for (int row = 0; row < n; row++) {
+      // If current position is safe
+      if (!leftRow[row] && !lowerDiag[row + col] && !upperDiag[n - 1 + col - row]) {
+        // Place queen
+        nQueens[row][col] = 'Q';
+        leftRow[row] = true;
+        lowerDiag[row + col] = true;
+        upperDiag[n - 1 + col - row] = true;
+        // Recursively solve for next row
+        solveNQueens(col + 1, nQueens, output, leftRow, upperDiag, lowerDiag, n);
+        // Backtrack: remove queen for trying next position
+        nQueens[row][col] = '.';
+        leftRow[row] = false;
+        lowerDiag[row + col] = false;
+        upperDiag[n - 1 + col - row] = false;
+      }
+    }
   }
 }
