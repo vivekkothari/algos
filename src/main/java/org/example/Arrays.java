@@ -1648,21 +1648,6 @@ public class Arrays {
     return memo.get(n);
   }
 
-  public static long fib(long n) {
-    return fib(n, new HashMap<>());
-  }
-
-  public static long fib(long n, Map<Long, Long> memo) {
-    if (n < 2) {
-      return n;
-    }
-    if (memo.containsKey(n)) {
-      return memo.get(n);
-    }
-    memo.put(n, fib(n - 1, memo) + fib(n - 2, memo));
-    return memo.get(n);
-  }
-
   /**
    *
    *
