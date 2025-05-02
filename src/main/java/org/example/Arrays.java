@@ -3169,4 +3169,27 @@ public class Arrays {
     }
     return res;
   }
+
+  /**
+   * https://leetcode.com/problems/valid-parenthesis-string/
+   */
+  public boolean checkValidString(String s) {
+    int min = 0, max = 0;
+    for (var ch : s.toCharArray()) {
+      if (ch == '(') {
+        min++;
+        max++;
+      } else if (ch == ')') {
+        min--;
+        max--;
+      } else {
+        // its a *
+        min--;
+        max++;
+      }
+      if (min < 0) min = 0;
+      if (max < 0) return false;
+    }
+    return min == 0;
+  }
 }
