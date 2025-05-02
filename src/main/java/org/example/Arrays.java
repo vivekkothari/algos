@@ -8,8 +8,15 @@ import org.example.llmquiz.ChatGptAlgoQuiz;
 public class Arrays {
 
   public static void main(String[] args) {
-    System.out.println(
-        longestIncreasingSubsequencePatienceSort(new int[] {10, 9, 2, 5, 3, 7, 101, 18}));
+    celebrity(new int[][] {{1, 1, 0}, {0, 1, 0}, {0, 1, 1}});
+    //    minSum(new int[] {6, 8, 4, 5, 2, 3});
+    //    findPlatform(
+    //        new int[] {900, 940, 950, 1100, 1500, 1800}, new int[] {910, 1200, 1120, 1130, 1900,
+    // 2000});
+    //    kthSmallest(new int[] {7, 10, 4, 3, 20, 15}, 3);
+    //    subarraySum(new int[] {1, 2, 3, 7, 5}, 12);
+    //    System.out.println(
+    //        longestIncreasingSubsequencePatienceSort(new int[] {10, 9, 2, 5, 3, 7, 101, 18}));
     //    trap(new int[] {0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1});
     //    countDays(10, new int[][] {{5, 7}, {1, 3}, {9, 10}});
     //    maximumCandies(new int[] {5, 8, 6}, 3);
@@ -93,7 +100,7 @@ public class Arrays {
     //    rotateNoExtraSpace(nums, 3);
     //    System.out.println(java.util.Arrays.toString(nums));
 
-    //    System.out.println(minJumps(new int[] {2, 3, 1, 1, 4}));
+    System.out.println(minJumpOptimised(new int[] {2, 3, 1, 1, 4}));
     //    System.out.println(canPlaceFlowers(new int[] {1, 0, 0, 0, 1}, 1));
     //    System.out.println(canPlaceFlowers(new int[] {1, 0}, 1));
     //    System.out.println(containsNearbyDuplicate(new int[] {99, 99}, 2));
@@ -390,13 +397,14 @@ public class Arrays {
    * </pre>
    */
   public static boolean canJump(int[] nums) {
-    var goalPost = nums.length - 1;
-    for (int i = nums.length - 1; i > 0; i--) {
-      if (i + nums[i] >= goalPost) {
-        goalPost = i;
+    int maxIdx = 0;
+    for (int i = 0; i < nums.length; i++) {
+      if (nums[i] == 0 && maxIdx <= i) {
+        return false;
       }
+      maxIdx = Math.max(maxIdx, i + nums[i]);
     }
-    return goalPost == 0;
+    return maxIdx >= nums.length;
   }
 
   /**
@@ -469,6 +477,21 @@ public class Arrays {
       return -1;
     }
     return ans;
+  }
+
+  static int minJumpOptimised(int[] arr) {
+    // {2, 3, 1, 1, 4}
+    int jumps = 0, l = 0, r = 1;
+    int farthest = 0;
+    while (r < arr.length - 1) {
+      for (int i = l; i < r; i++) {
+        farthest = Math.max(farthest, i + arr[i]);
+      }
+      l = r;
+      r = farthest;
+      jumps++;
+    }
+    return jumps;
   }
 
   public static void moveZeroes(int[] nums) {
@@ -895,6 +918,90 @@ public class Arrays {
       count += (res == num ? 1 : -1);
     }
     return res;
+  }
+
+  public static int kthSmallest(int[] arr, int k) {
+    PriorityQueue<Integer> maxHeap = new PriorityQueue<Integer>(Comparator.reverseOrder());
+    for (int num : arr) {
+      if (maxHeap.size() < k) {
+        maxHeap.offer(num);
+      } else {
+        if (maxHeap.peek() > num) {
+          maxHeap.poll();
+          maxHeap.offer(num);
+        }
+      }
+    }
+    return maxHeap.peek();
+  }
+
+  /** https://leetcode.com/problems/find-peak-element/ */
+  public int findPeakElement(int[] nums) {
+    int low = 0, high = nums.length - 1;
+    while (low <= high) {
+      int mid = (low + high) / 2;
+      if (mid > 0 && nums[mid] < nums[mid - 1]) {
+        high = mid - 1;
+      } else if (mid < nums.length - 1 && nums[mid] < nums[mid + 1]) {
+        low = mid + 1;
+      } else {
+        return mid;
+      }
+    }
+    return low;
+  }
+
+  static String minSum(int[] arr) {
+    java.util.Arrays.sort(arr);
+    long num1 = 0, num2 = 0;
+    for (int i = 0; i < arr.length; i++) {
+      if (i % 2 == 0) num1 = num1 * 10 + arr[i];
+      else num2 = num2 * 10 + arr[i];
+    }
+    return String.valueOf(num1 + num2);
+  }
+
+  public static int celebrity(int[][] mat) {
+    int n = mat.length;
+    int[] in = new int[n];
+    int[] out = new int[n];
+
+    /*
+    [1,1,0]
+    [0,1,0]
+    [0,1,1]
+
+    in:[2,1,2]
+    out[1,3,1]
+    */
+
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        int x = mat[i][j];
+        out[i] += x;
+        in[j] += x;
+      }
+    }
+
+    for (int i = 0; i < n; i++) {
+      if (in[i] == n - 1 && out[i] == 0) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  static int findPlatform(int[] arr, int[] dep) {
+    var queue = new PriorityQueue<int[]>((a1, a2) -> a2[1] - a1[1]);
+    for (int i = 0; i < arr.length; i++) {
+      if (queue.isEmpty() || queue.peek()[1] > arr[i]) {
+        queue.offer(new int[] {arr[i], dep[i]});
+      } else {
+        queue.poll();
+        queue.offer(new int[] {arr[i], dep[i]});
+      }
+    }
+    return queue.size();
   }
 
   /**
@@ -1851,6 +1958,52 @@ public class Arrays {
     digits = new int[digits.length + 1];
     digits[0] = 1;
     return digits;
+  }
+
+  /**
+   * https://www.geeksforgeeks.org/problems/frequency-game/1?page=6&company=Google&sortBy=submissions
+   */
+  public static int LargButMinFreq(int[] arr, int n) {
+    Map<Integer, Integer> freq = new HashMap<>();
+    for (int i : arr) {
+      freq.put(i, freq.getOrDefault(i, 0) + 1);
+    }
+    // num, freq
+    Map.Entry<Integer, Integer> res = null;
+    for (Map.Entry<Integer, Integer> entry : freq.entrySet()) {
+      if (res == null) {
+        res = entry;
+      } else {
+        if (res.getValue() > entry.getValue()
+            || (res.getValue().equals(entry.getValue()) && res.getKey() < entry.getKey())) {
+          res = entry;
+        }
+      }
+    }
+    return res.getKey();
+  }
+
+  public boolean lemonadeChange(int[] bills) {
+    int five = 0, ten = 0;
+    for (var bill : bills) {
+      if (bill == 5) {
+        five++;
+      } else if (bill == 10) {
+        if (five < 1) return false;
+        five--;
+        ten++;
+      } else {
+        if (ten > 0 && five > 0) {
+          ten--;
+          five--;
+        } else if (five >= 3) {
+          five -= 3;
+        } else {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   /**
@@ -2993,5 +3146,27 @@ public class Arrays {
       secondDim[i] = envelopes[i][1];
     }
     return lengthOfLIS(secondDim);
+  }
+
+  static ArrayList<Integer> subarraySum(int[] arr, int target) {
+    int l = 0, r = 0, currSum = 0;
+    for (; r < arr.length; r++) {
+      currSum += arr[r];
+      while (currSum > target) {
+        currSum -= arr[l];
+        l++;
+      }
+      if (currSum == target) {
+        break;
+      }
+    }
+    ArrayList<Integer> res = new ArrayList<>();
+    if (currSum == target) {
+      res.add(l + 1);
+      res.add(r + 1);
+    } else {
+      res.add(-1);
+    }
+    return res;
   }
 }
