@@ -8,7 +8,8 @@ import org.example.llmquiz.ChatGptAlgoQuiz;
 public class Arrays {
 
   public static void main(String[] args) {
-    celebrity(new int[][] {{1, 1, 0}, {0, 1, 0}, {0, 1, 1}});
+    System.out.println(numberOfInversions(new int[] {7, 6, 5, 4, 3, 2, 1, 0}));
+    //    celebrity(new int[][] {{1, 1, 0}, {0, 1, 0}, {0, 1, 1}});
     //    minSum(new int[] {6, 8, 4, 5, 2, 3});
     //    findPlatform(
     //        new int[] {900, 940, 950, 1100, 1500, 1800}, new int[] {910, 1200, 1120, 1130, 1900,
@@ -3189,5 +3190,51 @@ public class Arrays {
       if (max < 0) return false;
     }
     return min == 0;
+  }
+
+  public static long numberOfInversions(int[] nums) {
+    long[] count = new long[1];
+    numberOfInversions(nums, 0, nums.length - 1, count);
+    return count[0];
+  }
+
+  private static void numberOfInversions(int[] nums, int left, int right, long[] count) {
+    if (left >= right) {
+      return;
+    }
+    int m = left + (right - left) / 2;
+    numberOfInversions(nums, left, m, count);
+    numberOfInversions(nums, m + 1, right, count);
+    numberOfInversions(nums, left, m, right, count);
+  }
+
+  private static void numberOfInversions(int[] nums, int left, int mid, int right, long[] count) {
+    var temp = new ArrayList<Integer>();
+    // left array start index
+    int i = left;
+    // right array start index
+    int j = mid + 1;
+    while (i <= mid && j <= right) {
+      // correctly sorted
+      if (nums[i] <= nums[j]) {
+        temp.add(nums[i++]);
+      } else {
+        // Inversion detected, add the remaining elements from the left part
+        count[0] +=
+            (mid - i + 1); // All elements from left[i] to left[mid] are greater than nums[j]
+        temp.add(nums[j++]);
+      }
+    }
+    while (i <= mid) {
+      temp.add(nums[i++]);
+    }
+
+    while (j <= right) {
+      temp.add(nums[j++]);
+    }
+
+    for (i = left; i <= right; i++) {
+      nums[i] = temp.get(i - left);
+    }
   }
 }

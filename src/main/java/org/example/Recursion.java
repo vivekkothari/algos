@@ -1,10 +1,23 @@
 package org.example;
 
 import java.util.*;
+import java.util.Arrays;
 
 class Recursion {
 
   public static void main(String[] args) {
+    System.out.println(uniqueWays(2, 2));
+    System.out.println(uniqueWaysDpSpaceOptimised(2, 2));
+    System.out.println(uniqueWaysDp(10, 10));
+    System.out.println(uniqueWaysDpSpaceOptimised(10, 10));
+    //    System.out.println(ninjaTraining(new int[][] {{10, 50, 1}, {5, 100, 11}, {5, 100, 11}}));
+    //    System.out.println(ninjaTrainingDp(new int[][] {{10, 50, 1}, {5, 100, 11}, {5, 100,
+    // 11}}));
+    //    System.out.println(nonAdjacentSubseq(new int[] {1, 2, 3, 4, 5}));
+    //    System.out.println(nonAdjacentSubseqMaxSum(new int[] {1, 2, 3, 4, 5}));
+    //    System.out.println(nonAdjacentSubseqMaxSumDp(new int[] {1, 2, 3, 4, 5}));
+    //    System.out.println(nonAdjacentSubseqMaxSpaceOptimised(new int[] {1, 2, 3, 4, 5}));
+    //    System.out.println(minFrogKJumpDp(new int[] {30, 10, 60, 10, 60, 50}, 2));
     //    System.out.println(
     //        wordBreak(
     //
@@ -21,7 +34,7 @@ class Recursion {
     //                "aaaaaaaaa",
     //                "aaaaaaaaaa")));
     //    System.out.println(partition("madammadam"));
-    System.out.println(combinationSum(new int[] {2, 3, 6, 7}, 7));
+    //    System.out.println(combinationSum(new int[] {2, 3, 6, 7}, 7));
     //    System.out.println(permute(new int[] {1, 2, 3}));
     //    System.out.println(getSubSequences(new int[] {3, 1, 2}));
     //    System.out.println(getSubSequencesWithSum(new int[] {1, 1, 2}, 2));
@@ -344,4 +357,287 @@ class Recursion {
       }
     }
   }
+
+  /// //////////////////////////////////
+  public static int minFrogKJump(int[] nums, int k) {
+    return minFrogKJump(nums, nums.length - 1, k);
+  }
+
+  private static int minFrogKJump(int[] nums, int i, int k) {
+    if (i == 0) {
+      return 0;
+    }
+    int minCost = Integer.MAX_VALUE;
+    for (int j = 1; j <= k; j++) {
+      if (i - j >= 0) {
+        int jumpCost = minFrogKJump(nums, i - j, k) + Math.abs(nums[i] - nums[i - j]);
+        minCost = Math.min(minCost, jumpCost);
+      }
+    }
+    return minCost;
+  }
+
+  public static int minFrogKJumpDp(int[] nums, int k) {
+    int[] dp = new int[nums.length];
+    Arrays.fill(dp, Integer.MAX_VALUE);
+    dp[0] = 0;
+    for (int i = 0; i < nums.length; i++) {
+      for (int j = 1; j <= k; j++) {
+        if (i - j >= 0) {
+          int jumpCost = dp[i - j] + Math.abs(nums[i] - nums[i - j]);
+          dp[i] = Math.min(dp[i], jumpCost);
+        }
+      }
+    }
+    return dp[nums.length - 1];
+  }
+
+  /// ////////////////////////////
+  public static int minFrogJump(int[] nums) {
+    return minFrogJump(nums, nums.length - 1);
+  }
+
+  private static int minFrogJump(int[] nums, int i) {
+    if (i == 0) return 0;
+    if (i == 1) return Math.abs(nums[1] - nums[0]);
+    int left = minFrogJump(nums, i - 1) + Math.abs(nums[i] - nums[i - 1]);
+    int right = minFrogJump(nums, i - 2) + Math.abs(nums[i] - nums[i - 2]);
+    return Math.min(left, right);
+  }
+
+  public static int minFrogJumpDp(int[] nums) {
+    int[] dp = new int[nums.length];
+    dp[1] = Math.abs(nums[1] - nums[0]);
+    for (int i = 2; i < nums.length; i++) {
+      int left = dp[i - 1] + Math.abs(nums[i] - nums[i - 1]);
+      int right = dp[i - 2] + Math.abs(nums[i] - nums[i - 2]);
+      dp[i] = Math.min(left, right);
+    }
+    return dp[nums.length - 1];
+  }
+
+  public static int minFrogJumpBottomUpDp(int[] nums) {
+    int prev2 = 0;
+    int prev = Math.abs(nums[1] - nums[0]);
+    for (int i = 2; i < nums.length; i++) {
+      int left = prev + Math.abs(nums[i] - nums[i - 1]);
+      int right = prev2 + Math.abs(nums[i] - nums[i - 2]);
+      int cur = Math.min(left, right);
+      prev2 = prev;
+      prev = cur;
+    }
+    return prev;
+  }
+
+  /// ////////////////////////////
+
+  public static List<List<Integer>> nonAdjacentSubseq(int[] nums) {
+    List<List<Integer>> res = new ArrayList<>();
+    nonAdjacentSubseq(res, nums, new ArrayList<>(), 0);
+    return res;
+    // [1,2,3,4,5,6]
+  }
+
+  private static void nonAdjacentSubseq(
+      List<List<Integer>> res, int[] nums, List<Integer> temp, int start) {
+    if (start >= nums.length) {
+      res.add(List.copyOf(temp));
+      return;
+    }
+    temp.add(nums[start]);
+    nonAdjacentSubseq(res, nums, temp, start + 2);
+    temp.removeLast();
+    nonAdjacentSubseq(res, nums, temp, start + 1);
+  }
+
+  public static int nonAdjacentSubseqMaxSum(int[] nums) {
+    return nonAdjacentSubseqMaxSum(nums, nums.length - 1);
+  }
+
+  private static int nonAdjacentSubseqMaxSum(int[] nums, int i) {
+    if (i == 0) return nums[0];
+    if (i < 0) return 0;
+    int pick = nums[i] + nonAdjacentSubseqMaxSum(nums, i - 2);
+    int notPick = nonAdjacentSubseqMaxSum(nums, i - 1);
+    return Math.max(pick, notPick);
+  }
+
+  public static int nonAdjacentSubseqMaxSumDp(int[] nums) {
+    if (nums.length == 0) return 0;
+    if (nums.length == 1) return nums[0];
+    int[] dp = new int[nums.length];
+    dp[0] = nums[0];
+    dp[1] = Math.max(nums[0], nums[1]);
+    for (int i = 2; i < nums.length; i++) {
+      dp[i] = Math.max(dp[i - 2] + nums[i], dp[i - 1]);
+    }
+    return dp[nums.length - 1];
+  }
+
+  public static int nonAdjacentSubseqMaxSpaceOptimised(int[] nums) {
+    if (nums.length == 0) return 0;
+    if (nums.length == 1) return nums[0];
+    int prev2 = nums[0];
+    int prev = Math.max(nums[0], nums[1]);
+    for (int i = 2; i < nums.length; i++) {
+      int cur = Math.max(prev2 + nums[i], prev);
+      prev2 = prev;
+      prev = cur;
+    }
+    return prev;
+  }
+
+  /// /////////////////////////
+
+  public static int houseRobber(int[] valuesInHouses) {
+    int prev2 = valuesInHouses[0];
+    int prev = Math.max(valuesInHouses[0], valuesInHouses[1]);
+    for (int i = 2; i < valuesInHouses.length - 1; i++) {
+      int take = prev2 + valuesInHouses[i];
+      int nonTake = prev;
+      int cur = Math.max(take, nonTake);
+      prev2 = prev;
+      prev = cur;
+    }
+    int maxExceptLast = prev;
+    prev2 = valuesInHouses[1];
+    prev = Math.max(valuesInHouses[1], valuesInHouses[2]);
+    for (int i = 3; i < valuesInHouses.length; i++) {
+      int take = prev2 + valuesInHouses[i];
+      int nonTake = prev;
+      int cur = Math.max(take, nonTake);
+      prev2 = prev;
+      prev = cur;
+    }
+    return Math.max(maxExceptLast, prev);
+  }
+
+  /// /////////////////////////////////////
+
+  /**
+   * activities is m * 3 matrix. total 3 activities, can't perform same activity on consecutive day.
+   * https://www.youtube.com/watch?v=AE39gJYuRog&list=PLgUwDviBIf0qUlt5H_kiKYaNSqJ81PMMY&index=8&ab_channel=takeUforward
+   */
+  public static int ninjaTraining(int[][] activities) {
+    // for first iter, it doesn't matter what the last activity is, thus pass a num so that we try
+    // out all cases
+    int[][] dp = new int[activities.length][activities[0].length + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return ninjaTraining(activities, activities.length - 1, activities[0].length, dp);
+  }
+
+  private static int ninjaTraining(int[][] activities, int day, int lastActivity, int[][] dp) {
+    if (day == 0) {
+      int max = Integer.MIN_VALUE;
+      for (int j = 0; j < activities[0].length; j++) {
+        if (lastActivity != j) {
+          max = Math.max(max, activities[day][j]);
+        }
+      }
+      return max;
+    }
+    if (dp[day][lastActivity] != -1) {
+      return dp[day][lastActivity];
+    }
+    int max = Integer.MIN_VALUE;
+    for (int j = 0; j < activities[0].length; j++) {
+      if (lastActivity != j) {
+        int points = activities[day][j] + ninjaTraining(activities, day - 1, j, dp);
+        max = Math.max(max, points);
+      }
+    }
+    return dp[day][lastActivity] = max;
+  }
+
+  public static int ninjaTrainingDp(int[][] activities) {
+    // {10, 50, 1}, {5, 100, 11}
+    int[] dp = new int[activities[0].length];
+
+    for (int i = 0; i < dp.length; i++) {
+      int max = 0;
+      for (int j = 0; j < activities[0].length; j++) {
+        if (j != i) {
+          max = Math.max(max, activities[0][j]);
+        }
+      }
+      dp[i] = max;
+    }
+
+    for (int day = 1; day < activities.length; day++) {
+      int[] currDp = new int[dp.length];
+      for (int activity = 0; activity < activities[day].length; activity++) {
+        int max = Integer.MIN_VALUE;
+        for (int lastActivity = 0; lastActivity < activities[day].length; lastActivity++) {
+          if (lastActivity != activity) {
+            int points = activities[day][activity] + dp[lastActivity];
+            max = Math.max(max, points);
+          }
+        }
+        currDp[activity] = max;
+      }
+      dp = currDp;
+    }
+    return Arrays.stream(dp).max().orElse(0);
+  }
+
+  /// /////////////////////
+  /** we can only move right or down. count num of ways to go from (0,0) to (m-1,n-1). */
+  static long uniqueWays(int m, int n) {
+    long[][] dp = new long[m][n];
+    for (long[] p : dp) {
+      Arrays.fill(p, -1);
+    }
+    return uniqueWaysRecur(m - 1, n - 1, dp);
+  }
+
+  private static long uniqueWaysRecur(int i, int j, long[][] dp) {
+    if (i < 0 || j < 0) {
+      return 0;
+    }
+    if (i == 0 && j == 0) {
+      return 1;
+    }
+    if (dp[i][j] != -1) {
+      return dp[i][j];
+    }
+    return dp[i][j] = uniqueWaysRecur(i - 1, j, dp) + uniqueWaysRecur(i, j - 1, dp);
+  }
+
+  static long uniqueWaysDp(int m, int n) {
+    long[][] dp = new long[m][n];
+    for (int i = 0; i < m; i++) {
+      for (int j = 0; j < n; j++) {
+        if (i == 0 && j == 0) {
+          dp[i][j] = 1;
+        } else {
+          var up = i < 1 ? 0 : dp[i - 1][j];
+          var left = j < 1 ? 0 : dp[i][j - 1];
+          dp[i][j] = up + left;
+        }
+      }
+    }
+    return dp[m - 1][n - 1];
+  }
+
+  static long uniqueWaysDpSpaceOptimised(int m, int n) {
+    long[] prev = new long[n];
+    for (int i = 0; i < m; i++) {
+      long[] curr = new long[n];
+      for (int j = 0; j < n; j++) {
+        if (i == 0 && j == 0) {
+          curr[j] = 1;
+        } else {
+          var up = i < 1 ? 0 : prev[j];
+          var left = j < 1 ? 0 : curr[j - 1];
+          curr[j] = up + left;
+        }
+      }
+      prev = curr;
+    }
+    return prev[n - 1];
+  }
+
+  /// /////////////////////
 }
