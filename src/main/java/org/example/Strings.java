@@ -1149,7 +1149,7 @@ class Strings {
    * s consist of only digits and English letters.
    * </pre>
    */
-  public static String longestPalindrome(String s) {
+  public static String longestPalindromeSubstring(String s) {
     int resLen = 0, resIdx = 0;
 
     for (int i = 0; i < s.length(); i++) {
