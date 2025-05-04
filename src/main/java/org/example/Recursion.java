@@ -6,7 +6,22 @@ import java.util.Arrays;
 class Recursion {
 
   public static void main(String[] args) {
-    System.out.println(subsetSumOfKTabulation(new int[] {5, 1, 2, 7, 6, 1, 5}, 8));
+
+    System.out.println(findTargetSumWays(new int[] {1, 1, 1, 1, 1}, 3));
+
+    //    System.out.println(countPartitions(new int[] {1, 2, 1, 0, 1, 3, 3}, 11));
+
+    //    System.out.println(coinChange(new int[] {1, 2, 3, 5, 10}, 8));
+    //    System.out.println(coinChangeTab(new int[] {1, 2, 3, 5, 10}, 8));
+    //    System.out.println(coinChangeTabDifferent(new int[] {1, 2, 3, 5, 10}, 8));
+    //    System.out.println(knapsack(6, new int[] {30, 40, 60}, new int[] {3, 2, 5}));
+    //    System.out.println(knapsackTabulation(6, new int[] {30, 40, 60}, new int[] {3, 2, 5}));
+    //    System.out.println(knapsackTabulationSpace(6, new int[] {30, 40, 60}, new int[] {3, 2,
+    // 5}));
+    //    System.out.println(perfectSum(new int[] {0, 10, 0}, 0));
+    //    System.out.println(minDiffBetweenTwoSubSequences(new int[] {1, 6, 5, 11}));
+    //    System.out.println(canPartition(new int[] {1, 2, 3, 3, 4, 4, 5, 5}));
+    //    System.out.println(subsetSumOfKTabulation(new int[] {5, 1, 2, 7, 6, 1, 5}, 8));
     //    System.out.println(minSumPath(new int[][] {{5, 9, 6}, {11, 5, 2}}));
     //    System.out.println(minSumPathDp(new int[][] {{5, 9, 6}, {11, 5, 2}}));
     //    System.out.println(uniqueWaysDpSpaceOptimised(2, 2));
@@ -778,8 +793,11 @@ class Recursion {
   }
 
   private static boolean subsetSumOfK(int[] nums, int i, int target, int[][] dp) {
-    if (target == 0) return true;
-    if (i == 0) return nums[i] == target;
+    if (target == 0) {
+      dp[i][target] = 1;
+      return true;
+    }
+    if (i == 0) return (dp[i][target] = nums[i] == target ? 1 : 0) == 1;
     if (dp[i][target] != -1) return dp[i][target] == 1;
     boolean notPick = subsetSumOfK(nums, i - 1, target, dp);
     boolean pick = false;
@@ -822,5 +840,245 @@ class Recursion {
       prev = curr;
     }
     return prev[k];
+  }
+
+  /// ////////////////////
+
+  /** [2,3,3,3,4,5] -> [2,3,5] and [3,3,4] add up to same 10. */
+  public static boolean canPartition(int[] nums) {
+    int sum = Arrays.stream(nums).sum();
+    if (sum % 2 != 0) return false;
+    int target = sum / 2;
+    int[][] dp = new int[nums.length][target + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return subsetSumOfK(nums, nums.length - 1, target, dp);
+  }
+
+  /// ////////////////////////////
+
+  /** https://www.geeksforgeeks.org/problems/minimum-sum-partition3317/1 */
+  public static int minDiffBetweenTwoSubSequences(int[] nums) {
+    int sum = Arrays.stream(nums).sum();
+    int N = nums.length;
+    boolean[][] dp = new boolean[N][sum + 1];
+    for (int i = 0; i < N; i++) {
+      dp[i][0] = true; // A sum of 0 is always possible
+    }
+    if (nums[0] <= sum) dp[0][nums[0]] = true; // Initialize the first element properly
+    for (int i = 1; i < N; i++) {
+      for (int target = 1; target <= sum; target++) {
+        boolean notPick = dp[i - 1][target]; // Exclude the current element
+        boolean pick = false;
+        if (nums[i] <= target) pick = dp[i - 1][target - nums[i]]; // Include the current element
+        dp[i][target] = pick || notPick;
+      }
+    }
+
+    int mini = Integer.MAX_VALUE;
+    for (int i = 0; i <= sum; i++) {
+      if (dp[N - 1][i]) {
+        int s2 = sum - i;
+        mini = Math.min(mini, Math.abs(i - s2));
+      }
+    }
+    return mini;
+  }
+
+  /** https://www.geeksforgeeks.org/problems/perfect-sum-problem5633/1 same as findWays. */
+  public static int perfectSum(int[] nums, int k) {
+    int[][] dp = new int[nums.length][k + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return perfectSumRecur(nums, k, nums.length - 1, dp);
+  }
+
+  private static int perfectSumRecur(int[] nums, int target, int i, int[][] dp) {
+    if (i == 0) {
+      // when at first ele, if target is 0 and ele is 0, we have 2 ways picking or not picking are
+      // both valid cases
+      if (target == 0 && nums[i] == 0) return 2;
+      if (target == 0 || target == nums[i]) return 1;
+      return 0;
+    }
+    // instead of above, we can also just keep the below code.
+    //    if (i < 0) {
+    //      return target == 0 ? 1 : 0;
+    //    }
+    if (dp[i][target] != -1) return dp[i][target];
+    int notPick = perfectSumRecur(nums, target, i - 1, dp); // Exclude the current element
+    int pick = 0;
+    if (nums[i] <= target)
+      pick = perfectSumRecur(nums, target - nums[i], i - 1, dp); // Include the current element
+    return dp[i][target] = notPick + pick; // Return the total count
+  }
+
+  /// //////////////////////////
+
+  /** Count partitions where abs diff between sum of each partition is diff. */
+  public static int countPartitions(int[] nums, int diff) {
+    int totalSum = Arrays.stream(nums).sum();
+    if (totalSum - diff < 0 || (totalSum - diff) % 2 == 1) {
+      return 0;
+    }
+    return perfectSum(nums, (totalSum - diff) / 2);
+  }
+
+  /// //////////////////////////
+
+  /** W = 4, val[] = [1, 2, 3], wt[] = [4, 5, 1] */
+  static int knapsack(int W, int[] val, int[] wt) {
+    int[][] dp = new int[val.length][W + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return knapsackRecur(val.length - 1, W, val, wt, dp);
+  }
+
+  static int knapsackRecur(int i, int w, int[] val, int[] wt, int[][] dp) {
+    if (i < 0) return 0;
+    if (w < 0) return (int) -1e6;
+    if (dp[i][w] != -1) return dp[i][w];
+    int notPick = knapsackRecur(i - 1, w, val, wt, dp);
+    int pick = w >= wt[i] ? val[i] + knapsackRecur(i - 1, w - wt[i], val, wt, dp) : (int) -1e6;
+    return dp[i][w] = Math.max(pick, notPick);
+  }
+
+  static int knapsackTabulation(int W, int[] val, int[] wt) {
+    int[][] dp = new int[val.length][W + 1];
+
+    // Base case: Fill for the first item
+    for (int w = 0; w <= W; w++) {
+      dp[0][w] = (w >= wt[0]) ? val[0] : 0;
+    }
+
+    for (int i = 1; i < val.length; i++) {
+      for (int w = 0; w <= W; w++) {
+        int notPick = dp[i - 1][w];
+        int pick = w >= wt[i] ? val[i] + dp[i - 1][w - wt[i]] : (int) -1e6;
+        dp[i][w] = Math.max(pick, notPick);
+      }
+    }
+    return dp[val.length - 1][W];
+  }
+
+  static int knapsackTabulationSpace(int W, int[] val, int[] wt) {
+    int[] prev = new int[W + 1];
+
+    // Base case: Fill for the first item
+    for (int w = 0; w <= W; w++) {
+      prev[w] = (w >= wt[0]) ? val[0] : 0;
+    }
+
+    for (int i = 1; i < val.length; i++) {
+      for (int w = W; w >= 0; w--) {
+        int notPick = prev[w];
+        int pick = w >= wt[i] ? val[i] + prev[w - wt[i]] : (int) -1e6;
+        prev[w] = Math.max(pick, notPick);
+      }
+    }
+    return prev[W];
+  }
+
+  /// ///////////////////////////
+
+  public static int coinChange(int[] coins, int amount) {
+    int[][] dp = new int[coins.length][amount + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    int res = coinChangeRecur(coins, amount, coins.length - 1, dp);
+    return res == 1e9 ? -1 : res;
+  }
+
+  private static int coinChangeRecur(int[] coins, int amount, int i, int[][] dp) {
+    int defaultVal = (int) 1e9;
+    if (i == 0) {
+      if (amount % coins[i] == 0) {
+        return amount / coins[i];
+      }
+      return defaultVal;
+    }
+    if (i < 0 || amount < 0) return defaultVal;
+    if (dp[i][amount] != -1) return dp[i][amount];
+    // not taking current coin, so moving to previous coint
+    int notTake = coinChangeRecur(coins, amount, i - 1, dp);
+    int take = defaultVal;
+    if (coins[i] <= amount) {
+      // taking the coin, this add 1 and remain at same pos to take more of it.
+      take = 1 + coinChangeRecur(coins, amount - coins[i], i, dp);
+    }
+    return dp[i][amount] = Math.min(take, notTake);
+  }
+
+  public static int coinChangeTab(int[] coins, int amount) {
+    int[][] dp = new int[coins.length][amount + 1];
+    int defaultVal = (int) 1e9;
+
+    for (int i = 0; i <= amount; i++) {
+      dp[0][i] = i % coins[0] == 0 ? i / coins[0] : defaultVal;
+    }
+
+    for (int i = 1; i < coins.length; i++) {
+      for (int j = 0; j <= amount; j++) {
+        int notTake = dp[i - 1][j];
+        int take = defaultVal;
+        if (coins[i] <= j) {
+          take = 1 + dp[i][j - coins[i]];
+        }
+        dp[i][j] = Math.min(take, notTake);
+      }
+    }
+    // Return the result or -1 if the amount cannot be formed
+    return dp[coins.length - 1][amount] == defaultVal ? -1 : dp[coins.length - 1][amount];
+  }
+
+  public static int coinChangeTabDifferent(int[] coins, int amount) {
+    // This approach allocates a dummy row at the top filled with very large values.
+    // This makes the base case handling non-issue.
+    int[][] dp = new int[coins.length + 1][amount + 1];
+    int defaultVal = (int) 1e9;
+
+    for (int j = 1; j <= amount; j++) {
+      dp[0][j] = defaultVal;
+    }
+
+    for (int i = 1; i <= coins.length; i++) {
+      for (int j = 1; j <= amount; j++) {
+        int notTake = dp[i - 1][j];
+        int take = defaultVal;
+        if (coins[i - 1] <= j) {
+          take = 1 + dp[i][j - coins[i - 1]];
+        }
+        dp[i][j] = Math.min(take, notTake);
+      }
+    }
+    return dp[coins.length][amount];
+  }
+
+  /// ////////////////////
+
+  /** https://leetcode.com/problems/target-sum/description/ nums = [1,1,1,1,1], target = 3 */
+  public static int findTargetSumWays(int[] nums, int target) {
+    Map<String, Integer> memo = new HashMap<>();
+    return findTargetSumWaysRecur(nums, target, nums.length - 1, memo);
+  }
+
+  private static int findTargetSumWaysRecur(
+      int[] nums, int target, int i, Map<String, Integer> memo) {
+    if (i < 0) {
+      return target == 0 ? 1 : 0;
+    }
+    var key = "%d,%d".formatted(i, target);
+    if (memo.containsKey(key)) {
+      return memo.get(key);
+    }
+    int negative = findTargetSumWaysRecur(nums, target - nums[i], i - 1, memo);
+    int plus = findTargetSumWaysRecur(nums, target + nums[i], i - 1, memo);
+    int sum = plus + negative;
+    memo.put(key, sum);
+    return sum;
   }
 }
