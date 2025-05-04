@@ -7,10 +7,16 @@ class Recursion {
 
   public static void main(String[] args) {
 
-    System.out.println(findTargetSumWays(new int[] {1, 1, 1, 1, 1}, 3));
+    System.out.println(cutRod(new int[] {3, 5, 8, 9, 10, 17, 17, 20}));
+    System.out.println(cutRodTab(new int[] {3, 5, 8, 9, 10, 17, 17, 20}));
+
+    //    System.out.println(findTargetSumWays(new int[] {1, 1, 1, 1, 1}, 3));
 
     //    System.out.println(countPartitions(new int[] {1, 2, 1, 0, 1, 3, 3}, 11));
 
+    //    System.out.println(change(5, new int[] {1, 2, 5}));
+    //    System.out.println(changeTable(5, new int[] {1, 2, 5}));
+    //
     //    System.out.println(coinChange(new int[] {1, 2, 3, 5, 10}, 8));
     //    System.out.println(coinChangeTab(new int[] {1, 2, 3, 5, 10}, 8));
     //    System.out.println(coinChangeTabDifferent(new int[] {1, 2, 3, 5, 10}, 8));
@@ -928,6 +934,7 @@ class Recursion {
 
   /// //////////////////////////
 
+  // 0-1 knapsack
   /** W = 4, val[] = [1, 2, 3], wt[] = [4, 5, 1] */
   static int knapsack(int W, int[] val, int[] wt) {
     int[][] dp = new int[val.length][W + 1];
@@ -983,7 +990,81 @@ class Recursion {
   }
 
   /// ///////////////////////////
+  ///
+  /// unbounder knapsack
+  /// ///////////////////////////
+  ///
 
+  static int unboundedKnapsack(int W, int[] val, int[] wt) {
+    int[][] dp = new int[val.length][W + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return unboundedKnapsackRecur(val.length - 1, W, val, wt, dp);
+  }
+
+  static int unboundedKnapsackRecur(int i, int w, int[] val, int[] wt, int[][] dp) {
+    if (i < 0) return 0;
+    if (w < 0) return (int) -1e6;
+    if (dp[i][w] != -1) return dp[i][w];
+    int notPick = unboundedKnapsackRecur(i - 1, w, val, wt, dp);
+    int pick = w >= wt[i] ? val[i] + unboundedKnapsackRecur(i, w - wt[i], val, wt, dp) : (int) -1e6;
+    return dp[i][w] = Math.max(pick, notPick);
+  }
+
+  /// /////////////////////////
+  /// Rod cutting
+  /// https://www.geeksforgeeks.org/problems/rod-cutting0840/1
+  ///
+  /// Given a rod of length n(size of price) inches and an array of prices, price. price[i]
+  /// denotes the value of a piece of length i. Determine the maximum value obtainable by cutting up
+  // the rod and selling the pieces.
+  ///
+  /// Input: price[] = [1, 5, 8, 9, 10, 17, 17, 20]
+  /// Output: 22
+  /// Explanation: The maximum obtainable value is 22 by cutting in two pieces of lengths 2 and 6,
+  // i.e., 5+17=22.
+  /// /////////////////////////
+  public static int cutRod(int[] price) {
+    int[][] dp = new int[price.length][price.length + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return cutRodRecur(price.length - 1, price.length, price, dp);
+  }
+
+  public static int cutRodRecur(int i, int N, int[] price, int[][] dp) {
+    int rodLen = i + 1;
+    if (i == 0) {
+      return N * price[0];
+    }
+    if (dp[i][N] != -1) return dp[i][N];
+    int notTake = cutRodRecur(i - 1, N, price, dp);
+    int take = (int) -1e9;
+    if (rodLen <= N) take = price[i] + cutRodRecur(i, N - rodLen, price, dp);
+    return dp[i][N] = Math.max(take, notTake);
+  }
+
+  public static int cutRodTab(int[] price) {
+    int n = price.length;
+    int[][] dp = new int[n][n + 1];
+    for (int N = 0; N <= n; N++) {
+      dp[0][N] = N * price[0];
+    }
+
+    for (int i = 1; i < n; i++) {
+      int rodLen = i + 1;
+      for (int N = 0; N <= n; N++) {
+        int notTake = dp[i - 1][N];
+        int take = (int) -1e9;
+        if (rodLen <= N) take = price[i] + dp[i][N - rodLen];
+        dp[i][N] = Math.max(take, notTake);
+      }
+    }
+    return dp[n - 1][n];
+  }
+
+  /// /////////////////////////
   public static int coinChange(int[] coins, int amount) {
     int[][] dp = new int[coins.length][amount + 1];
     for (int[] ints : dp) {
@@ -1056,6 +1137,48 @@ class Recursion {
       }
     }
     return dp[coins.length][amount];
+  }
+
+  /// ////////////////////
+
+  /** Coin change 2. */
+  public static int change(int amount, int[] coins) {
+    int[][] dp = new int[coins.length][amount + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return changeRecur(coins, amount, coins.length - 1, dp);
+  }
+
+  private static int changeRecur(int[] coins, int target, int i, int[][] dp) {
+    if (i == 0) {
+      return target % coins[0] == 0 ? 1 : 0;
+    }
+    if (dp[i][target] != -1) return dp[i][target];
+    int notTake = changeRecur(coins, target, i - 1, dp);
+    int take = 0;
+    if (coins[i] <= target) {
+      take = changeRecur(coins, target - coins[i], i, dp);
+    }
+    return dp[i][target] = take + notTake;
+  }
+
+  public static int changeTable(int amount, int[] coins) {
+    int[][] dp = new int[coins.length][amount + 1];
+
+    for (int i = 0; i <= amount; i++) {
+      dp[0][i] = i % coins[0] == 0 ? 1 : 0;
+    }
+
+    for (int i = 1; i < coins.length; i++) {
+      for (int j = 0; j <= amount; j++) {
+        int notTake = dp[i - 1][j];
+        int take = 0;
+        if (j - coins[i] >= 0) take = dp[i][j - coins[i]];
+        dp[i][j] = notTake + take;
+      }
+    }
+    return dp[coins.length - 1][amount];
   }
 
   /// ////////////////////
