@@ -312,6 +312,7 @@ public class Arrays {
     return ans;
   }
 
+  /** https://leetcode.com/problems/best-time-to-buy-and-sell-stock/description/ */
   public static int maxStockProfit(int[] stockPrices) {
     var minPrice = Integer.MAX_VALUE;
     var maxProfit = 0;
@@ -323,6 +324,148 @@ public class Arrays {
     return maxProfit;
   }
 
+  /// ///////////////////
+  /// https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/
+  /// ///////////////////
+  public static int maxProfitII(int[] prices) {
+    // greedy approach
+    var maxProfit = 0;
+    for (int i = 1; i < prices.length; i++) {
+      if (prices[i - 1] < prices[i]) {
+        maxProfit += prices[i] - prices[i - 1];
+      }
+    }
+    return maxProfit;
+  }
+
+  public static int maxProfitRecurII(int[] prices) {
+    int[][] dp = new int[prices.length][2];
+    for (int[] ints : dp) {
+      java.util.Arrays.fill(ints, -1);
+    }
+    return maxProfitRecurII(0, 1, prices, dp);
+  }
+
+  private static int maxProfitRecurII(int i, int bs, int[] prices, int[][] dp) {
+    if (i == prices.length) return 0;
+    if (dp[i][bs] != -1) return dp[i][bs];
+    if (bs == 1) {
+      int bought = -prices[i] + maxProfitRecurII(i + 1, 0, prices, dp);
+      int notBought = maxProfitRecurII(i + 1, 1, prices, dp);
+      return dp[i][bs] = Math.max(bought, notBought);
+    } else {
+      int sold = prices[i] + maxProfitRecurII(i + 1, 1, prices, dp);
+      int notSold = maxProfitRecurII(i + 1, 0, prices, dp);
+      return dp[i][bs] = Math.max(sold, notSold);
+    }
+  }
+
+  /// ///////////////////
+  /// https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/description/
+  /// ///////////////////
+
+  public static int maxProfitRecurIII(int[] prices) {
+    int[][][] dp = new int[prices.length][2][2];
+    for (int[][] ints : dp) {
+      for (int[] anInt : ints) {
+        java.util.Arrays.fill(anInt, -1);
+      }
+    }
+    return maxProfitRecurIII(0, 1, 2, prices, dp);
+  }
+
+  private static int maxProfitRecurIII(int i, int bs, int txn, int[] prices, int[][][] dp) {
+    if (i == prices.length) return 0;
+    if (dp[i][bs][txn] != -1) return dp[i][bs][txn];
+    if (bs == 1) {
+      int bought = -prices[i] + maxProfitRecurIII(i + 1, 0, txn, prices, dp);
+      int notBought = maxProfitRecurIII(i + 1, 1, txn, prices, dp);
+      return dp[i][bs][txn] = Math.max(bought, notBought);
+    } else {
+      int sold = prices[i] + maxProfitRecurIII(i + 1, 1, txn - 1, prices, dp);
+      int notSold = maxProfitRecurIII(i + 1, 0, txn, prices, dp);
+      return dp[i][bs][txn] = Math.max(sold, notSold);
+    }
+  }
+
+  /// ////////////////////
+  /// https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/
+  /// ////////////////////
+  public static int maxProfitRecurIV(int k, int[] prices) {
+    // even is buy, odd is sell
+    int maxTxnNum = k * 2;
+    int[][] dp = new int[prices.length][maxTxnNum];
+    for (int[] ints : dp) {
+      java.util.Arrays.fill(ints, -1);
+    }
+    return maxProfitRecurIV(0, 0, prices, dp);
+  }
+
+  private static int maxProfitRecurIV(int i, int txn, int[] prices, int[][] dp) {
+    if (i == prices.length || txn == dp[i].length) return 0;
+    if (dp[i][txn] != -1) return dp[i][txn];
+    if (txn % 2 == 0) {
+      int bought = -prices[i] + maxProfitRecurIV(i + 1, txn + 1, prices, dp);
+      int notBought = maxProfitRecurIV(i + 1, txn, prices, dp);
+      return dp[i][txn] = Math.max(bought, notBought);
+    } else {
+      int sold = prices[i] + maxProfitRecurIV(i + 1, txn + 1, prices, dp);
+      int notSold = maxProfitRecurIV(i + 1, txn, prices, dp);
+      return dp[i][txn] = Math.max(sold, notSold);
+    }
+  }
+
+  /// ///////////////////
+  /// https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/description/
+  /// ///////////////////
+  public static int maxProfitCooldown(int[] prices) {
+    int[][] dp = new int[prices.length][2];
+    for (int[] ints : dp) {
+      java.util.Arrays.fill(ints, -1);
+    }
+    return maxProfitCooldown(0, 1, prices, dp);
+  }
+
+  private static int maxProfitCooldown(int i, int bs, int[] prices, int[][] dp) {
+    if (i >= prices.length) return 0;
+    if (dp[i][bs] != -1) return dp[i][bs];
+    if (bs == 1) {
+      int bought = -prices[i] + maxProfitCooldown(i + 1, 0, prices, dp);
+      int notBought = maxProfitCooldown(i + 1, 1, prices, dp);
+      return dp[i][bs] = Math.max(bought, notBought);
+    } else {
+      int sold = prices[i] + maxProfitCooldown(i + 2, 1, prices, dp);
+      int notSold = maxProfitCooldown(i + 1, 0, prices, dp);
+      return dp[i][bs] = Math.max(sold, notSold);
+    }
+  }
+
+  /// ///////////////////
+  /// https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/
+  /// ///////////////////
+  public static int maxProfitTxnFee(int[] prices, int fee) {
+    int[][] dp = new int[prices.length][2];
+    for (int[] ints : dp) {
+      java.util.Arrays.fill(ints, -1);
+    }
+    return maxProfitTxnFee(0, 1, prices, fee, dp);
+  }
+
+  private static int maxProfitTxnFee(int i, int bs, int[] prices, int fee, int[][] dp) {
+    if (i >= prices.length) return 0;
+    if (dp[i][bs] != -1) return dp[i][bs];
+    if (bs == 1) {
+      int bought = -prices[i] + maxProfitTxnFee(i + 1, 0, prices, fee, dp);
+      int notBought = maxProfitTxnFee(i + 1, 1, prices, fee, dp);
+      return dp[i][bs] = Math.max(bought, notBought);
+    } else {
+      int sold = prices[i] - fee + maxProfitTxnFee(i + 1, 1, prices, fee, dp);
+      int notSold = maxProfitTxnFee(i + 1, 0, prices, fee, dp);
+      return dp[i][bs] = Math.max(sold, notSold);
+    }
+  }
+
+  /// ///////////////////
   /**
    *
    *
