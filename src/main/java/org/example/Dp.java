@@ -235,4 +235,101 @@ public class Dp {
     }
     return new String(res);
   }
+
+  /// //////////////////
+  /// https://leetcode.com/problems/distinct-subsequences/
+  /// Given two strings s and t, return the number of distinct subsequences of s which equals t.
+  ///
+  /// The test cases are generated so that the answer fits on a 32-bit signed integer.
+  /// Example 1:
+  ///
+  /// Input: s = "rabbbit", t = "rabbit"
+  /// Output: 3
+  /// Explanation:
+  /// As shown below, there are 3 ways you can generate "rabbit" from s.
+  /// Input: s = "babgbag", t = "bag"
+  /// Output: 5
+  /// Explanation:
+  /// //////////////////
+
+  public static int numDistinct(String s, String t) {
+    int[][] dp = new int[s.length() + 1][t.length() + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return numDistinct(s.length(), t.length(), s, t, dp);
+  }
+
+  public static int numDistinct(int si, int ti, String s, String t, int[][] dp) {
+    if (ti == 0) return 1;
+    if (si == 0 || si < ti) return 0;
+    if (dp[si][ti] != -1) return dp[si][ti];
+    if (s.charAt(si - 1) == t.charAt(ti - 1)) {
+      return dp[si][ti] = numDistinct(si - 1, ti - 1, s, t, dp) + numDistinct(si - 1, ti, s, t, dp);
+    } else {
+      return dp[si][ti] = numDistinct(si - 1, ti, s, t, dp);
+    }
+  }
+
+  public static int numDistinctTabulation(String s, String t) {
+    long[][] dp = new long[s.length() + 1][t.length() + 1];
+    for (int i = 0; i <= s.length(); i++) {
+      dp[i][0] = 1;
+    }
+    for (int si = 1; si <= s.length(); si++) {
+      for (int ti = 1; ti <= t.length(); ti++) {
+        if (s.charAt(si - 1) == t.charAt(ti - 1)) {
+          dp[si][ti] = dp[si - 1][ti - 1] + dp[si - 1][ti];
+        } else {
+          dp[si][ti] = dp[si - 1][ti];
+        }
+      }
+    }
+    return Math.toIntExact(dp[s.length()][t.length()]);
+  }
+
+  /// //////////////////////////////
+  /// https://leetcode.com/problems/edit-distance/
+  /// Given two strings word1 and word2, return the minimum number of operations required to convert
+  // word1 to word2.
+  ///
+  /// You have the following three operations permitted on a word:
+  ///
+  /// Insert a character
+  /// Delete a character
+  /// Replace a character
+  /// Example 1:
+  /// Input: word1 = "horse", word2 = "ros"
+  /// Output: 3
+  /// Explanation:
+  /// horse -> rorse (replace 'h' with 'r')
+  /// rorse -> rose (remove 'r')
+  /// rose -> ros (remove 'e')
+  /// //////////////////////////////
+  public static int minDistance(String word1, String word2) {
+    int[][] dp = new int[word1.length() + 1][word2.length() + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return minDistanceRecur(word1.length() - 1, word2.length() - 1, word1, word2, dp);
+  }
+
+  private static int minDistanceRecur(int i, int j, String word1, String word2, int[][] dp) {
+    // if word1 exhausts, return j+1 to indicate j+1 insert operations
+    if (i < 0) {
+      return j + 1;
+    }
+    if (j < 0) {
+      return i + 1;
+    }
+    if (dp[i][j] != -1) return dp[i][j];
+    if (word1.charAt(i) == word2.charAt(j)) {
+      return dp[i][j] = minDistanceRecur(i - 1, j - 1, word1, word2, dp);
+    } else {
+      int delete = 1 + minDistanceRecur(i - 1, j, word1, word2, dp);
+      int replace = 1 + minDistanceRecur(i - 1, j - 1, word1, word2, dp);
+      int add = 1 + minDistanceRecur(i, j - 1, word1, word2, dp);
+      return dp[i][j] = Math.min(delete, Math.min(replace, add));
+    }
+  }
 }
