@@ -5,6 +5,12 @@ import java.util.Arrays;
 public class Dp {
 
   public static void main(String[] args) {
+    //    System.out.println(isMatch("aa", "*"));
+    System.out.println(isMatch("abcabczzzde", "*abc???de*"));
+    //        System.out.println(isMatch("aa", "a"));
+    //    System.out.println(isMatch("aab", "c*a*b"));
+    //    System.out.println(isMatch("cb", "?a"));
+    //    System.out.println(isMatch("adceb", "*a*b"));
     //    System.out.println(longestPalindromeSubseq("bbabcbcab"));
     //    System.out.println(longestCommonSubsequence("abcd", "aced"));
     //    System.out.println(longestCommonSubstring("abcd", "abd"));
@@ -15,7 +21,7 @@ public class Dp {
     //    System.out.println(longestCommonSubsequenceTabulationOptimised("abcd", "ace"));
     //    System.out.println(getLcs("vflkrovy", "koaecjotj"));
     //    System.out.println(minOperations("vflkrovy", "koaecjotj"));
-    System.out.println(shortestCommonSuperSequence("brute", "groot"));
+    //    System.out.println(shortestCommonSuperSequence("brute", "groot"));
   }
 
   /// /////////////////////////
@@ -330,6 +336,65 @@ public class Dp {
       int replace = 1 + minDistanceRecur(i - 1, j - 1, word1, word2, dp);
       int add = 1 + minDistanceRecur(i, j - 1, word1, word2, dp);
       return dp[i][j] = Math.min(delete, Math.min(replace, add));
+    }
+  }
+
+  /// ////////////////////
+  /// https://leetcode.com/problems/wildcard-matching/description/
+  /// Given an input string (s) and a pattern (p), implement wildcard pattern matching with support
+  /// for '?' and '*' where:
+  /// '?' Matches any single character.
+  /// '*' Matches any sequence of characters (including the empty sequence).
+  /// The matching should cover the entire input string (not partial).
+  ///
+  /// Input: s = "aa", p = "a"
+  /// Output: false
+  /// Explanation: "a" does not match the entire string "aa".
+  ///
+  /// Input: s = "aa", p = "*"
+  /// Output: true
+  /// Explanation: '*' matches any sequence.
+  ///
+  /// Input: s = "cb", p = "?a"
+  /// Output: false
+  /// Explanation: '?' matches 'c', but the second letter is 'a', which does not match 'b'.
+  /// ////////////////////
+
+  public static boolean isMatch(String s, String p) {
+    int[][] dp = new int[p.length()][s.length()];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return isMatch(p.length() - 1, s.length() - 1, p, s, dp);
+  }
+
+  private static boolean isMatch(int i, int j, String p, String s, int[][] dp) {
+    // base case
+    if (i < 0 && j < 0) {
+      // both strings exhausted
+      return true;
+    }
+    if (i < 0) return false;
+    if (j < 0) {
+      for (int k = 0; k <= i; k++) {
+        if (p.charAt(k) != '*') return false;
+      }
+      return true;
+    }
+    if (dp[i][j] != -1) return dp[i][j] == 1;
+    if (p.charAt(i) == s.charAt(j) || p.charAt(i) == '?') {
+      boolean match = isMatch(i - 1, j - 1, p, s, dp);
+      dp[i][j] = match ? 1 : 0;
+      return match;
+    } else {
+      if (p.charAt(i) == '*') {
+        boolean match = isMatch(i - 1, j, p, s, dp) || isMatch(i, j - 1, p, s, dp);
+        dp[i][j] = match ? 1 : 0;
+        return match;
+      } else {
+        dp[i][j] = 0;
+        return false;
+      }
     }
   }
 }
