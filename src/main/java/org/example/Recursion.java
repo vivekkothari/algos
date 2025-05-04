@@ -6,10 +6,14 @@ import java.util.Arrays;
 class Recursion {
 
   public static void main(String[] args) {
-    System.out.println(uniqueWays(2, 2));
-    System.out.println(uniqueWaysDpSpaceOptimised(2, 2));
-    System.out.println(uniqueWaysDp(10, 10));
-    System.out.println(uniqueWaysDpSpaceOptimised(10, 10));
+    System.out.println(subsetSumOfKTabulation(new int[] {5, 1, 2, 7, 6, 1, 5}, 8));
+    //    System.out.println(minSumPath(new int[][] {{5, 9, 6}, {11, 5, 2}}));
+    //    System.out.println(minSumPathDp(new int[][] {{5, 9, 6}, {11, 5, 2}}));
+    //    System.out.println(uniqueWaysDpSpaceOptimised(2, 2));
+    //    System.out.println(uniqueWaysDp(10, 10));
+    //    System.out.println(uniqueWaysDpSpaceOptimised(10, 10));
+    //    System.out.println(uniqueWays(3, 3));
+    //    System.out.println(mazeObstacles(new int[][] {{0, 0, 0}, {0, -1, 0}, {0, -1, 0}}));
     //    System.out.println(ninjaTraining(new int[][] {{10, 50, 1}, {5, 100, 11}, {5, 100, 11}}));
     //    System.out.println(ninjaTrainingDp(new int[][] {{10, 50, 1}, {5, 100, 11}, {5, 100,
     // 11}}));
@@ -622,9 +626,9 @@ class Recursion {
   }
 
   static long uniqueWaysDpSpaceOptimised(int m, int n) {
-    long[] prev = new long[n];
+    long[] prev = new long[m];
     for (int i = 0; i < m; i++) {
-      long[] curr = new long[n];
+      long[] curr = new long[m];
       for (int j = 0; j < n; j++) {
         if (i == 0 && j == 0) {
           curr[j] = 1;
@@ -640,4 +644,183 @@ class Recursion {
   }
 
   /// /////////////////////
+
+  /*
+  Find ways to go from 0,0 to m-1, n-1. If you encounter -1, you can't move ahead.
+   */
+  static long mazeObstacles(int[][] grid) {
+    long[][] dp = new long[grid.length][grid[0].length];
+    for (long[] p : dp) {
+      Arrays.fill(p, -1);
+    }
+    return mazeObstaclesRecur(grid.length - 1, grid[0].length - 1, grid, dp);
+  }
+
+  private static long mazeObstaclesRecur(int i, int j, int[][] grid, long[][] dp) {
+    if (i < 0 || j < 0) {
+      return 0;
+    }
+    if (i == 0 && j == 0) {
+      return 1;
+    }
+    if (grid[i][j] == -1) {
+      return 0;
+    }
+    if (dp[i][j] != -1) {
+      return dp[i][j];
+    }
+    return dp[i][j] =
+        mazeObstaclesRecur(i - 1, j, grid, dp) + mazeObstaclesRecur(i, j - 1, grid, dp);
+  }
+
+  /// //////////////////////////
+
+  /** Find a path from 0,0 to m-1, n-1 which minimises the cost of all numbers. */
+  public static int minSumPath(int[][] grid) {
+    int[][] dp = new int[grid.length][grid[0].length];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return minSumPathRecur(grid, grid.length - 1, grid[0].length - 1, dp);
+  }
+
+  private static int minSumPathRecur(int[][] grid, int i, int j, int[][] dp) {
+    if (i == 0 && j == 0) {
+      return grid[i][j];
+    }
+    if (i < 0 || j < 0) {
+      return Integer.MAX_VALUE / 2;
+    }
+    if (dp[i][j] != -1) {
+      return dp[i][j];
+    }
+    int left = grid[i][j] + minSumPathRecur(grid, i - 1, j, dp);
+    int up = grid[i][j] + minSumPathRecur(grid, i, j - 1, dp);
+    return dp[i][j] = Math.min(left, up);
+  }
+
+  /// //////////////////////////
+
+  public static int minSumPathDp(int[][] grid) {
+    int n = grid.length;
+    int m = grid[0].length;
+    int[] prev = new int[m];
+    for (int i = 0; i < n; i++) {
+      int[] curr = new int[m];
+      for (int j = 0; j < m; j++) {
+        if (i == 0 && j == 0) {
+          curr[j] = grid[i][j];
+        } else {
+          int up = grid[i][j];
+
+          if (i > 0) up += prev[j];
+          else up = Integer.MAX_VALUE / 2;
+
+          int left = grid[i][j];
+          if (j > 0) left += curr[j - 1];
+          else left = Integer.MAX_VALUE / 2;
+          curr[j] = Math.min(left, up);
+        }
+      }
+      prev = curr;
+    }
+    return prev[m - 1];
+  }
+
+  /** https://leetcode.com/problems/triangle/ */
+  public static int minimumTotal(List<List<Integer>> triangle) {
+    int[][] dp = new int[triangle.size()][triangle.size()];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return minimumTotalRecur(0, 0, triangle, dp);
+  }
+
+  private static int minimumTotalRecur(int i, int j, List<List<Integer>> triangle, int[][] dp) {
+    if (i >= triangle.size()) {
+      return 0;
+    }
+    if (dp[i][j] != -1) {
+      return dp[i][j];
+    }
+    int curr = triangle.get(i).get(j);
+    int down = curr + minimumTotalRecur(i + 1, j, triangle, dp);
+    int downDiag = curr + minimumTotalRecur(i + 1, j + 1, triangle, dp);
+    return dp[i][j] = Math.min(down, downDiag);
+  }
+
+  public static int minimumTotalTabulation(List<List<Integer>> triangle) {
+    int n = triangle.size();
+    int[][] dp = new int[n][n];
+    for (int j = 0; j < n; j++) {
+      dp[n - 1][j] = triangle.get(n - 1).get(j);
+    }
+    for (int i = n - 2; i >= 0; i--) {
+      for (int j = i; j >= 0; j--) {
+        int curr = triangle.get(i).get(j);
+        int down = curr + dp[i + 1][j];
+        int downDiag = curr + dp[i + 1][j + 1];
+        dp[i][j] = Math.min(down, downDiag);
+      }
+    }
+    return dp[0][0];
+  }
+
+  /// /////////////////////////////
+
+  // Check if there exists a subset whose sum is k
+  public static boolean subsetSumOfK(int[] nums, int k) {
+    int[][] dp = new int[nums.length][k + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return subsetSumOfK(nums, nums.length - 1, k, dp);
+  }
+
+  private static boolean subsetSumOfK(int[] nums, int i, int target, int[][] dp) {
+    if (target == 0) return true;
+    if (i == 0) return nums[i] == target;
+    if (dp[i][target] != -1) return dp[i][target] == 1;
+    boolean notPick = subsetSumOfK(nums, i - 1, target, dp);
+    boolean pick = false;
+    if (nums[i] <= target) pick = subsetSumOfK(nums, i - 1, target - nums[i], dp);
+    return (dp[i][target] = (pick || notPick) ? 1 : 0) == 1;
+  }
+
+  public static boolean subsetSumOfKTabulation(int[] nums, int k) {
+    int N = nums.length;
+    boolean[][] dp = new boolean[N][k + 1];
+    for (int i = 0; i < N; i++) {
+      dp[i][0] = true; // A sum of 0 is always possible
+    }
+    if (nums[0] <= k) dp[0][nums[0]] = true; // Initialize the first element properly
+    for (int i = 1; i < N; i++) {
+      for (int target = 1; target <= k; target++) {
+        boolean notPick = dp[i - 1][target]; // Exclude the current element
+        boolean pick = false;
+        if (nums[i] <= target) pick = dp[i - 1][target - nums[i]]; // Include the current element
+        dp[i][target] = pick || notPick;
+      }
+    }
+    return dp[N - 1][k];
+  }
+
+  public static boolean checkSubsequenceSumSpace(int N, int[] nums, int k) {
+    boolean[] prev = new boolean[k + 1];
+    boolean[] curr = new boolean[k + 1];
+    prev[0] = true;
+    curr[0] = true;
+    if (nums[0] <= k) prev[nums[0]] = true; // Initialize the first element properly
+    for (int i = 1; i < N; i++) {
+      curr[0] = true;
+      for (int target = 1; target <= k; target++) {
+        boolean notPick = prev[target]; // Exclude the current element
+        boolean pick = false;
+        if (nums[i] <= target) pick = prev[target - nums[i]]; // Include the current element
+        curr[target] = pick || notPick;
+      }
+      prev = curr;
+    }
+    return prev[k];
+  }
 }
