@@ -8,7 +8,8 @@ import org.example.llmquiz.ChatGptAlgoQuiz;
 public class Arrays {
 
   public static void main(String[] args) {
-    System.out.println(numberOfInversions(new int[] {7, 6, 5, 4, 3, 2, 1, 0}));
+    System.out.println(longestIncreasingSubsequence(new int[] {10, 9, 2, 5, 3, 7, 101, 18}));
+    //    System.out.println(numberOfInversions(new int[] {7, 6, 5, 4, 3, 2, 1, 0}));
     //    celebrity(new int[][] {{1, 1, 0}, {0, 1, 0}, {0, 1, 1}});
     //    minSum(new int[] {6, 8, 4, 5, 2, 3});
     //    findPlatform(
@@ -3242,9 +3243,11 @@ public class Arrays {
     return maxLen;
   }
 
+  /// ///////////////////////
   public static int longestIncreasingSubsequence(int[] nums) {
     int[] dp = new int[nums.length];
     int max = 1;
+    // every element is a sub seq of itself. thus fill with 1.
     java.util.Arrays.fill(dp, 1);
     for (int i = 1; i < nums.length; i++) {
       for (int j = 0; j < i; j++) {
@@ -3257,18 +3260,27 @@ public class Arrays {
     return max;
   }
 
-  public static int longestIncreasingSubsequencePatienceSort(int[] nums) {
-    TreeSet<Integer> set = new TreeSet<>();
-    for (int num : nums) {
-      Integer ceil = set.ceiling(num);
-      if (ceil != null) {
-        set.remove(ceil);
-      }
-      set.add(num);
+  public static int lengthOfLISRecur(int[] nums) {
+    int[][] dp = new int[nums.length][nums.length + 1];
+    for (int[] ints : dp) {
+      java.util.Arrays.fill(ints, -1);
     }
-    return set.size();
+    return lengthOfLISRecur(0, -1, nums, dp);
   }
 
+  public static int lengthOfLISRecur(int curI, int prevI, int[] nums, int[][] dp) {
+    if (curI == nums.length) return 0;
+
+    // Shift prevI by +1 to map -1 to 0, 0 to 1, ..., nums.length-1 to nums.length
+    if (dp[curI][prevI + 1] != -1) return dp[curI][prevI];
+    int len = lengthOfLISRecur(curI + 1, prevI, nums, dp);
+    if (prevI == -1 || nums[curI] > nums[prevI]) {
+      len = Math.max(1 + lengthOfLISRecur(curI + 1, curI, nums, dp), len);
+    }
+    return dp[curI][prevI + 1] = len;
+  }
+
+  /** https://leetcode.com/problems/longest-increasing-subsequence/description/ TC: o(n*log(n)) */
   public int lengthOfLIS(int[] nums) {
     TreeSet<Integer> set = new TreeSet<>();
     for (int num : nums) {
@@ -3280,6 +3292,8 @@ public class Arrays {
     }
     return set.size();
   }
+
+  /// ///////////////////////
 
   public int maxEnvelopes(int[][] envelopes) {
     // sort on increasing in first dimension and decreasing in second

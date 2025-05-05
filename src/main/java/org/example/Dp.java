@@ -1,12 +1,17 @@
 package org.example;
 
+import java.util.*;
 import java.util.Arrays;
+import java.util.LinkedList;
 
 public class Dp {
 
   public static void main(String[] args) {
+    LongestBitonicSequence(5, new int[] {1, 2, 5, 3, 2});
+    //    System.out.println(longestStrChain(new String[] {"a", "b", "ba", "bca", "bda", "bdca"}));
+    //    System.out.println(largestDivisibleSubset(new int[] {3, 4, 16, 8}));
     //    System.out.println(isMatch("aa", "*"));
-    System.out.println(isMatch("abcabczzzde", "*abc???de*"));
+    //    System.out.println(isMatch("abcabczzzde", "*abc???de*"));
     //        System.out.println(isMatch("aa", "a"));
     //    System.out.println(isMatch("aab", "c*a*b"));
     //    System.out.println(isMatch("cb", "?a"));
@@ -396,5 +401,115 @@ public class Dp {
         return false;
       }
     }
+  }
+
+  /// ///////////////////////////
+  /// https://leetcode.com/problems/largest-divisible-subset/description/
+  /// //////////////
+  public static List<Integer> largestDivisibleSubset(int[] nums) {
+    Arrays.sort(nums);
+    int n = nums.length;
+    int[] dp = new int[n];
+    // This simply stores the indices
+    int[] hash = new int[n];
+    Arrays.fill(dp, 1);
+    Arrays.fill(hash, -1);
+
+    int lastIndex = 0;
+    for (int i = 1; i < n; i++) {
+      for (int j = 0; j < i; j++) {
+        if (nums[i] % nums[j] == 0 && dp[i] < dp[j] + 1) {
+          dp[i] = dp[j] + 1;
+          hash[i] = j;
+        }
+      }
+      if (dp[i] > dp[lastIndex]) {
+        lastIndex = i;
+      }
+    }
+
+    List<Integer> result = new LinkedList<>();
+    for (int i = lastIndex; i >= 0; i = hash[i]) {
+      result.addFirst(nums[i]);
+    }
+    return result;
+  }
+
+  /// ///////////////////////////
+  /// https://leetcode.com/problems/longest-string-chain/
+  /// ///////////////////////////
+  public static int longestStrChain(String[] words) {
+    Arrays.sort(words, (w1, w2) -> w1.length() - w2.length());
+    int[] dp = new int[words.length];
+    Arrays.fill(dp, 1);
+    int max = 1;
+    for (int i = 0; i < words.length; i++) {
+      for (int j = 0; j < i; j++) {
+        if (isPossible(words[i], words[j])) {
+          dp[i] = Math.max(1 + dp[j], dp[i]);
+        }
+      }
+      max = Math.max(max, dp[i]);
+    }
+    return max;
+  }
+
+  private static boolean isPossible(String w1, String w2) {
+    // should be exactly one length diff.
+    if (w1.length() != w2.length() + 1) return false;
+
+    int i = 0, j = 0;
+    boolean skipped = false;
+
+    while (i < w1.length() && j < w2.length()) {
+      if (w1.charAt(i) == w2.charAt(j)) {
+        i++;
+        j++;
+      } else {
+        if (skipped) return false; // already skipped once before
+        skipped = true;
+        i++; // skip one char in w1
+      }
+    }
+
+    // After the loop, we must have matched all of w2
+    return true;
+  }
+
+  /// ////////////////////////////////
+  /// https://www.naukri.com/code360/problems/longest-bitonic-sequence_1062688
+  ///
+  /// https://www.geeksforgeeks.org/problems/longest-bitonic-subsequence0824/1
+  /// GFG has a tweak where we only want to include if its strictly increasing then decreasing.
+  /// ////////////////////////////////
+
+  public static int LongestBitonicSequence(int n, int[] nums) {
+    int[] fwDp = new int[n];
+    int[] revDp = new int[n];
+
+    for (int i = 0; i < n; i++) {
+      fwDp[i] = 1;
+      for (int j = 0; j < i; j++) {
+        if (nums[i] > nums[j]) {
+          fwDp[i] = Math.max(1 + fwDp[j], fwDp[i]);
+        }
+      }
+    }
+
+    for (int i = n - 1; i >= 0; i--) {
+      revDp[i] = 1;
+      for (int j = n - 1; j > i; j--) {
+        if (nums[i] > nums[j]) {
+          revDp[i] = Math.max(1 + revDp[j], revDp[i]);
+        }
+      }
+    }
+    int max = 0;
+    for (int i = 0; i < fwDp.length; i++) {
+      if (fwDp[i] > 1 && revDp[i] > 1) { // this line is needed for GFG problem
+        max = Math.max(max, fwDp[i] + revDp[i] - 1);
+      }
+    }
+    return max;
   }
 }
