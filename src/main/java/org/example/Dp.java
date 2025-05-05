@@ -557,4 +557,36 @@ public class Dp {
     }
     return dp[1][N - 1];
   }
+
+  /// /////////////////////////////
+  /// https://leetcode.com/problems/minimum-cost-to-cut-a-stick
+  /// /////////////////////////////
+  public static int minCost(int n, int[] cuts) {
+    // sorting is needed to make sure we can divide the arrays without any dependencies.
+    int originalCutsLen = cuts.length;
+    int[][] dp = new int[originalCutsLen][originalCutsLen];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    Arrays.sort(cuts);
+    // Add 0 to the first, indicating 0 len and n at the end denoting last case.
+    List<Integer> newCuts = new ArrayList<>(Arrays.stream(cuts).boxed().toList());
+    newCuts.addFirst(0);
+    newCuts.addLast(n);
+    cuts = newCuts.stream().mapToInt(i -> i).toArray();
+    return minCostRecur(1, originalCutsLen, cuts, dp);
+  }
+
+  private static int minCostRecur(int i, int j, int[] cuts, int[][] dp) {
+    // we do i > j and not i >= j here because if we are at i==j, we still need to commute the cost.
+    if (i > j) return 0;
+    if (dp[i - 1][j - 1] != -1) return dp[i - 1][j - 1];
+    int cost = (int) 1e8;
+    for (int k = i; k <= j; k++) {
+      int currentCost = cuts[j + 1] - cuts[i - 1];
+      int otherCost = minCostRecur(i, k - 1, cuts, dp) + minCostRecur(k + 1, j, cuts, dp);
+      cost = Math.min(cost, currentCost + otherCost);
+    }
+    return dp[i - 1][j - 1] = cost;
+  }
 }
