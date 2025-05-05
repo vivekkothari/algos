@@ -7,7 +7,7 @@ import java.util.LinkedList;
 public class Dp {
 
   public static void main(String[] args) {
-    LongestBitonicSequence(5, new int[] {1, 2, 5, 3, 2});
+    longestBitonicSequence(5, new int[] {1, 2, 5, 3, 2});
     //    System.out.println(longestStrChain(new String[] {"a", "b", "ba", "bca", "bda", "bdca"}));
     //    System.out.println(largestDivisibleSubset(new int[] {3, 4, 16, 8}));
     //    System.out.println(isMatch("aa", "*"));
@@ -483,7 +483,7 @@ public class Dp {
   /// GFG has a tweak where we only want to include if its strictly increasing then decreasing.
   /// ////////////////////////////////
 
-  public static int LongestBitonicSequence(int n, int[] nums) {
+  public static int longestBitonicSequence(int n, int[] nums) {
     int[] fwDp = new int[n];
     int[] revDp = new int[n];
 
@@ -511,5 +511,50 @@ public class Dp {
       }
     }
     return max;
+  }
+
+  /// ///////////////////////////
+  /// https://www.geeksforgeeks.org/problems/matrix-chain-multiplication0303/1
+  /// ///////////////////////////
+
+  static int matrixMultiplication(int[] arr) {
+    int[][] dp = new int[arr.length][arr.length];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    return matrixMultiplicationRecur(1, arr.length - 1, arr, dp);
+  }
+
+  private static int matrixMultiplicationRecur(int i, int j, int[] arr, int[][] dp) {
+    if (i >= j) return 0;
+    if (dp[i][j] != -1) return dp[i][j];
+    int cost = Integer.MAX_VALUE;
+    for (int k = i; k < j; k++) {
+      int currentCost = arr[i - 1] * arr[k] * arr[j];
+      int otherCosts =
+          matrixMultiplicationRecur(i, k, arr, dp) + matrixMultiplicationRecur(k + 1, j, arr, dp);
+      cost = Math.min(cost, currentCost + otherCosts);
+    }
+    return dp[i][j] = cost;
+  }
+
+  static int matrixMultiplicationTabulation(int[] arr) {
+    int N = arr.length;
+    int[][] dp = new int[N][N];
+
+    // i goes from N-1 to 1 because in recursion we went from 1 to N-1
+    for (int i = N - 1; i >= 1; i--) {
+      // we want to consider only the elements not yet included in i's range, thus i+1 and upto N.
+      for (int j = i + 1; j < N; j++) {
+        int cost = Integer.MAX_VALUE;
+        for (int k = i; k < j; k++) {
+          int currentCost = arr[i - 1] * arr[k] * arr[j];
+          int otherCosts = dp[i][k] + dp[k + 1][j];
+          cost = Math.min(cost, currentCost + otherCosts);
+        }
+        dp[i][j] = cost;
+      }
+    }
+    return dp[1][N - 1];
   }
 }
