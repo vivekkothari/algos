@@ -12,6 +12,7 @@ import java.util.Random;
  */
 class RandomizedSet {
 
+  // stores number to its last index.
   private final Map<Integer, Integer> map = new HashMap<>();
   private final List<Integer> list = new ArrayList<>();
 
@@ -28,10 +29,15 @@ class RandomizedSet {
     if (!map.containsKey(n)) {
       return false;
     }
+    // get pos of to be removed element from the map.
     var i = map.get(n);
+    // get the actual last from the list.
     var temp = list.getLast();
+    // move the to be removed element at the last.
     list.set(i, temp);
+    // update previous last element index in map
     map.put(temp, i);
+    // now remove the element from list and map.
     list.removeLast();
     map.remove(n);
     return true;
