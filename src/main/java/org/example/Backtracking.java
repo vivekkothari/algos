@@ -779,13 +779,17 @@ class Backtracking {
 
         for (int num = 0; num < 9; num++) {
           int box = (row / 3) * 3 + (col / 3);
+          // If this number already is taken in row/col/box, skip
           if (rows[row][num] || cols[col][num] || boxes[box][num]) continue;
 
+          // try this number
           board[row][col] = (char) (num + '1');
           rows[row][num] = cols[col][num] = boxes[box][num] = true;
 
+          // solve remaining
           if (solve(board, rows, cols, boxes)) return true;
 
+          // backtrack
           board[row][col] = '.';
           rows[row][num] = cols[col][num] = boxes[box][num] = false;
         }
@@ -833,16 +837,12 @@ class Backtracking {
       if (!leftRow[row] && !lowerDiag[row + col] && !upperDiag[n - 1 + col - row]) {
         // Place queen
         nQueens[row][col] = 'Q';
-        leftRow[row] = true;
-        lowerDiag[row + col] = true;
-        upperDiag[n - 1 + col - row] = true;
+        leftRow[row] = lowerDiag[row + col] = upperDiag[n - 1 + col - row] = true;
         // Recursively solve for next row
         solveNQueens(col + 1, nQueens, output, leftRow, upperDiag, lowerDiag, n);
         // Backtrack: remove queen for trying next position
         nQueens[row][col] = '.';
-        leftRow[row] = false;
-        lowerDiag[row + col] = false;
-        upperDiag[n - 1 + col - row] = false;
+        leftRow[row] = lowerDiag[row + col] = upperDiag[n - 1 + col - row] = false;
       }
     }
   }

@@ -7,7 +7,8 @@ import java.util.LinkedList;
 public class Dp {
 
   public static void main(String[] args) {
-    maxCoins(new int[] {3, 1, 5, 8});
+    //    maxCoins(new int[] {3, 1, 5, 8});
+    System.out.println(pushDominoes(".L.R...LR..L.."));
     //    longestBitonicSequence(5, new int[] {1, 2, 5, 3, 2});
     //    System.out.println(longestStrChain(new String[] {"a", "b", "ba", "bca", "bda", "bdca"}));
     //    System.out.println(largestDivisibleSubset(new int[] {3, 4, 16, 8}));
@@ -629,5 +630,43 @@ public class Dp {
       max = Math.max(max, coins + otherCoins);
     }
     return dp[i][j] = max;
+  }
+
+  /// //////////////////////////////////
+  ///
+  // https://leetcode.com/problems/push-dominoes?envType=company&envId=google&favoriteSlug=google-thirty-days
+  /// ///////////////////////////////////////////////
+  public static String pushDominoes(String dominoes) {
+    char[] dom = dominoes.toCharArray();
+    Queue<int[]> q = new LinkedList<>();
+
+    char STANDING = '.';
+    char LEFT = 'L';
+    char RIGHT = 'R';
+    for (int i = 0; i < dom.length; i++) {
+      if (dom[i] != STANDING) {
+        q.add(new int[] {i, dom[i]});
+      }
+    }
+    while (!q.isEmpty()) {
+      int[] curr = q.poll();
+      int i = curr[0];
+      char d = (char) curr[1];
+      if (d == LEFT && i > 0 && dom[i - 1] == STANDING) {
+        q.add(new int[] {i - 1, LEFT});
+        dom[i - 1] = LEFT;
+      } else if (d == RIGHT) {
+        if (i + 1 < dom.length && dom[i + 1] == STANDING) {
+          if (i + 2 < dom.length && dom[i + 2] == LEFT) {
+            q.poll();
+          } else {
+            q.add(new int[] {i + 1, RIGHT});
+            dom[i + 1] = RIGHT;
+          }
+        }
+      }
+    }
+
+    return new String(dom);
   }
 }
