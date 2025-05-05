@@ -7,7 +7,8 @@ import java.util.LinkedList;
 public class Dp {
 
   public static void main(String[] args) {
-    longestBitonicSequence(5, new int[] {1, 2, 5, 3, 2});
+    maxCoins(new int[] {3, 1, 5, 8});
+    //    longestBitonicSequence(5, new int[] {1, 2, 5, 3, 2});
     //    System.out.println(longestStrChain(new String[] {"a", "b", "ba", "bca", "bda", "bdca"}));
     //    System.out.println(largestDivisibleSubset(new int[] {3, 4, 16, 8}));
     //    System.out.println(isMatch("aa", "*"));
@@ -588,5 +589,45 @@ public class Dp {
       cost = Math.min(cost, currentCost + otherCost);
     }
     return dp[i - 1][j - 1] = cost;
+  }
+
+  /// /////////////////////////////
+  /// https://leetcode.com/problems/burst-balloons/
+  ///
+  /// Input: nums = [3,1,5,8]
+  /// Output: 167
+  /// Explanation:
+  /// nums = [3,1,5,8] --> [3,5,8] --> [3,8] --> [8] --> []
+  /// coins =  3*1*5    +   3*5*8   +  1*3*8  + 1*8*1 = 167
+  /// /////////////////////////////
+  public static int maxCoins(int[] nums) {
+    int n = nums.length;
+    int[][] dp = new int[n + 1][n + 1];
+    for (int[] ints : dp) {
+      Arrays.fill(ints, -1);
+    }
+    int[] extendedBalloon = new int[n + 2];
+    extendedBalloon[0] = 1;
+    System.arraycopy(nums, 0, extendedBalloon, 1, n);
+    extendedBalloon[extendedBalloon.length - 1] = 1;
+    return maxCoinsRecur(1, n, extendedBalloon, dp);
+  }
+
+  private static int maxCoinsRecur(int i, int j, int[] nums, int[][] dp) {
+    if (i > j) {
+      return 0;
+    }
+    if (dp[i][j] != -1) return dp[i][j];
+    int max = 0;
+    for (int k = i; k <= j; k++) {
+      int coins = nums[i - 1] * nums[k] * nums[j + 1];
+      // add i <= k - 1 to prevent the base case recursion to get triggered
+      int left = i <= k - 1 ? maxCoinsRecur(i, k - 1, nums, dp) : 0;
+      // add k + 1 <= j to prevent the base case recursion to get triggered
+      int right = k + 1 <= j ? maxCoinsRecur(k + 1, j, nums, dp) : 0;
+      int otherCoins = left + right;
+      max = Math.max(max, coins + otherCoins);
+    }
+    return dp[i][j] = max;
   }
 }
