@@ -8,7 +8,7 @@ import org.example.llmquiz.ChatGptAlgoQuiz;
 public class Arrays {
 
   public static void main(String[] args) {
-    System.out.println(longestIncreasingSubsequence(new int[] {10, 9, 2, 5, 3, 7, 101, 18}));
+    //    System.out.println(longestIncreasingSubsequence(new int[] {10, 9, 2, 5, 3, 7, 101, 18}));
     //    System.out.println(numberOfInversions(new int[] {7, 6, 5, 4, 3, 2, 1, 0}));
     //    celebrity(new int[][] {{1, 1, 0}, {0, 1, 0}, {0, 1, 1}});
     //    minSum(new int[] {6, 8, 4, 5, 2, 3});
@@ -47,9 +47,10 @@ public class Arrays {
     //        java.util.Arrays.toString(dailyTemperatures(new int[] {30, 38, 30, 36, 35, 40, 28})));
     //    nextGreaterElements(new int[] {1, 4, 2, 5, 4, 6, 3, 8});
     //    System.out.println(
+    //    System.out.println(
     //        java.util.Arrays.toString(nextGreaterElement(new int[] {4, 1, 2}, new int[] {1, 3, 4,
     // 2})));
-    nextPermutation1(new int[] {1, 4, 5, 8, 7});
+    //    nextPermutation1(new int[] {1, 4, 5, 8, 7});
     //    System.out.println(Arrays.toString(twoSum(new int[] {3, 2, 4}, 6)));
     //    System.out.println(maxStockProfit(new int[] {7, 1, 5, 3, 6, 4}));
     //    var nums = new int[] {1, 2, 3, 0, 4, 0, 5};
@@ -102,7 +103,7 @@ public class Arrays {
     //    rotateNoExtraSpace(nums, 3);
     //    System.out.println(java.util.Arrays.toString(nums));
 
-    System.out.println(minJumpOptimised(new int[] {2, 3, 1, 1, 4}));
+    //    System.out.println(minJumpOptimised(new int[] {2, 3, 1, 1, 4}));
     //    System.out.println(canPlaceFlowers(new int[] {1, 0, 0, 0, 1}, 1));
     //    System.out.println(canPlaceFlowers(new int[] {1, 0}, 1));
     //    System.out.println(containsNearbyDuplicate(new int[] {99, 99}, 2));
@@ -116,6 +117,7 @@ public class Arrays {
     //    System.out.println(java.util.Arrays.toString(applyOperations(new int[] {1, 2, 2, 1, 1,
     // 0})));
     //    System.out.println(countQuadruplets(new int[] {1, 1, 1, 3, 5}));
+    nextGreaterElementsII(new int[] {1, 2, 1});
   }
 
   public static int[] twoSum(int[] nums, int target) {
@@ -2662,6 +2664,112 @@ public class Arrays {
       stack.push(num);
     }
     return res;
+  }
+
+  /** https://leetcode.com/problems/next-greater-element-ii/ */
+  public static int[] nextGreaterElementsII(int[] nums) {
+    Stack<Integer> stack = new Stack<>();
+    int[] res = new int[nums.length];
+    java.util.Arrays.fill(res, -1);
+    for (int i = 2 * nums.length - 1; i >= 0; i--) {
+      while (!stack.isEmpty() && stack.peek() < nums[i % nums.length]) {
+        stack.pop();
+      }
+      if (i < nums.length) {
+        while (!stack.isEmpty() && stack.peek() <= nums[i]) {
+          stack.pop();
+        }
+        res[i] = stack.isEmpty() ? -1 : stack.peek();
+        stack.push(nums[i]);
+      }
+    }
+    return res;
+  }
+
+  public long subArrayRanges(int[] nums) {
+    long maxSum = sumSubarrayMax(nums);
+    long minSum = sumSubarrayMins(nums);
+    return maxSum - minSum;
+  }
+
+  public int sumSubarrayMax(int[] arr) {
+    int sum = 0;
+    int mod = (int) 1e9 + 7;
+    int[] nse = findNSEForMax(arr);
+    int[] pse = findPSEEForMax(arr);
+
+    for (int i = 0; i < arr.length; i++) {
+      int left = i - pse[i];
+      int right = nse[i] - i;
+      sum = (int) (sum + ((long) right * left * arr[i]) % mod) % mod;
+    }
+    return sum;
+  }
+
+  int[] findNSEForMax(int[] arr) {
+    int[] nse = new int[arr.length];
+    Stack<Integer> st = new Stack<>();
+    for (int i = arr.length - 1; i >= 0; i--) {
+      while (!st.isEmpty() && arr[st.peek()] <= arr[i]) {
+        st.pop();
+      }
+      nse[i] = st.isEmpty() ? arr.length : st.peek();
+      st.push(i);
+    }
+    return nse;
+  }
+
+  int[] findPSEEForMax(int[] arr) {
+    int[] psee = new int[arr.length];
+    Stack<Integer> st = new Stack<>();
+    for (int i = 0; i < arr.length; i++) {
+      while (!st.isEmpty() && arr[st.peek()] < arr[i]) {
+        st.pop();
+      }
+      psee[i] = st.isEmpty() ? -1 : st.peek();
+      st.push(i);
+    }
+    return psee;
+  }
+
+  public int sumSubarrayMins(int[] arr) {
+    int sum = 0;
+    int mod = (int) 1e9 + 7;
+    int[] nse = findNSE(arr);
+    int[] pse = findPSEE(arr);
+
+    for (int i = 0; i < arr.length; i++) {
+      int left = i - pse[i];
+      int right = nse[i] - i;
+      sum = (int) (sum + ((long) right * left * arr[i]) % mod) % mod;
+    }
+    return sum;
+  }
+
+  int[] findNSE(int[] arr) {
+    int[] nse = new int[arr.length];
+    Stack<Integer> st = new Stack<>();
+    for (int i = arr.length - 1; i >= 0; i--) {
+      while (!st.isEmpty() && arr[st.peek()] >= arr[i]) {
+        st.pop();
+      }
+      nse[i] = st.isEmpty() ? arr.length : st.peek();
+      st.push(i);
+    }
+    return nse;
+  }
+
+  int[] findPSEE(int[] arr) {
+    int[] psee = new int[arr.length];
+    Stack<Integer> st = new Stack<>();
+    for (int i = 0; i < arr.length; i++) {
+      while (!st.isEmpty() && arr[st.peek()] > arr[i]) {
+        st.pop();
+      }
+      psee[i] = st.isEmpty() ? -1 : st.peek();
+      st.push(i);
+    }
+    return psee;
   }
 
   /**

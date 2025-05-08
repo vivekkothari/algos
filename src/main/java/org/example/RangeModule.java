@@ -4,48 +4,48 @@ import java.util.*;
 
 public class RangeModule {
 
-  record Interval(int left, int right) {}
+  record Interval(int start, int end) {}
 
   private final NavigableSet<Interval> intervals;
 
   public RangeModule() {
-    intervals = new TreeSet<>((a, b) -> a.right - b.right);
+    intervals = new TreeSet<>((a, b) -> a.end - b.end);
   }
 
-  public void addRange(int left, int right) {
-    var tailSet = intervals.tailSet(new Interval(0, left));
+  public void addRange(int start, int end) {
+    var tailSet = intervals.tailSet(new Interval(0, start));
     var iterator = tailSet.iterator();
     while (iterator.hasNext()) {
       var current = iterator.next();
-      if (current.left > right) {
+      if (current.start > end) {
         break;
       }
-      left = Math.min(left, current.left);
-      right = Math.max(right, current.right);
+      start = Math.min(start, current.start);
+      end = Math.max(end, current.end);
       iterator.remove();
     }
-    intervals.add(new Interval(left, right));
+    intervals.add(new Interval(start, end));
   }
 
-  public boolean queryRange(int left, int right) {
-    var higher = intervals.higher(new Interval(0, left));
-    return higher != null && higher.left <= left && right <= higher.right;
+  public boolean queryRange(int start, int end) {
+    var higher = intervals.higher(new Interval(0, start));
+    return higher != null && higher.start <= start && end <= higher.end;
   }
 
-  public void removeRange(int left, int right) {
-    var tailSet = intervals.tailSet(new Interval(0, left));
+  public void removeRange(int start, int end) {
+    var tailSet = intervals.tailSet(new Interval(0, start));
     var iterator = tailSet.iterator();
     List<Interval> toAdd = new ArrayList<>();
     while (iterator.hasNext()) {
       var current = iterator.next();
-      if (current.left > right) {
+      if (current.start > end) {
         break;
       }
-      if (current.left < left) {
-        toAdd.add(new Interval(current.left, left));
+      if (current.start < start) {
+        toAdd.add(new Interval(current.start, start));
       }
-      if (right < current.right) {
-        toAdd.add(new Interval(right, current.right));
+      if (end < current.end) {
+        toAdd.add(new Interval(end, current.end));
       }
       iterator.remove();
     }
