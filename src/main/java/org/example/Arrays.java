@@ -8,6 +8,15 @@ import org.example.llmquiz.ChatGptAlgoQuiz;
 public class Arrays {
 
   public static void main(String[] args) {
+    maximalRectangle(
+        new char[][] {
+          {'1', '0', '1', '0', '0'},
+          {'1', '0', '1', '1', '1'},
+          {'1', '1', '1', '1', '1'},
+          {'1', '0', '0', '1', '0'}
+        });
+    asteroidCollision(new int[] {5, 10, -5});
+    asteroidCollision(new int[] {-2, -1, 1, 2});
     //    System.out.println(longestIncreasingSubsequence(new int[] {10, 9, 2, 5, 3, 7, 101, 18}));
     //    System.out.println(numberOfInversions(new int[] {7, 6, 5, 4, 3, 2, 1, 0}));
     //    celebrity(new int[][] {{1, 1, 0}, {0, 1, 0}, {0, 1, 1}});
@@ -2513,6 +2522,27 @@ public class Arrays {
     return maxArea;
   }
 
+  /** https://leetcode.com/problems/maximal-rectangle/description/ */
+  public static int maximalRectangle(char[][] matrix) {
+    int[][] grid = new int[matrix.length][matrix[0].length];
+    for (int i = 0; i < grid[0].length; i++) { // cols
+      grid[0][i] = matrix[0][i] == '1' ? 1 : 0;
+      for (int j = 1; j < grid.length; j++) { // rows
+        int elem = matrix[j][i] == '1' ? 1 : 0;
+        if (elem == 0) {
+          grid[j][i] = 0;
+        } else {
+          grid[j][i] = grid[j - 1][i] + elem;
+        }
+      }
+    }
+    int maxArea = 0;
+    for (int i = 0; i < matrix.length; i++) {
+      maxArea = Math.max(maxArea, largestRectangleArea(grid[i]));
+    }
+    return maxArea;
+  }
+
   /**
    * Given a sorted array of distinct integers and a target value, return the index if the target is
    * found. If not, return the index where it would be if it were inserted in order.
@@ -2772,6 +2802,30 @@ public class Arrays {
     return psee;
   }
 
+  /** https://leetcode.com/problems/asteroid-collision/description/ */
+  public static int[] asteroidCollision(int[] asteroids) {
+    Deque<Integer> stack = new ArrayDeque<>();
+    for (int asteroid : asteroids) {
+      if (asteroid >= 0) {
+        stack.push(asteroid);
+      } else {
+        while (!stack.isEmpty() && stack.peek() > 0 && stack.peek() < Math.abs(asteroid)) {
+          stack.pop();
+        }
+        if (!stack.isEmpty() && stack.peek() == Math.abs(asteroid)) {
+          stack.pop();
+        } else if (stack.isEmpty() || stack.peek() < 0) {
+          stack.push(asteroid);
+        }
+      }
+    }
+    int[] result = new int[stack.size()];
+    for (int i = stack.size() - 1; i >= 0; i--) {
+      result[i] = stack.pop();
+    }
+    return result;
+  }
+
   /**
    * https://neetcode.io/problems/daily-temperatures Daily Temperatures You are given an array of
    * integers temperatures where temperatures[i] represents the daily temperatures on the ith day.
@@ -2857,6 +2911,29 @@ public class Arrays {
       }
     }
     return res.stream().mapToInt(i -> i).toArray();
+  }
+
+  /**
+   * input= [1,3,-1,-3,5,3,6,7], output = [3,3,5,5,6,7]
+   * https://leetcode.com/problems/sliding-window-maximum/description/
+   */
+  public static int[] maxSlidingWindowTuf(int[] nums, int k) {
+    int[] res = new int[nums.length - k + 1];
+    int j = 0;
+    Deque<Integer> deque = new ArrayDeque<>();
+    for (int i = 0; i < nums.length; i++) {
+      if (!deque.isEmpty() && deque.getFirst() <= i - k) {
+        deque.removeFirst();
+      }
+      while (!deque.isEmpty() && nums[deque.getLast()] <= nums[i]) {
+        deque.removeLast();
+      }
+      deque.addLast(i);
+      if (i >= k - 1) {
+        res[j++] = nums[deque.getFirst()];
+      }
+    }
+    return res;
   }
 
   /**

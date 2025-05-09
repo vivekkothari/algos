@@ -298,9 +298,10 @@ class Strings {
   }
 
   public static void main(String[] args) {
-    applySubstitutions(
-        List.of(List.of("A", "bce"), List.of("B", "ace"), List.of("C", "abc%B%")), "%A%_%B%_%C%");
-    System.out.println(minWindow("aab", "aab"));
+    //    applySubstitutions(
+    //        List.of(List.of("A", "bce"), List.of("B", "ace"), List.of("C", "abc%B%")),
+    // "%A%_%B%_%C%");
+    //    System.out.println(minWindow("aab", "aab"));
     //        repeatedSubstringPattern("abab");
     //    System.out.println(partitionLabels("ababcbacadefegdehijhklij"));
     //    System.out.println(checkInclusion("ab", "eidbaooo"));
@@ -2026,4 +2027,5 @@ class Strings {
     }
     return minLen == Integer.MAX_VALUE ? "" : s.substring(res[0], res[1] + 1);
   }
+
 }
