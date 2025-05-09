@@ -1117,6 +1117,7 @@ public class Arrays {
     return String.valueOf(num1 + num2);
   }
 
+  /** https://www.geeksforgeeks.org/problems/the-celebrity-problem/1 */
   public static int celebrity(int[][] mat) {
     int n = mat.length;
     int[] in = new int[n];
@@ -1145,6 +1146,30 @@ public class Arrays {
       }
     }
     return -1;
+  }
+
+  public static int celebrityTuf(int[][] mat) {
+    int top = 0, bottom = mat.length - 1;
+    while (top < bottom) {
+      // does top know bottom
+      if (mat[top][bottom] == 1) {
+        top++;
+      } else if (mat[bottom][top] == 1) {
+        // bottom down know top
+        bottom--;
+      } else {
+        top++;
+        bottom--;
+      }
+    }
+    if (top > bottom) return -1;
+    for (int i = 0; i < mat.length; i++) {
+      // i== top is person itself, the diag so no check needed
+      // [top][i] == 0 means top doesn't know anyone, and [i][top] mean i knows top
+      if (i == top || (mat[top][i] == 0 && mat[i][top] == 1)) continue;
+      return -1;
+    }
+    return top;
   }
 
   static int findPlatform(int[] arr, int[] dep) {
