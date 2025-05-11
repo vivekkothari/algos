@@ -515,6 +515,53 @@ public class Dp {
     return max;
   }
 
+  public static int maxPerimeterTriangle(ArrayList<Integer> arr, int n) {
+    Collections.sort(arr);
+    return maxPerimeterTriangleRecur(arr, 0, n);
+  }
+
+  public static int maxPerimeterTriangleRecur(ArrayList<Integer> arr, int i, int n) {
+    // Base case: If there are less than 3 elements remaining, return 0
+    if (i >= n - 2) {
+      return 0;
+    }
+
+    // Check if the current triplet can form a valid triangle
+    if (arr.get(i + 2) < arr.get(i + 1) + arr.get(i)) {
+      // If it's a valid triangle, return the perimeter of the current triplet
+      int perimeter = arr.get(i) + arr.get(i + 1) + arr.get(i + 2);
+      return Math.max(
+          perimeter,
+          maxPerimeterTriangleRecur(arr, i + 1, n)); // Continue recursion with the next triplet
+    }
+
+    // If not a valid triangle, just continue to the next triplet
+    return maxPerimeterTriangleRecur(arr, i + 1, n);
+  }
+
+  public static int calculateMaximisedSum(int[] arr1, int[] arr2, int n) {
+    int[][] dp = new int[n][2];
+    for (int i = 0; i < n; i++) {
+      dp[i][0] =
+          Math.abs(arr1[i] - arr2[i])
+              + (i > 0
+                  ? Math.max(
+                      Math.abs(arr1[i] - arr2[i - 1]) + dp[i - 1][0],
+                      Math.abs(arr1[i] - arr1[i - 1]) + dp[i - 1][1])
+                  : 0);
+
+      dp[i][1] =
+          Math.abs(arr1[i] - arr2[i])
+              + (i > 0
+                  ? Math.max(
+                      Math.abs(arr2[i] - arr1[i - 1]) + dp[i - 1][1],
+                      Math.abs(arr2[i] - arr2[i - 1]) + dp[i - 1][0])
+                  : 0);
+    }
+
+    return Math.max(dp[n - 1][0], dp[n - 1][1]);
+  }
+
   /// ///////////////////////////
   /// https://www.geeksforgeeks.org/problems/matrix-chain-multiplication0303/1
   /// ///////////////////////////

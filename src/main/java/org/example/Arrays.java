@@ -8,15 +8,16 @@ import org.example.llmquiz.ChatGptAlgoQuiz;
 public class Arrays {
 
   public static void main(String[] args) {
-    maximalRectangle(
-        new char[][] {
-          {'1', '0', '1', '0', '0'},
-          {'1', '0', '1', '1', '1'},
-          {'1', '1', '1', '1', '1'},
-          {'1', '0', '0', '1', '0'}
-        });
-    asteroidCollision(new int[] {5, 10, -5});
-    asteroidCollision(new int[] {-2, -1, 1, 2});
+    mySqrt(8);
+    //    maximalRectangle(
+    //        new char[][] {
+    //          {'1', '0', '1', '0', '0'},
+    //          {'1', '0', '1', '1', '1'},
+    //          {'1', '1', '1', '1', '1'},
+    //          {'1', '0', '0', '1', '0'}
+    //        });
+    //    asteroidCollision(new int[] {5, 10, -5});
+    //    asteroidCollision(new int[] {-2, -1, 1, 2});
     //    System.out.println(longestIncreasingSubsequence(new int[] {10, 9, 2, 5, 3, 7, 101, 18}));
     //    System.out.println(numberOfInversions(new int[] {7, 6, 5, 4, 3, 2, 1, 0}));
     //    celebrity(new int[][] {{1, 1, 0}, {0, 1, 0}, {0, 1, 1}});
@@ -1093,18 +1094,43 @@ public class Arrays {
 
   /** https://leetcode.com/problems/find-peak-element/ */
   public int findPeakElement(int[] nums) {
-    int low = 0, high = nums.length - 1;
+    // single element is peak
+    if (nums.length == 1) return 0;
+    // check for first and last element to prevent edge cases
+    if (nums[0] > nums[1]) return 0;
+    if (nums[nums.length - 1] > nums[nums.length - 2]) return nums.length - 1;
+    // leave out the first and last element.
+    int low = 1, high = nums.length - 2;
     while (low <= high) {
-      int mid = (low + high) / 2;
-      if (mid > 0 && nums[mid] < nums[mid - 1]) {
-        high = mid - 1;
-      } else if (mid < nums.length - 1 && nums[mid] < nums[mid + 1]) {
+      int mid = low + (high - low / 2);
+      if (nums[mid - 1] < nums[mid] && nums[mid] > nums[mid + 1]) {
+        return mid;
+      }
+      if (nums[mid] < nums[mid + 1]) {
         low = mid + 1;
       } else {
-        return mid;
+        high = mid - 1;
       }
     }
     return low;
+  }
+
+  /** https://leetcode.com/problems/sqrtx/ */
+  public static int mySqrt(int x) {
+    int low = 1, high = x;
+    while (low <= high) {
+      int mid = low + (high - low) / 2;
+      long square = (long) mid * mid;
+      if (square == x) {
+        return mid;
+      }
+      if (square > x) {
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+    }
+    return high;
   }
 
   static String minSum(int[] arr) {
@@ -1827,7 +1853,7 @@ public class Arrays {
   }
 
   /**
-   *
+   * https://leetcode.com/problems/koko-eating-bananas/
    *
    * <pre>
    *   Koko loves to eat bananas. There are n piles of bananas, the ith pile has piles[i] bananas. The guards have gone and will come back in h hours.
@@ -3173,20 +3199,55 @@ public class Arrays {
         return m;
       }
       if (nums[l] <= nums[m]) {
-        if (target > nums[m] || target < nums[l]) {
-          l = m + 1;
-        } else {
+        // left half is sorted
+        if (nums[l] <= target && target <= nums[m]) {
           r = m - 1;
+        } else {
+          l = m + 1;
         }
       } else {
-        if (target < nums[m] || target > nums[r]) {
-          r = m - 1;
-        } else {
+        // right half is sorted
+        if (nums[m] <= target && target <= nums[r]) {
           l = m + 1;
+        } else {
+          r = m - 1;
         }
       }
     }
     return -1;
+  }
+
+  /**
+   * https://leetcode.com/problems/search-in-rotated-sorted-array-ii/ Input: nums = [2,5,6,0,0,1,2],
+   * target = 0 Output: true
+   *
+   * <p>Input: nums = [2,5,6,0,0,1,2], target = 3 Output: false
+   */
+  public boolean searchSortedRotatedII(int[] nums, int target) {
+    int l = 0, r = nums.length - 1;
+    while (l <= r) {
+      int m = l + (r - l) / 2;
+      if (nums[m] == target) return true;
+      if (nums[l] == nums[m] && nums[m] == nums[r]) {
+        l++;
+        r--;
+      } else if (nums[l] <= nums[m]) {
+        // left half is sorted
+        if (nums[l] <= target && target <= nums[m]) {
+          r = m - 1;
+        } else {
+          l = m + 1;
+        }
+      } else {
+        // right half is sorted
+        if (nums[m] <= target && target <= nums[r]) {
+          l = m + 1;
+        } else {
+          r = m - 1;
+        }
+      }
+    }
+    return false;
   }
 
   /** https://leetcode.com/problems/find-closest-number-to-zero/ */

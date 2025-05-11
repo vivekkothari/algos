@@ -10,6 +10,25 @@ import java.util.stream.IntStream;
 
 class Strings {
 
+  /** https://leetcode.com/problems/strobogrammatic-number/ */
+  public static boolean isStrobogrammatic(String num) {
+    var map = Map.of('8', '8', '1', '1', '6', '9', '9', '6', '0', '0');
+    int l = 0, r = num.length() - 1;
+    while (l <= r) {
+      var lch = num.charAt(l);
+      var rch = num.charAt(r);
+      if (!map.containsKey(lch) || !map.containsKey(rch)) {
+        return false;
+      }
+      if (map.get(lch) != rch) {
+        return false;
+      }
+      l++;
+      r--;
+    }
+    return true;
+  }
+
   /**
    * Given two strings s and t, return true if the two strings are anagrams of each other, otherwise
    * return false.
@@ -298,6 +317,7 @@ class Strings {
   }
 
   public static void main(String[] args) {
+    System.out.println(isStrobogrammatic("69"));
     //    applySubstitutions(
     //        List.of(List.of("A", "bce"), List.of("B", "ace"), List.of("C", "abc%B%")),
     // "%A%_%B%_%C%");

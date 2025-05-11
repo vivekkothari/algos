@@ -6,9 +6,11 @@ import java.util.Arrays;
 class Recursion {
 
   public static void main(String[] args) {
-
-    System.out.println(cutRod(new int[] {3, 5, 8, 9, 10, 17, 17, 20}));
-    System.out.println(cutRodTab(new int[] {3, 5, 8, 9, 10, 17, 17, 20}));
+    splitArray(new int[] {7, 2, 5, 10, 8}, 2).forEach(System.out::println);
+    splitArraySum(new int[] {7, 2, 5, 10, 8}, 2).forEach(System.out::println);
+    splitArrayMinSum(new int[] {7, 2, 5, 10, 8}, 2).forEach(System.out::println);
+    //    System.out.println(cutRod(new int[] {3, 5, 8, 9, 10, 17, 17, 20}));
+    //    System.out.println(cutRodTab(new int[] {3, 5, 8, 9, 10, 17, 17, 20}));
 
     //    System.out.println(findTargetSumWays(new int[] {1, 1, 1, 1, 1}, 3));
 
@@ -1203,5 +1205,114 @@ class Recursion {
     int sum = plus + negative;
     memo.put(key, sum);
     return sum;
+  }
+
+  /// /////////////////////////////
+  /// https://leetcode.com/problems/split-array-largest-sum/
+  /// Given an integer array nums and an integer k, split nums into k non-empty subarrays such that
+  /// the largest sum of any subarray is minimized.
+  /// Return the minimized largest sum of the split.
+  ///
+  /// Input: nums = [7,2,5,10,8], k = 2
+  /// Output: 18
+  /// /////////////////////////////
+  public static List<List<List<Integer>>> splitArray(int[] nums, int k) {
+    List<List<List<Integer>>> result = new ArrayList<>();
+    backtrack(nums, 0, k, new ArrayList<>(), result);
+    return result;
+  }
+
+  private static void backtrack(
+      int[] nums, int start, int k, List<List<Integer>> current, List<List<List<Integer>>> result) {
+
+    if (k == 0 && start == nums.length) {
+      // Successfully split into k parts
+      result.add(current.stream().map(List::copyOf).toList());
+      return;
+    }
+
+    if (k == 0 || start == nums.length) {
+      // Either used up all partitions or all elements prematurely
+      return;
+    }
+
+    // Not enough elements left
+    if (nums.length - start < k) return;
+
+    for (int end = start + 1; end <= nums.length; end++) {
+      List<Integer> sub = Arrays.stream(nums, start, end).boxed().toList();
+      current.add(sub);
+      backtrack(nums, end, k - 1, current, result);
+      current.removeLast();
+    }
+  }
+
+  /// /////////////////////////////////////
+  /// Same as above, just maintain sums of sub arrays
+  public static List<List<Integer>> splitArraySum(int[] nums, int k) {
+    List<List<Integer>> result = new ArrayList<>();
+    backtrackSum(nums, 0, k, new ArrayList<>(), result);
+    return result;
+  }
+
+  private static void backtrackSum(
+      int[] nums, int start, int k, List<Integer> current, List<List<Integer>> result) {
+
+    if (k == 0 && start == nums.length) {
+      // Successfully split into k parts
+      result.add(List.copyOf(current));
+      return;
+    }
+
+    if (k == 0 || start == nums.length) {
+      // Either used up all partitions or all elements prematurely
+      return;
+    }
+
+    // Not enough elements left
+    if (nums.length - start < k) return;
+
+    for (int end = start + 1; end <= nums.length; end++) {
+      int sum = Arrays.stream(nums, start, end).sum();
+
+      current.add(sum);
+      backtrackSum(nums, end, k - 1, current, result);
+      current.removeLast();
+    }
+  }
+
+  /// ///////////
+  /// Only maintain max sum of the sub array combination
+  public static List<Integer> splitArrayMinSum(int[] nums, int k) {
+    List<Integer> result = new ArrayList<>();
+    backtrackMinSum(nums, 0, k, new ArrayList<>(), result);
+    return result;
+  }
+
+  private static void backtrackMinSum(
+      int[] nums, int start, int k, List<Integer> current, List<Integer> result) {
+
+    if (k == 0 && start == nums.length) {
+      // Successfully split into k parts
+      result.add(Collections.max(current));
+      return;
+    }
+
+    if (k == 0 || start == nums.length) {
+      // Either used up all partitions or all elements prematurely
+      return;
+    }
+
+    // Not enough elements left
+    if (nums.length - start < k) return;
+
+    int sum = 0;
+    for (int end = start; end < nums.length; end++) {
+      sum += nums[end];
+
+      current.add(sum);
+      backtrackMinSum(nums, end + 1, k - 1, current, result);
+      current.removeLast();
+    }
   }
 }
