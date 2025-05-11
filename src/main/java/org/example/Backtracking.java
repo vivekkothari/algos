@@ -1,14 +1,14 @@
 package org.example;
 
-import java.util.ArrayList;
+import java.util.*;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
 import java.util.stream.Collectors;
 
 class Backtracking {
 
   public static void main(String[] args) {
+    findSmallestMaxDist(new int[] {1, 13, 17, 23}, 5);
+    findSmallestMaxDistHeap(new int[] {1, 13, 17, 23}, 5);
     //    combine(4, 2);
     //    System.out.println(subsetSum(new int[] {3, 1, 2}));
     //    permuteUnique(new int[] {1, 1, 2});
@@ -665,6 +665,7 @@ class Backtracking {
     return dp[nums.length - 1];
   }
 
+  /** https://leetcode.com/problems/gas-station/description/ */
   public static int canCompleteCircuit(int[] gas, int[] cost) {
     int tc = Arrays.stream(cost).sum();
     int tg = Arrays.stream(gas).sum();
@@ -687,6 +688,80 @@ class Backtracking {
     }
 
     return start;
+  }
+
+  /** https://www.geeksforgeeks.org/problems/minimize-max-distance-to-gas-station/1 */
+  public static double findSmallestMaxDist(int[] stations, int k) {
+    int[] howManySections = new int[stations.length - 1];
+    for (int i = 1; i <= k; i++) {
+      double maxVal = -1;
+      int maxIdx = -1;
+      for (int j = 0; j < stations.length - 1; j++) {
+        int diff = stations[j + 1] - stations[j];
+        double secLen = (diff * 1.0) / (howManySections[j] + 1);
+        if (maxVal < secLen) {
+          maxVal = secLen;
+          maxIdx = j;
+        }
+      }
+      howManySections[maxIdx]++;
+    }
+    double maxAns = -1;
+    for (int i = 0; i < stations.length - 1; i++) {
+      double len = (stations[i + 1] - stations[i] * 1.0) / (howManySections[i] + 1);
+      maxAns = Math.max(maxAns, len);
+    }
+    return maxAns;
+  }
+
+  /// //////////////////
+  /// Heap approach
+  /// [1,13,17,23]
+  /// //////////////////////////////
+  public static double findSmallestMaxDistHeap(int[] stations, int k) {
+    PriorityQueue<double[]> maxHeap = new PriorityQueue<>((a, b) -> Double.compare(b[0], a[0]));
+    int[] howManySections = new int[stations.length - 1];
+    for (int i = 1; i < stations.length; i++) {
+      maxHeap.offer(new double[] {stations[i] - stations[i - 1], i - 1});
+    }
+    for (int i = 1; i <= k; i++) {
+      // Find the section with largest diff.
+      double[] top = maxHeap.poll();
+      int idx = (int) top[1];
+      // Increment by one indicating we add one gas station here
+      howManySections[idx]++;
+      // Get current len
+      double origLen = stations[idx + 1] - stations[idx];
+      // divide by new stations added so far plus 1
+      double newLen = origLen / (howManySections[idx] + 1);
+      // add this back to the heap
+      maxHeap.offer(new double[] {newLen, idx});
+    }
+    return maxHeap.peek()[0];
+  }
+
+  /// ///////////////////
+  /// Binary search approach
+  public static double findSmallestMaxDisBs(int[] stations, int k) {
+    double low = 0, high = stations[stations.length - 1] - stations[0];
+    while (high - low > 1e-6) {
+      double mid = low + (high - low) / 2;
+      if (canPlaceKStations(stations, k, mid)) {
+        high = mid;
+      } else {
+        low = mid;
+      }
+    }
+    return low;
+  }
+
+  private static boolean canPlaceKStations(int[] stations, int k, double dist) {
+    int required = 0;
+    for (int i = 1; i < stations.length; i++) {
+      double segmentLength = stations[i] - stations[i - 1];
+      required += (int) (segmentLength / dist); // number of extra stations needed in this segment
+    }
+    return required <= k;
   }
 
   /** https://leetcode.com/problems/largest-number/solutions/5783508/largest-number/ */

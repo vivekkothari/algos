@@ -270,4 +270,39 @@ class Algos {
     }
     return students <= k;
   }
+
+  /** https://leetcode.com/problems/split-array-largest-sum/ */
+  public int splitArray(int[] nums, int k) {
+    if (k > nums.length) return -1;
+    int low = -1, high = 0;
+    for (int num : nums) {
+      low = Math.max(low, num);
+      high += num;
+    }
+    int res = -1;
+    while (low <= high) {
+      int mid = low + (high - low) / 2;
+      boolean canSplit = canSplit(nums, k, mid);
+      if (canSplit) {
+        res = mid;
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+    }
+    return res;
+  }
+
+  private boolean canSplit(int[] nums, int k, int mid) {
+    int splits = 1, runningSum = 0;
+    for (int num : nums) {
+      if (runningSum + num <= mid) {
+        runningSum += num;
+      } else {
+        splits++;
+        runningSum = num;
+      }
+    }
+    return splits <= k;
+  }
 }

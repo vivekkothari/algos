@@ -484,6 +484,8 @@ class Matrix {
    * https://neetcode.io/problems/search-2d-matrix Input: matrix =
    * [[1,2,4,8],[10,11,12,13],[14,20,30,40]], target = 10
    *
+   * <p>https://leetcode.com/problems/search-a-2d-matrix/
+   *
    * <p>Output: true <img
    * src="https://imagedelivery.net/CLfkmk9Wzy8_9HRyug4EVA/7ca61f56-00d4-4fa0-26cf-56809028ac00/public"/>
    */
@@ -511,6 +513,24 @@ class Matrix {
         r = mid - 1;
       } else {
         l = mid + 1;
+      }
+    }
+    return false;
+  }
+
+  /** https://leetcode.com/problems/search-a-2d-matrix-ii/ */
+  public boolean searchMatrixII(int[][] matrix, int target) {
+    int m = matrix.length;
+    int n = matrix[0].length;
+    int i = m - 1, j = 0; // start from top right corner
+    while (i >= 0 && j < n) {
+      if (matrix[i][j] == target) {
+        return true;
+      }
+      if (matrix[i][j] > target) {
+        i--;
+      } else {
+        j++;
       }
     }
     return false;

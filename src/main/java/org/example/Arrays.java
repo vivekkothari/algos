@@ -1115,6 +1115,32 @@ public class Arrays {
     return low;
   }
 
+  /** https://leetcode.com/problems/find-a-peak-element-ii/ */
+  public int[] findPeakGrid(int[][] mat) {
+    int n = mat.length, m = mat[0].length;
+    int low = 0, high = m - 1;
+    while (low <= high) {
+      int mid = low + (high - low) / 2;
+      int maxRowIndex = -1, max = Integer.MIN_VALUE;
+      for (int i = 0; i < n; i++) {
+        if (max < mat[i][mid]) {
+          max = mat[i][mid];
+          maxRowIndex = i;
+        }
+      }
+      int left = mid - 1 >= 0 ? mat[maxRowIndex][mid - 1] : -1;
+      int right = mid + 1 < m ? mat[maxRowIndex][mid + 1] : -1;
+      if (mat[maxRowIndex][mid] > left && mat[maxRowIndex][mid] > right) {
+        return new int[] {maxRowIndex, mid};
+      } else if (mat[maxRowIndex][mid] < left) {
+        high = mid - 1;
+      } else {
+        low = mid + 1;
+      }
+    }
+    return new int[] {-1, -1};
+  }
+
   /** https://leetcode.com/problems/sqrtx/ */
   public static int mySqrt(int x) {
     int low = 1, high = x;
@@ -3446,6 +3472,68 @@ public class Arrays {
       }
     }
     return -1;
+  }
+
+  public double findMedianSortedArraysTuf(int[] nums1, int[] nums2) {
+    int n1 = nums1.length, n2 = nums2.length;
+    // Ensure nums1 is the smaller array for simplicity
+    if (n1 > n2) return findMedianSortedArraysTuf(nums2, nums1);
+    int low = 0, high = n1;
+    int left = (n1 + n2 + 1) / 2;
+    int n = n1 + n2;
+    while (low <= high) {
+      int mid1 = low + (high - low) / 2;
+      int mid2 = left - mid1;
+      int l1 = Integer.MIN_VALUE, l2 = Integer.MIN_VALUE;
+      int r1 = Integer.MAX_VALUE, r2 = Integer.MAX_VALUE;
+      if (mid1 < n1) r1 = nums1[mid1];
+      if (mid2 < n2) r2 = nums2[mid2];
+
+      if (mid1 - 1 >= 0) l1 = nums1[mid1 - 1];
+      if (mid2 - 1 >= 0) l2 = nums2[mid2 - 1];
+      if (l1 <= r2 && l2 <= r1) {
+        if (n % 2 == 1) {
+          return Math.max(l1, l2);
+        } else {
+          return ((double) (Math.max(l1, l2) + Math.min(r1, r2)) / 2);
+        }
+      } else if (l1 > r2) {
+        high = mid1 - 1;
+      } else {
+        low = mid1 + 1;
+      }
+    }
+    return 0;
+  }
+
+  public int kthElement(int[] nums1, int[] nums2, int k) {
+    int n1 = nums1.length, n2 = nums2.length;
+
+    // Ensure nums1 is smaller
+    if (n1 > n2) return kthElement(nums2, nums1, k);
+
+    // Adjust boundaries to avoid index out of bounds
+    int low = Math.max(0, k - n2);
+    int high = Math.min(k, n1);
+
+    while (low <= high) {
+      int mid1 = low + (high - low) / 2;
+      int mid2 = k - mid1;
+
+      int l1 = (mid1 > 0) ? nums1[mid1 - 1] : Integer.MIN_VALUE;
+      int l2 = (mid2 > 0) ? nums2[mid2 - 1] : Integer.MIN_VALUE;
+      int r1 = (mid1 < n1) ? nums1[mid1] : Integer.MAX_VALUE;
+      int r2 = (mid2 < n2) ? nums2[mid2] : Integer.MAX_VALUE;
+
+      if (l1 <= r2 && l2 <= r1) {
+        return Math.max(l1, l2);
+      } else if (l1 > r2) {
+        high = mid1 - 1;
+      } else {
+        low = mid1 + 1;
+      }
+    }
+    return -1; // unreachable if input is valid
   }
 
   /** https://leetcode.ca/all/1086.html */
