@@ -173,6 +173,56 @@ class Graphs {
     return count == numCourses ? res : new int[] {};
   }
 
+  /** https://www.geeksforgeeks.org/problems/alien-dictionary/1 */
+  public static String findOrderAlienDict(String[] words) {
+    List<List<Integer>> adjList = new ArrayList<>(26);
+    for (int i = 0; i < 26; i++) {
+      adjList.add(new ArrayList<>());
+    }
+    Set<Integer> lettersPresent = new HashSet<>();
+    for (String word : words) {
+      for (char c : word.toCharArray()) {
+        lettersPresent.add(c - 'a');
+      }
+    }
+
+    int[] indegree = new int[26];
+    for (int i = 0; i < words.length - 1; i++) {
+      String s1 = words[i];
+      String s2 = words[i + 1];
+      if (s1.startsWith(s2) && s1.length() > s2.length()) return "";
+      int len = Math.min(s1.length(), s2.length());
+      for (int j = 0; j < len; j++) {
+        if (s1.charAt(j) != s2.charAt(j)) {
+          adjList.get(s1.charAt(j) - 'a').add(s2.charAt(j) - 'a');
+          indegree[s2.charAt(j) - 'a']++;
+          break;
+        }
+      }
+    }
+
+    Queue<Integer> q = new LinkedList<>();
+    for (int i = 0; i < 26; i++) {
+      if (lettersPresent.contains(i) && indegree[i] == 0) {
+        q.offer(i);
+      }
+    }
+
+    StringBuilder sb = new StringBuilder();
+    while (!q.isEmpty()) {
+      Integer node = q.poll();
+      sb.append((char) (node + 'a'));
+
+      for (Integer i : adjList.get(node)) {
+        indegree[i]--;
+        if (indegree[i] == 0) {
+          q.offer(i);
+        }
+      }
+    }
+    return sb.length() == lettersPresent.size() ? sb.toString() : "";
+  }
+
   /** https://leetcode.com/problems/course-schedule/ */
   public boolean canFinish(int numCourses, int[][] prerequisites) {
     List<List<Integer>> adjacencyList = new ArrayList<>(numCourses);
