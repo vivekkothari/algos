@@ -1,16 +1,18 @@
 package org.example;
 
 import java.util.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 
 class Graphs {
 
   public static void main(String[] args) {
-    countIslands(new char[][] {{'W', 'L'}, {'L', 'W'}, {'L', 'L'}, {'L', 'W'}});
-    System.out.println(
-        bfs(5, List.of(List.of(1, 2, 3), List.of(), List.of(4), List.of(), List.of())));
-    System.out.println(
-        dfs(5, List.of(List.of(1, 2, 3), List.of(), List.of(4), List.of(), List.of())));
+    canFinishKahn(2, new int[][] {{1, 0}, {0, 1}});
+    //    countIslands(new char[][] {{'W', 'L'}, {'L', 'W'}, {'L', 'L'}, {'L', 'W'}});
+    //    System.out.println(
+    //        bfs(5, List.of(List.of(1, 2, 3), List.of(), List.of(4), List.of(), List.of())));
+    //    System.out.println(
+    //        dfs(5, List.of(List.of(1, 2, 3), List.of(), List.of(4), List.of(), List.of())));
     //    bfs(
     //        Map.of(
     //            "A",
@@ -25,7 +27,7 @@ class Graphs {
     //            List.of("G")),
     //        "A");
 
-    bfs(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}, 0, 0);
+    //    bfs(new int[][] {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}, 0, 0);
   }
 
   public List<Integer> mergeSequences(List<List<Integer>> sequences) {
@@ -108,6 +110,67 @@ class Graphs {
         }
       }
     }
+  }
+
+  public static boolean canFinishKahn(int numCourses, int[][] prerequisites) {
+    List<List<Integer>> adjacencyList = new ArrayList<>(numCourses);
+    for (int i = 0; i < numCourses; i++) {
+      adjacencyList.add(new ArrayList<>());
+    }
+    int[] indegree = new int[numCourses];
+    for (var edge : prerequisites) {
+      adjacencyList.get(edge[1]).add(edge[0]);
+      indegree[edge[0]]++;
+    }
+    Queue<Integer> q = new LinkedList<>();
+    for (int i = 0; i < indegree.length; i++) {
+      if (indegree[i] == 0) {
+        q.offer(i);
+      }
+    }
+    int count = 0;
+    while (!q.isEmpty()) {
+      Integer node = q.poll();
+      count++;
+      for (Integer next : adjacencyList.get(node)) {
+        indegree[next]--;
+        if (indegree[next] == 0) {
+          q.offer(next);
+        }
+      }
+    }
+    return count == numCourses;
+  }
+
+  public static int[] findOrderKahn(int numCourses, int[][] prerequisites) {
+    List<List<Integer>> adjacencyList = new ArrayList<>(numCourses);
+    for (int i = 0; i < numCourses; i++) {
+      adjacencyList.add(new ArrayList<>());
+    }
+    int[] indegree = new int[numCourses];
+    for (var edge : prerequisites) {
+      adjacencyList.get(edge[1]).add(edge[0]);
+      indegree[edge[0]]++;
+    }
+    Queue<Integer> q = new LinkedList<>();
+    for (int i = 0; i < indegree.length; i++) {
+      if (indegree[i] == 0) {
+        q.offer(i);
+      }
+    }
+    int count = 0;
+    int[] res = new int[numCourses];
+    while (!q.isEmpty()) {
+      Integer node = q.poll();
+      res[count++] = node;
+      for (Integer next : adjacencyList.get(node)) {
+        indegree[next]--;
+        if (indegree[next] == 0) {
+          q.offer(next);
+        }
+      }
+    }
+    return count == numCourses ? res : new int[] {};
   }
 
   /** https://leetcode.com/problems/course-schedule/ */
@@ -455,5 +518,212 @@ class Graphs {
       }
     }
     return true;
+  }
+
+  public static boolean isBipartiteDfs(int[][] graph) {
+    int n = graph.length;
+    int[] colour = new int[n];
+    Arrays.fill(colour, -1);
+    for (int i = 0; i < n; i++) {
+      if (colour[i] == -1) {
+        if (!isBipartiteDfsRecur(graph, colour, i, 0)) return false;
+      }
+    }
+    return true;
+  }
+
+  public static boolean isBipartiteDfsRecur(int[][] graph, int[] colour, int node, int color) {
+    colour[node] = color;
+    for (int ne : graph[node]) {
+      if (colour[ne] == -1) {
+        if (!isBipartiteDfsRecur(graph, colour, ne, 1 - color)) {
+          return false;
+        }
+      } else if (colour[ne] == color) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /** https://www.geeksforgeeks.org/problems/detect-cycle-in-an-undirected-graph/1 */
+  public boolean isCycle(int V, int[][] edges) {
+    // can also be done using kahn algo, if topo seq size == V, then no cycle, else there is a cycle
+    List<List<Integer>> adjList = new ArrayList<>();
+    for (int i = 0; i < V; i++) {
+      adjList.add(new ArrayList<>());
+    }
+    for (int[] edge : edges) {
+      adjList.get(edge[0]).add(edge[1]);
+      adjList.get(edge[1]).add(edge[0]);
+    }
+    boolean[] visited = new boolean[V];
+    for (int i = 0; i < V; i++) {
+      if (visited[i]) {
+        continue;
+      }
+      Queue<int[]> q = new LinkedList<>(); // node, parent
+      q.add(new int[] {i, -1});
+      visited[i] = true;
+      while (!q.isEmpty()) {
+        int[] poll = q.poll();
+        int parent = poll[1];
+        for (Integer vertex : adjList.get(poll[0])) {
+          if (vertex != parent && visited[vertex]) {
+            return true;
+          } else if (!visited[vertex]) {
+            q.offer(new int[] {vertex, poll[0]});
+            visited[vertex] = true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  /** https://www.geeksforgeeks.org/problems/detect-cycle-in-a-directed-graph/1 */
+  public boolean isCyclic(int V, int[][] edges) {
+    List<List<Integer>> adjList = new ArrayList<>();
+    for (int i = 0; i < V; i++) {
+      adjList.add(new ArrayList<>());
+    }
+    for (int[] edge : edges) {
+      adjList.get(edge[0]).add(edge[1]);
+    }
+
+    boolean[] visited = new boolean[V];
+    boolean[] pathVisited = new boolean[V];
+
+    for (int i = 0; i < V; i++) {
+      if (!visited[i] && dfs(i, adjList, visited, pathVisited)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private boolean dfs(
+      int node, List<List<Integer>> adjList, boolean[] visited, boolean[] pathVisited) {
+    visited[node] = true;
+    pathVisited[node] = true;
+
+    for (int neighbor : adjList.get(node)) {
+      if (!visited[neighbor] && dfs(neighbor, adjList, visited, pathVisited)) {
+        return true;
+      } else if (pathVisited[neighbor]) {
+        return true;
+      }
+    }
+
+    pathVisited[node] = false; // backtrack
+    return false;
+  }
+
+  /** https://leetcode.com/problems/find-eventual-safe-states */
+  public static List<Integer> eventualSafeNodes(int[][] adjList) {
+    boolean[] visited = new boolean[adjList.length];
+    boolean[] pathVisited = new boolean[adjList.length];
+    List<Integer> safeNodes = new ArrayList<>();
+    for (int i = 0; i < adjList.length; i++) {
+      if (!visited[i]) {
+        eventualSafeNodesDfsHasCycle(adjList, visited, pathVisited, i, safeNodes);
+      }
+    }
+    return safeNodes.stream().sorted().toList();
+  }
+
+  private static boolean eventualSafeNodesDfsHasCycle(
+      int[][] adjList,
+      boolean[] visited,
+      boolean[] pathVisited,
+      int node,
+      List<Integer> safeNodes) {
+    visited[node] = true;
+    pathVisited[node] = true;
+
+    int[] neighbours = adjList[node];
+    for (int neighbour : neighbours) {
+      if (!visited[neighbour]
+          && eventualSafeNodesDfsHasCycle(adjList, visited, pathVisited, neighbour, safeNodes)) {
+        return true;
+      } else if (pathVisited[neighbour]) {
+        return true;
+      }
+    }
+    safeNodes.add(node);
+    pathVisited[node] = false; // backtrack
+    return false;
+  }
+
+  /** https://www.geeksforgeeks.org/problems/topological-sort/1 */
+  public static ArrayList<Integer> topoSort(int V, int[][] edges) {
+    boolean[] visited = new boolean[V];
+    List<List<Integer>> adjList = new ArrayList<>();
+
+    for (int i = 0; i < V; i++) {
+      adjList.add(new ArrayList<>());
+    }
+
+    for (var edge : edges) {
+      adjList.get(edge[0]).add(edge[1]);
+    }
+
+    Deque<Integer> stack = new LinkedList<>();
+    for (int i = 0; i < V; i++) {
+      if (!visited[i]) {
+        dfs(adjList, visited, i, stack);
+      }
+    }
+    ArrayList<Integer> res = new ArrayList<>();
+    while (!stack.isEmpty()) {
+      res.add(stack.pop());
+    }
+    return res;
+  }
+
+  static void dfs(List<List<Integer>> adjList, boolean[] visited, int node, Deque<Integer> stack) {
+    visited[node] = true;
+
+    for (var n : adjList.get(node)) {
+      if (!visited[n]) {
+        dfs(adjList, visited, n, stack);
+      }
+    }
+    stack.push(node);
+  }
+
+  /** Kahn's algo topo sort */
+  public static ArrayList<Integer> topoSortBfs(int V, int[][] edges) {
+    List<List<Integer>> adjList = new ArrayList<>();
+
+    for (int i = 0; i < V; i++) {
+      adjList.add(new ArrayList<>());
+    }
+
+    int[] indegree = new int[V];
+    for (var edge : edges) {
+      adjList.get(edge[0]).add(edge[1]);
+      indegree[edge[1]]++;
+    }
+
+    Queue<Integer> queue = new LinkedList<>();
+    ArrayList<Integer> res = new ArrayList<>();
+    for (int i = 0; i < indegree.length; i++) {
+      if (indegree[i] == 0) {
+        queue.offer(i);
+      }
+    }
+
+    while (!queue.isEmpty()) {
+      Integer poll = queue.poll();
+      res.add(poll);
+      for (Integer nextNode : adjList.get(poll)) {
+        indegree[nextNode]--;
+        if (indegree[nextNode] == 0) {
+          queue.offer(nextNode);
+        }
+      }
+    }
+    return res;
   }
 }
