@@ -1,5 +1,7 @@
 package org.example;
 
+import java.util.Arrays;
+
 /**
  * We can either do union by rank or size, prefer size as after path compression, rank becomes
  * useless.
@@ -56,5 +58,19 @@ public class DisjointSet {
       parent[ypar] = xpar;
       size[xpar] += size[ypar];
     }
+  }
+
+  static int kruskalsMST(int V, int[][] edges) {
+    DisjointSet set = new DisjointSet(V);
+    Arrays.sort(edges, (a, b) -> a[2] - b[2]);
+    int sum = 0;
+    for (int[] edge : edges) {
+      // different parent
+      if (set.find(edge[0]) != set.find(edge[1])) {
+        set.unionBySize(edge[0], edge[1]);
+        sum += edge[2];
+      }
+    }
+    return sum;
   }
 }
