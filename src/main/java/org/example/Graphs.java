@@ -1251,4 +1251,74 @@ class Graphs {
 
     return cityNo;
   }
+
+  public int largestIsland(int[][] grid) {
+    int n = grid.length;
+    int islandId = 2; // Start labeling islands from 2 as 0 and 1 are already taken
+    Map<Integer, Integer> islandSizes = new HashMap<>();
+
+    // Step 1: Label islands with BFS and record their sizes
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        if (grid[i][j] == 1) {
+          int size = bfs(grid, i, j, islandId);
+          islandSizes.put(islandId, size);
+          islandId++;
+        }
+      }
+    }
+
+    // Step 2: Try flipping each 0 to 1 and calculate max possible island
+    int maxIsland = 0;
+    boolean hasZero = false;
+
+    for (int i = 0; i < n; i++) {
+      for (int j = 0; j < n; j++) {
+        if (grid[i][j] == 0) {
+          hasZero = true;
+          Set<Integer> neighbors = new HashSet<>();
+          for (int[] d : directions) {
+            int ni = i + d[0];
+            int nj = j + d[1];
+            if (ni >= 0 && ni < n && nj >= 0 && nj < n && grid[ni][nj] > 1) {
+              neighbors.add(grid[ni][nj]);
+            }
+          }
+          int newSize = 1; // for the flipped 0
+          for (int id : neighbors) {
+            newSize += islandSizes.get(id);
+          }
+          maxIsland = Math.max(maxIsland, newSize);
+        }
+      }
+    }
+
+    // If no 0 was found, the grid is all 1s
+    return hasZero ? maxIsland : n * n;
+  }
+
+  private int bfs(int[][] grid, int r, int c, int islandId) {
+    int n = grid.length;
+    Queue<int[]> queue = new LinkedList<>();
+    queue.offer(new int[] {r, c});
+    grid[r][c] = islandId;
+    int size = 1;
+
+    while (!queue.isEmpty()) {
+      int[] cell = queue.poll();
+      int x = cell[0], y = cell[1];
+
+      for (int[] d : directions) {
+        int nx = x + d[0];
+        int ny = y + d[1];
+        if (nx >= 0 && nx < n && ny >= 0 && ny < n && grid[nx][ny] == 1) {
+          grid[nx][ny] = islandId;
+          queue.offer(new int[] {nx, ny});
+          size++;
+        }
+      }
+    }
+
+    return size;
+  }
 }

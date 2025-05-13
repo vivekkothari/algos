@@ -309,6 +309,23 @@ class Matrix {
     }
   }
 
+  public static int findCircleNumDisjointSet(int[][] isConnected) {
+    var n = isConnected.length;
+    DisjointSet set = new DisjointSet(n);
+    for (int i = 0; i < n; i++) {
+      for (int j = i + 1; j < n; j++) {
+        if (isConnected[i][j] == 1) {
+          set.unionBySize(i, j);
+        }
+      }
+    }
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+      if (set.find(i) == i) sum++;
+    }
+    return sum;
+  }
+
   public static int[] findDiagonalOrder(int[][] mat) {
     var m = mat.length;
     var n = mat[0].length;
