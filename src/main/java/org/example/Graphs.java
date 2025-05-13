@@ -7,10 +7,23 @@ import java.util.LinkedList;
 class Graphs {
 
   public static void main(String[] args) {
-    System.out.println(
-        ladderLengthBiDirectionalBfs(
-            "hit", "cog", List.of("hot", "dot", "dog", "lot", "log", "cog")));
-    canFinishKahn(2, new int[][] {{1, 0}, {0, 1}});
+    int[][] ints = {
+      {0, 6, 7},
+      {0, 1, 2},
+      {1, 2, 3},
+      {1, 3, 3},
+      {6, 3, 3},
+      {3, 5, 1},
+      {6, 5, 1},
+      {2, 5, 1},
+      {0, 4, 5},
+      {4, 6, 2}
+    };
+    countPaths(7, ints);
+    //    System.out.println(
+    //        ladderLengthBiDirectionalBfs(
+    //            "hit", "cog", List.of("hot", "dot", "dog", "lot", "log", "cog")));
+    //    canFinishKahn(2, new int[][] {{1, 0}, {0, 1}});
     //    countIslands(new char[][] {{'W', 'L'}, {'L', 'W'}, {'L', 'L'}, {'L', 'W'}});
     //    System.out.println(
     //        bfs(5, List.of(List.of(1, 2, 3), List.of(), List.of(4), List.of(), List.of())));
@@ -1148,5 +1161,94 @@ class Graphs {
     }
 
     return prices[dst] == Integer.MAX_VALUE ? -1 : prices[dst];
+  }
+
+  /** https://leetcode.com/problems/number-of-ways-to-arrive-at-destination/ */
+  public static int countPaths(int n, int[][] roads) {
+    int MOD = 1_000_000_007;
+
+    List<List<int[]>> adjList = new ArrayList<>(n);
+
+    for (int i = 0; i < n; i++) {
+      adjList.add(new ArrayList<>());
+    }
+
+    for (int[] road : roads) {
+      adjList.get(road[0]).add(new int[] {road[1], road[2]});
+      adjList.get(road[1]).add(new int[] {road[0], road[2]});
+    }
+
+    long[] distance = new long[n];
+    Arrays.fill(distance, Long.MAX_VALUE);
+    distance[0] = 0;
+
+    int[] ways = new int[n];
+    ways[0] = 1;
+
+    PriorityQueue<long[]> queue = new PriorityQueue<>((a, b) -> Long.compare(a[1], b[1]));
+    queue.offer(new long[] {0, 0}); // [index, distance].
+
+    while (!queue.isEmpty()) {
+      int node = (int) queue.peek()[0];
+      long wt = queue.peek()[1];
+      queue.poll();
+      for (int[] adjNodes : adjList.get(node)) {
+        int adjNode = adjNodes[0];
+        int adjWt = adjNodes[1];
+        long newDistance = (wt + adjWt);
+        if (newDistance < distance[adjNode]) {
+          distance[adjNode] = newDistance;
+          ways[adjNode] = ways[node];
+          queue.offer(new long[] {adjNode, adjWt + wt});
+        } else if (newDistance == distance[adjNode]) {
+          ways[adjNode] = (ways[adjNode] + ways[node]) % MOD;
+        }
+      }
+    }
+    return ways[n - 1];
+  }
+
+  /**
+   * https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/
+   *
+   * <p>Floyd–Warshall algorithm
+   */
+  public int findTheCity(int n, int[][] edges, int distanceThreshold) {
+    int[][] dist = new int[n][n];
+    for (int[] ints : dist) {
+      Arrays.fill(ints, 10001); // as distance threshold is 10e4
+    }
+    // populate adjacency matrix
+    for (int[] edge : edges) {
+      dist[edge[0]][edge[1]] = dist[edge[1]][edge[0]] = edge[2];
+    }
+    // path to self is always 0
+    for (int i = 0; i < n; i++) {
+      dist[i][i] = 0;
+    }
+
+    for (int via = 0; via < n; via++) {
+      for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+          dist[i][j] = Math.min(dist[i][j], dist[i][via] + dist[via][j]);
+        }
+      }
+    }
+
+    int countMax = n + 1, cityNo = -1;
+    for (int i = 0; i < n; i++) {
+      int count = 0;
+      for (int j = 0; j < n; j++) {
+        if (dist[i][j] <= distanceThreshold) {
+          count++;
+        }
+      }
+      if (countMax >= count) {
+        countMax = count;
+        cityNo = i;
+      }
+    }
+
+    return cityNo;
   }
 }
