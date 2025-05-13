@@ -59,9 +59,6 @@ public class ChatGptAlgoQuiz {
     //        };
     //    surroundedRegion(board);
     //    System.out.println(Arrays.deepToString(board));
-    System.out.println(
-        ladderLengthBiDirectionalBfs(
-            "hit", "cog", List.of("hot", "dot", "dog", "lot", "log", "cog")));
     //    wallsAndGate(
     //        new int[][] {
     //          {MAX_VALUE, -1, 0, MAX_VALUE},
@@ -894,40 +891,6 @@ public class ChatGptAlgoQuiz {
     }
   }
 
-  public static int shortestPathBinaryMatrix(int[][] grid) {
-    if (grid[0][0] != 0) {
-      return -1;
-    }
-    int m = grid.length, n = grid[0].length;
-    if (grid[m - 1][n - 1] != 0) {
-      return -1;
-    }
-    Queue<int[]> queue = new LinkedList<>();
-    queue.offer(new int[] {0, 0, 1});
-    // all 8 dirs allowed
-    int[][] directions = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {-1, -1}, {-1, 1}, {1, -1}};
-    while (!queue.isEmpty()) {
-      var cur = queue.poll();
-      int r = cur[0], c = cur[1];
-      if (r == m - 1 && c == n - 1) {
-        return cur[2];
-      }
-      for (int[] dir : directions) {
-        int nr = r + dir[0], nc = c + dir[1];
-        if (nr >= 0
-            && nr < m
-            && nc >= 0
-            && nc < n
-            // Only 0 are allowed
-            && grid[nr][nc] == 0) {
-          grid[nr][nc] = 1;
-          queue.offer(new int[] {nr, nc, cur[2] + 1});
-        }
-      }
-    }
-    return -1;
-  }
-
   /**
    * https://leetcode.com/problems/flood-fill/
    *
@@ -1106,105 +1069,6 @@ public class ChatGptAlgoQuiz {
         }
       }
     }
-  }
-
-  /**
-   * https://leetcode.com/problems/word-ladder/description/
-   *
-   * <p>Example 1:
-   *
-   * <p>Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
-   * Output: 5 Explanation: One shortest transformation sequence is "hit" -> "hot" -> "dot" -> "dog"
-   * -> cog", which is 5 words long.
-   *
-   * <p>Example 2:
-   *
-   * <p>Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log"]
-   * Output: 0 Explanation: The endWord "cog" is not in wordList, therefore there is no valid
-   * transformation sequence.
-   */
-  public static int ladderLength(String beginWord, String endWord, List<String> wordList) {
-    var words = new HashSet<>(wordList);
-    if (!words.contains(endWord)) {
-      return 0;
-    }
-    Queue<String> queue = new LinkedList<>();
-    queue.offer(beginWord);
-    int level = 1; // Level starts from 1 because we count the `beginWord`
-    while (!queue.isEmpty()) {
-      int size = queue.size(); // Process all words at the current level
-      for (int i = 0; i < size; i++) {
-        var word = queue.poll();
-        for (var j = 0; j < word.length(); j++) {
-          var sb = new StringBuilder(word);
-          char originalChar = word.charAt(j);
-          for (char ch = 'a'; ch <= 'z'; ch++) {
-            if (ch == originalChar) continue; // Skip the original character
-            sb.setCharAt(j, ch);
-            var newWord = sb.toString();
-            if (newWord.equals(endWord)) {
-              return level + 1; // Return steps including this last transformation
-            }
-            if (words.contains(newWord)) {
-              queue.offer(newWord);
-              words.remove(newWord); // Remove to avoid re-visiting
-            }
-          }
-        }
-      }
-      level++; // Move to the next BFS level
-    }
-    return 0;
-  }
-
-  public static int ladderLengthBiDirectionalBfs(
-      String beginWord, String endWord, List<String> wordList) {
-    Set<String> wordSet = new HashSet<>(wordList);
-    if (!wordSet.contains(endWord)) return 0;
-
-    Set<String> beginSet = new HashSet<>();
-    Set<String> endSet = new HashSet<>();
-
-    beginSet.add(beginWord);
-    endSet.add(endWord);
-    int level = 1;
-
-    while (!beginSet.isEmpty() && !endSet.isEmpty()) {
-      // Always expand the smaller set to optimize
-      if (beginSet.size() > endSet.size()) {
-        Set<String> temp = beginSet;
-        beginSet = endSet;
-        endSet = temp;
-      }
-
-      Set<String> nextLevel = new HashSet<>();
-      for (String word : beginSet) {
-        char[] wordChars = word.toCharArray();
-        for (int i = 0; i < wordChars.length; i++) {
-          char originalChar = wordChars[i];
-          for (char c = 'a'; c <= 'z'; c++) {
-            if (c == originalChar) continue;
-            wordChars[i] = c;
-            String newWord = new String(wordChars);
-
-            if (endSet.contains(newWord)) {
-              return level + 1; // Found the connection point
-            }
-
-            if (wordSet.contains(newWord)) {
-              nextLevel.add(newWord);
-              wordSet.remove(newWord); // Avoid re-visiting
-            }
-          }
-          wordChars[i] = originalChar;
-        }
-      }
-
-      beginSet = nextLevel;
-      level++;
-    }
-
-    return 0;
   }
 
   /** https://leetcode.com/problems/minimum-genetic-mutation/ */
