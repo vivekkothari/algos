@@ -311,12 +311,38 @@ class Trees {
   }
 
   public static int diameterOfBinaryTree(TreeNode root) {
+    // n^2 TC
     if (root == null) {
       return 0;
     }
+    int leftHeight = maxDepth(root.left);
+    int rightHeight = maxDepth(root.right);
     return Math.max(
-        maxDepth(root.left) + maxDepth(root.right),
+        leftHeight + rightHeight,
         Math.max(diameterOfBinaryTree(root.left), diameterOfBinaryTree(root.right)));
+  }
+
+  private int maxDiameter = 0;
+
+  public int diameterOfBinaryTreeOptimised(TreeNode root) {
+    // n TC
+    depth(root);
+    return maxDiameter;
+  }
+
+  private int depth(TreeNode node) {
+    if (node == null) {
+      return 0;
+    }
+
+    int leftDepth = depth(node.left);
+    int rightDepth = depth(node.right);
+
+    // Update the diameter at this node
+    maxDiameter = Math.max(maxDiameter, leftDepth + rightDepth);
+
+    // Return the height of the tree rooted at this node
+    return 1 + Math.max(leftDepth, rightDepth);
   }
 
   /**
@@ -736,6 +762,106 @@ class Trees {
       rsv.add(rv.val);
     }
     return rsv;
+  }
+
+  /** https://leetcode.com/problems/boundary-of-binary-tree/ */
+  public List<Integer> boundaryOfBinaryTree(TreeNode root) {
+    List<Integer> res = new ArrayList<>();
+    if (root == null) {
+      return res;
+    }
+    if (root.left != null || root.right != null) {
+      res.add(root.val);
+    }
+
+    gatherLeft(root.left, res);
+    gatherLeaf(root, res);
+    Stack<Integer> stack = new Stack<>();
+    gatherRight(root.right, stack);
+    while (!stack.isEmpty()) {
+      res.add(stack.pop());
+    }
+    return res;
+  }
+
+  private void gatherLeft(TreeNode root, List<Integer> res) {
+    if (root == null) return;
+    if (root.left == null && root.right == null) return; // exclude leaf
+    res.add(root.val);
+    if (root.left != null) {
+      gatherLeft(root.left, res);
+    } else {
+      gatherLeft(root.right, res);
+    }
+  }
+
+  private void gatherLeaf(TreeNode root, List<Integer> res) {
+    if (root == null) return;
+    if (root.left == null && root.right == null) res.add(root.val);
+    gatherLeaf(root.left, res);
+    gatherLeaf(root.right, res);
+  }
+
+  private void gatherRight(TreeNode root, Stack<Integer> res) {
+    if (root == null) return;
+    if (root.left == null && root.right == null) return; // exclude leaf
+    res.push(root.val);
+    if (root.right != null) {
+      gatherRight(root.right, res);
+    } else {
+      gatherRight(root.left, res);
+    }
+  }
+
+  static List<Integer> topView(TreeNode root) {
+    Map<Integer, List<NodeData>> columnTable = new TreeMap<>();
+    traverse(columnTable, 0, 0, root);
+
+    List<Integer> result = new ArrayList<>();
+
+    for (var entry : columnTable.entrySet()) {
+      List<NodeData> nodes = entry.getValue();
+      nodes.sort((a, b) -> a.level - b.level);
+      result.add(nodes.getFirst().val());
+    }
+    return result;
+  }
+
+  static List<Integer> bottomView(TreeNode root) {
+    Map<Integer, List<NodeData>> columnTable = new TreeMap<>();
+    traverse(columnTable, 0, 0, root);
+
+    List<Integer> result = new ArrayList<>();
+
+    for (var entry : columnTable.entrySet()) {
+      List<NodeData> nodes = entry.getValue();
+      nodes.sort((a, b) -> a.level - b.level);
+      result.add(nodes.getLast().val());
+    }
+    return result;
+  }
+
+  record NodeData(int level, int val) {}
+
+  public List<List<Integer>> verticalTraversal(TreeNode root) {
+    Map<Integer, List<NodeData>> columnTable = new TreeMap<>();
+    traverse(columnTable, 0, 0, root);
+
+    List<List<Integer>> result = new ArrayList<>();
+
+    for (var entry : columnTable.entrySet()) {
+      List<NodeData> nodes = entry.getValue();
+      nodes.sort((a, b) -> a.level != b.level ? a.level - b.level : a.val - b.val);
+      result.add(nodes.stream().map(n -> n.val).toList());
+    }
+    return result;
+  }
+
+  private static void traverse(Map<Integer, List<NodeData>> map, int x, int level, TreeNode root) {
+    if (root == null) return;
+    map.computeIfAbsent(x, _ -> new ArrayList<>()).add(new NodeData(level, root.val));
+    traverse(map, x - 1, level + 1, root.left);
+    traverse(map, x + 1, level + 1, root.right);
   }
 
   /** https://leetcode.com/problems/binary-tree-paths/ */
