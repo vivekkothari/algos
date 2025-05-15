@@ -1,7 +1,9 @@
 package org.example;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class LinkedList {
 
@@ -95,7 +97,7 @@ class LinkedList {
 
   private static ListNode divideAndConquer(ListNode[] lists, int l, int r) {
     if (l == r) return lists[l];
-    int mid = l + (r - l) / 2;
+    var mid = l + (r - l) / 2;
     var l1 = divideAndConquer(lists, l, mid);
     var l2 = divideAndConquer(lists, mid + 1, r);
     return merge2Lists(l1, l2);
@@ -159,19 +161,19 @@ class LinkedList {
     if (head == null || head.next == null || k == 0) {
       return head;
     }
-    int length = 1;
-    ListNode oldTail = head;
+    var length = 1;
+    var oldTail = head;
     while (oldTail.next != null) {
       oldTail = oldTail.next;
       length++;
     }
     oldTail.next = head;
-    int pivot = length - (k % length);
-    ListNode newTail = head;
-    for (int i = 1; i < pivot; i++) {
+    var pivot = length - (k % length);
+    var newTail = head;
+    for (var i = 1; i < pivot; i++) {
       newTail = newTail.next;
     }
-    ListNode newHead = newTail.next;
+    var newHead = newTail.next;
     newTail.next = null;
     return newHead;
   }
@@ -210,7 +212,7 @@ class LinkedList {
    * </pre>
    */
   public static ListNode deleteDuplicates(ListNode head) {
-    ListNode res = head;
+    var res = head;
 
     while (head != null && head.next != null) {
       if (head.val == head.next.val) {
@@ -255,11 +257,11 @@ class LinkedList {
     currA = headA;
     currB = headB;
     if (lenA > lenB) {
-      for (int i = 0; i < lenA - lenB; i++) {
+      for (var i = 0; i < lenA - lenB; i++) {
         currA = currA.next;
       }
     } else {
-      for (int i = 0; i < lenB - lenA; i++) {
+      for (var i = 0; i < lenB - lenA; i++) {
         currB = currB.next;
       }
     }
@@ -274,8 +276,8 @@ class LinkedList {
     // boundary check
     if (headA == null || headB == null) return null;
 
-    ListNode a = headA;
-    ListNode b = headB;
+    var a = headA;
+    var b = headB;
 
     // if a & b have different len, then we will stop the loop after second iteration
     while (a != b) {
@@ -306,7 +308,7 @@ class LinkedList {
    * </pre>
    */
   public static ListNode removeNthFromEnd(ListNode head, int n) {
-    int len = 0;
+    var len = 0;
     var curr = head;
     while (curr != null) {
       len++;
@@ -318,10 +320,41 @@ class LinkedList {
       return head;
     }
     curr = head;
-    for (int i = 0; i < deleteAt - 1; i++) {
+    for (var i = 0; i < deleteAt - 1; i++) {
       curr = curr.next;
     }
     curr.next = curr.next == null ? null : curr.next.next;
     return head;
+  }
+
+  class RNode {
+    int val;
+    RNode next;
+    RNode random;
+
+    public RNode(int val) {
+      this.val = val;
+      this.next = null;
+      this.random = null;
+    }
+  }
+
+  public RNode copyRandomList(RNode head) {
+    Map<RNode, RNode> oldToNew = new HashMap<>();
+    var curr = head;
+    while (curr != null) {
+      var newNode = new RNode(curr.val);
+      oldToNew.put(curr, newNode);
+      curr = curr.next;
+    }
+
+    curr = head;
+    while (curr != null) {
+      var node = oldToNew.get(curr);
+      node.next = oldToNew.get(curr.next);
+      node.random = oldToNew.get(curr.random);
+      curr = curr.next;
+    }
+    return oldToNew.get(head);
   }
 }

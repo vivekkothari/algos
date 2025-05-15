@@ -2048,4 +2048,88 @@ class Strings {
     return minLen == Integer.MAX_VALUE ? "" : s.substring(res[0], res[1] + 1);
   }
 
+  // https://leetcode.com/problems/valid-word-abbreviation/
+  // Very frequent Meta question
+  public boolean validWordAbbreviation(String word, String abbr) {
+    int i = 0, j = 0, num = 0;
+    while (i < word.length() && j < abbr.length()) {
+      if (Character.isDigit(abbr.charAt(j))) {
+        int digit = abbr.charAt(j) - '0';
+        if (digit == 0 && num == 0) return false;
+        j++;
+        num = num * 10 + digit;
+      } else {
+        i += num;
+        if (i >= word.length()) return false;
+        char w = word.charAt(i);
+        char a = abbr.charAt(j);
+        if (w != a) return false;
+        i++;
+        j++;
+        num = 0;
+      }
+    }
+    return i + num == word.length() && j == abbr.length();
+  }
+
+  // https://leetcode.com/problems/minimum-remove-to-make-valid-parentheses/?envType=company&envId=facebook&favoriteSlug=facebook-thirty-days
+  // Another Meta frequenter
+  public String minRemoveToMakeValid(String s) {
+    Stack<Integer> st = new Stack<>();
+    Set<Integer> offenders = new HashSet<>();
+    for (int i = 0; i < s.length(); i++) {
+      var ch = s.charAt(i);
+      if (ch == '(') {
+        st.push(i);
+        offenders.add(i);
+      } else if (ch == ')') {
+        if (st.isEmpty() || s.charAt(st.peek()) != '(') {
+          offenders.add(i);
+        } else {
+          offenders.remove(st.pop());
+        }
+      }
+    }
+
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < s.length(); i++) {
+      if (offenders.contains(i)) continue;
+      sb.append(s.charAt(i));
+    }
+    return sb.toString();
+  }
+
+  // https://leetcode.com/problems/basic-calculator-ii/?envType=company&envId=facebook&favoriteSlug=facebook-thirty-days
+  public int calculate(String s) {
+    Stack<Integer> st = new Stack<>();
+    int num = 0;
+    char lastOp = '+';
+    for (char ch : s.toCharArray()) {
+      if (ch == ' ') continue;
+      if (Character.isDigit(ch)) {
+        num = num * 10 + (ch - '0');
+      } else {
+        switch (lastOp) {
+          case '+' -> st.push(num);
+          case '-' -> st.push(-num);
+          case '*' -> st.push(st.pop() * num);
+          case '/' -> st.push(st.pop() / num);
+        }
+        lastOp = ch;
+        num = 0;
+      }
+    }
+    // Process the last number with the last operator
+    switch (lastOp) {
+      case '+' -> st.push(num);
+      case '-' -> st.push(-num);
+      case '*' -> st.push(st.pop() * num);
+      case '/' -> st.push(st.pop() / num);
+    }
+    int res = 0;
+    for (int i : st) {
+      res += i;
+    }
+    return res;
+  }
 }

@@ -8,6 +8,7 @@ import org.example.llmquiz.ChatGptAlgoQuiz;
 public class Arrays {
 
   public static void main(String[] args) {
+    subarraySumII(new int[] {1, 2, 3, -3, 1, 1, 1, 4, 2, -3}, 3);
     mySqrt(8);
     //    maximalRectangle(
     //        new char[][] {
@@ -1113,6 +1114,30 @@ public class Arrays {
       }
     }
     return low;
+  }
+
+  // https://leetcode.com/problems/kth-largest-element-in-an-array/?envType=company&envId=facebook&favoriteSlug=facebook-thirty-days
+  public int findKthLargest(int[] nums, int k) {
+    PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+
+    for (int i = 0; i < nums.length; i++) {
+      if (i < k) {
+        minHeap.offer(nums[i]);
+      } else {
+        if (minHeap.peek() < nums[i]) {
+          minHeap.poll();
+          minHeap.offer(nums[i]);
+        }
+      }
+    }
+    int res = -1;
+    int size = minHeap.size();
+    for (int i = 0; i < size; i++) {
+      if (i == size - 1) {
+        res = minHeap.peek();
+      }
+    }
+    return res;
   }
 
   /** https://leetcode.com/problems/find-a-peak-element-ii/ */
@@ -3752,5 +3777,34 @@ public class Arrays {
     for (i = left; i <= right; i++) {
       nums[i] = temp.get(i - left);
     }
+  }
+
+  // https://leetcode.com/problems/buildings-with-an-ocean-view/description/?envType=company&envId=facebook&favoriteSlug=facebook-thirty-days
+  public int[] findBuildings(int[] heights) {
+    LinkedList<Integer> stack = new LinkedList<>();
+    for (int i = heights.length - 1; i >= 0; i--) {
+      if (stack.isEmpty() || heights[stack.peek()] < heights[i]) {
+        stack.push(i);
+      }
+    }
+    int size = stack.size();
+    int[] res = new int[size];
+    for (int i = 0; i < size; i++) {
+      res[i] = stack.pop();
+    }
+    return res;
+  }
+
+  // https://leetcode.com/problems/subarray-sum-equals-k/?envType=company&envId=facebook&favoriteSlug=facebook-thirty-days
+  public static int subarraySumII(int[] nums, int k) {
+    int count = 0, sum = 0;
+    HashMap<Integer, Integer> map = new HashMap<>();
+    for (int num : nums) {
+      sum += num;
+      if (sum == k) count++;
+      if (map.containsKey(sum - k)) count += map.get(sum - k);
+      map.put(sum, map.getOrDefault(sum, 0) + 1);
+    }
+    return count;
   }
 }

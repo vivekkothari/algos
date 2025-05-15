@@ -1247,4 +1247,42 @@ class Trees {
 
     inorder(node.right);
   }
+
+  class Node {
+    public int val;
+    public Node left;
+    public Node right;
+    public Node parent;
+  }
+
+  // https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree-iii/?envType=company&envId=facebook&favoriteSlug=facebook-thirty-days
+  public Node lowestCommonAncestor(Node p, Node q) {
+    int pLen = lenFromRoot(p);
+    int qLen = lenFromRoot(q);
+    while (pLen > qLen) {
+      p = p.parent;
+      pLen--;
+    }
+    while (qLen > pLen) {
+      q = q.parent;
+      qLen--;
+    }
+    while (p != null && q != null) {
+      if (p == q) {
+        return p;
+      }
+      p = p.parent;
+      q = q.parent;
+    }
+    return null;
+  }
+
+  private int lenFromRoot(Node n) {
+    int len = 0;
+    while (n != null) {
+      n = n.parent;
+      len++;
+    }
+    return len;
+  }
 }
