@@ -1,6 +1,7 @@
 package org.example;
 
 import java.util.*;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
@@ -422,10 +423,10 @@ class Trees {
   public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
     if (root == null || p == null || q == null) return null;
     if (Math.max(p.val, q.val) < root.val) {
-      // left tree
+      // left tree, both p and q are on the left
       return lowestCommonAncestor(root.left, p, q);
     } else if (Math.min(p.val, q.val) > root.val) {
-      // right tree
+      // right tree, both of them are on the right
       return lowestCommonAncestor(root.right, p, q);
     }
     return root;
@@ -436,10 +437,77 @@ class Trees {
     if (root == null || root == p || root == q) return root;
     var left = lowestCommonAncestorBinaryTree(root.left, p, q);
     var right = lowestCommonAncestorBinaryTree(root.right, p, q);
-    if (left != null && right != null) {
-      return root;
+    // We traversed both the subtrees
+    if (left == null) {
+      // we reached a node where both p/q doesn't exist in left subtree
+      return right;
+    } else if (right == null) {
+      // not found in right subtree
+      return left;
     }
-    return left != null ? left : right;
+    return root;
+  }
+
+  public TreeNode lowestCommonAncestorOther(TreeNode root, TreeNode p, TreeNode q) {
+    ArrayList<TreeNode> pList = new ArrayList<>();
+    hasPath(root, p, pList);
+    ArrayList<TreeNode> qList = new ArrayList<>();
+    hasPath(root, q, qList);
+    int i = 0;
+    while (i < pList.size() && i < qList.size() && pList.get(i) == qList.get(i)) {
+      i++;
+    }
+    return pList.get(i - 1);
+  }
+
+  static boolean hasPath(TreeNode node, TreeNode x, ArrayList<TreeNode> list) {
+    if (node == null) {
+      return false;
+    }
+    list.add(node);
+    if (node == x) {
+      return true;
+    }
+    if (hasPath(node.left, x, list) || hasPath(node.right, x, list)) {
+      return true;
+    }
+    list.removeLast();
+    return false;
+  }
+
+  // https://leetcode.com/problems/maximum-width-of-binary-tree/
+  public int widthOfBinaryTree(TreeNode root) {
+    record Pair(TreeNode node, int num) {}
+    if (root == null) {
+      return 0;
+    }
+    Queue<Pair> queue = new LinkedList<>();
+    queue.offer(new Pair(root, 0));
+    int width = 0;
+    while (!queue.isEmpty()) {
+      int size = queue.size();
+      int mmin = queue.peek().num;
+      int first = 0, last = 0;
+      for (int i = 0; i < size; i++) {
+        int curId = queue.peek().num - mmin;
+        TreeNode node = queue.peek().node;
+        queue.poll();
+        if (i == 0) {
+          // its first node in level
+          first = curId;
+        } else if (i == size - 1) {
+          last = curId;
+        }
+        if (node.left != null) {
+          queue.offer(new Pair(node.left, curId * 2 + 1));
+        }
+        if (node.right != null) {
+          queue.offer(new Pair(node.right, curId * 2 + 2));
+        }
+      }
+      width = Math.max(width, last - first + 1);
+    }
+    return width;
   }
 
   public boolean isSubtree(TreeNode root, TreeNode subRoot) {
@@ -525,6 +593,27 @@ class Trees {
       return;
     }
     kthSmallestOptimal(root.right, nodes);
+  }
+
+  // https://leetcode.com/problems/construct-binary-search-tree-from-preorder-traversal/
+  public TreeNode bstFromPreorderOptimal(int[] preorder) {
+    int[] index = new int[1];
+    return bstFromPreorderOptimal(preorder, Integer.MAX_VALUE, index);
+  }
+
+  private TreeNode bstFromPreorderOptimal(int[] preorder, int upperBound, int[] index) {
+    if (index[0] == preorder.length || preorder[index[0]] > upperBound) return null;
+    TreeNode node = new TreeNode(preorder[index[0]++]);
+    node.left = bstFromPreorderOptimal(preorder, node.val, index);
+    node.right = bstFromPreorderOptimal(preorder, upperBound, index);
+    return node;
+  }
+
+  // https://leetcode.com/problems/construct-binary-search-tree-from-preorder-traversal/
+  public TreeNode bstFromPreorder(int[] preorder) {
+    int[] inorder = Arrays.copyOf(preorder, preorder.length);
+    Arrays.sort(inorder);
+    return buildTree(preorder, inorder);
   }
 
   /** https://neetcode.io/problems/binary-tree-from-preorder-and-inorder-traversal */
@@ -882,5 +971,245 @@ class Trees {
       paths.add(current.stream().map(String::valueOf).collect(Collectors.joining("->")));
     }
     current.removeLast();
+  }
+
+  /** https://www.naukri.com/code360/problems/path-in-a-tree_3843990?leftPanelTabValue=SUBMISSION */
+  public static ArrayList<Integer> pathInATree(TreeNode root, int x) {
+    ArrayList<Integer> list = new ArrayList<>();
+    hasPath(root, x, list);
+    return list;
+  }
+
+  static boolean hasPath(TreeNode node, int x, ArrayList<Integer> list) {
+    if (node == null) {
+      return false;
+    }
+    list.add(node.val);
+    if (node.val == x) {
+      return true;
+    }
+    if (hasPath(node.left, x, list) || hasPath(node.right, x, list)) {
+      return true;
+    }
+    list.removeLast();
+    return false;
+  }
+
+  // Function to check whether all nodes of a tree have the value
+  // equal to the sum of their child nodes.
+  public static int isSumProperty(TreeNode root) {
+    return isSumPropertyRecur(root) ? 1 : 0;
+  }
+
+  public static boolean isSumPropertyRecur(TreeNode root) {
+    // Base cases
+    if (root == null || (root.left == null && root.right == null)) {
+      return true; // Null or leaf nodes satisfy the property
+    }
+    int leftData = (root.left != null) ? root.left.val : 0;
+    int rightData = (root.right != null) ? root.right.val : 0;
+    // Check current node and recurse
+    return (root.val == leftData + rightData)
+        && isSumPropertyRecur(root.left)
+        && isSumPropertyRecur(root.right);
+  }
+
+  public static void convertToSumTree(TreeNode root) {
+    toSumTree(root);
+  }
+
+  public static int toSumTree(TreeNode root) {
+    if (root == null) return 0;
+    int leftVal = toSumTree(root.left);
+    int rightValue = toSumTree(root.right);
+    int oldValue = root.val;
+    root.val = leftVal + rightValue;
+    return root.val + oldValue;
+  }
+
+  // https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/
+  public List<Integer> distanceK(TreeNode root, TreeNode target, int k) {
+    Map<TreeNode, TreeNode> childParent = new HashMap<>();
+    Queue<TreeNode> q = new LinkedList<>();
+    q.offer(root);
+    while (!q.isEmpty()) {
+      TreeNode node = q.poll();
+      if (node.left != null) {
+        q.offer(node.left);
+        childParent.put(node.left, node);
+      }
+      if (node.right != null) {
+        q.offer(node.right);
+        childParent.put(node.right, node);
+      }
+    }
+    Set<TreeNode> visited = new HashSet<>();
+    q.offer(target);
+    int distance = 0;
+    while (!q.isEmpty() && distance < k) {
+      int size = q.size();
+      distance++;
+      for (int i = 0; i < size; i++) {
+        TreeNode node = q.poll();
+        visited.add(node);
+        TreeNode parent = childParent.get(node);
+        TreeNode left = node.left;
+        TreeNode right = node.right;
+        if (parent != null && !visited.contains(parent)) {
+          q.offer(parent);
+        }
+        if (left != null && !visited.contains(left)) {
+          q.offer(left);
+        }
+        if (right != null && !visited.contains(right)) {
+          q.offer(right);
+        }
+      }
+    }
+    return q.stream().map(n -> n.val).toList();
+  }
+
+  public int amountOfTime(TreeNode root, int start) {
+    Map<TreeNode, TreeNode> childParent = new HashMap<>();
+    Queue<TreeNode> q = new LinkedList<>();
+    q.offer(root);
+    TreeNode startNode = null;
+    while (!q.isEmpty()) {
+      TreeNode node = q.poll();
+      if (node.val == start) startNode = node;
+      if (node.left != null) {
+        q.offer(node.left);
+        childParent.put(node.left, node);
+      }
+      if (node.right != null) {
+        q.offer(node.right);
+        childParent.put(node.right, node);
+      }
+    }
+    Set<TreeNode> visited = new HashSet<>();
+    q.offer(startNode);
+    int distance = 0;
+    while (!q.isEmpty()) {
+      int size = q.size();
+      distance++;
+      for (int i = 0; i < size; i++) {
+        TreeNode node = q.poll();
+        visited.add(node);
+        TreeNode parent = childParent.get(node);
+        TreeNode left = node.left;
+        TreeNode right = node.right;
+        if (parent != null && !visited.contains(parent)) {
+          q.offer(parent);
+        }
+        if (left != null && !visited.contains(left)) {
+          q.offer(left);
+        }
+        if (right != null && !visited.contains(right)) {
+          q.offer(right);
+        }
+      }
+    }
+    return distance;
+  }
+
+  // https://leetcode.com/problems/search-in-a-binary-search-tree/
+  public TreeNode searchBST(TreeNode root, int val) {
+    if (root == null || root.val == val) return root;
+    if (root.val < val) {
+      return searchBST(root.right, val);
+    } else {
+      return searchBST(root.left, val);
+    }
+  }
+
+  // Function to return the ceil of given number in BST.
+  // https://www.geeksforgeeks.org/problems/implementing-ceil-in-bst/1
+  int findCeil(TreeNode root, int key) {
+    if (root == null) return -1;
+    if (root.val == key) return key;
+    if (key > root.val) return findCeil(root.right, key);
+
+    int ceil = findCeil(root.left, key);
+    return ceil >= key && ceil != -1 ? ceil : root.val;
+  }
+
+  // https://www.geeksforgeeks.org/problems/implementing-ceil-in-bst/1
+  int findCeilIter(TreeNode root, int key) {
+    int ceil = -1;
+    while (root != null) {
+      if (root.val == key) {
+        ceil = key;
+        break;
+      }
+      if (key < root.val) {
+        ceil = root.val;
+        root = root.left;
+      } else {
+        root = root.right;
+      }
+    }
+    return ceil;
+  }
+
+  // https://www.geeksforgeeks.org/problems/floor-in-bst/1
+  int findFloor(TreeNode root, int key) {
+    if (root == null) return -1;
+    if (root.val == key) return key;
+    if (key < root.val) return findFloor(root.left, key);
+
+    int floor = findFloor(root.right, key);
+    return floor <= key && floor != -1 ? floor : root.val;
+  }
+
+  // https://www.geeksforgeeks.org/problems/floor-in-bst/1
+  int findFloorIter(TreeNode root, int key) {
+    int floor = -1;
+    while (root != null) {
+      if (root.val == key) {
+        floor = key;
+        break;
+      }
+      if (key < root.val) {
+        root = root.left;
+      } else {
+        floor = root.val;
+        root = root.right;
+      }
+    }
+    return floor;
+  }
+
+  // https://leetcode.com/problems/insert-into-a-binary-search-tree/
+  public TreeNode insertIntoBST(TreeNode root, int val) {
+    var node = new TreeNode(val);
+    if (root == null) return node;
+    var cur = root;
+    var parent = root;
+    while (cur != null) {
+      parent = cur;
+      if (cur.val < val) {
+        cur = cur.right;
+      } else {
+        cur = cur.left;
+      }
+    }
+    if (parent.val < val) parent.right = node;
+    else parent.left = node;
+    return root;
+  }
+
+  // returns the inorder successor of the Node x in BST (rooted at 'root')
+  // https://www.geeksforgeeks.org/problems/inorder-successor-in-bst/1
+  public int inorderSuccessor(TreeNode root, TreeNode x) {
+    TreeNode succ = null;
+    while (root != null) {
+      if (x.val >= root.val) {
+        root = root.right;
+      } else {
+        succ = root;
+        root = root.left;
+      }
+    }
+    return succ == null ? -1 : succ.val;
   }
 }
