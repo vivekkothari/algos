@@ -1212,4 +1212,39 @@ class Trees {
     }
     return succ == null ? -1 : succ.val;
   }
+
+  private TreeNode first, mid, last, prev;
+
+  public void recoverTree(TreeNode root) {
+    first = mid = last = prev = null;
+    inorder(root);
+    last = last != null ? last : mid;
+    if (first != null && last != null) {
+      int t = first.val;
+      first.val = last.val;
+      last.val = t;
+    }
+  }
+
+  private void inorder(TreeNode node) {
+    if (node == null) {
+      return;
+    }
+    inorder(node.left);
+
+    if (prev != null && prev.val >= node.val) {
+      // if this is first violation, mark them as first and mid
+      if (first == null) {
+        first = prev;
+        mid = node;
+      } else {
+        // we got second violation
+        last = node;
+      }
+    }
+
+    prev = node;
+
+    inorder(node.right);
+  }
 }
