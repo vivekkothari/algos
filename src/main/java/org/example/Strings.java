@@ -245,6 +245,17 @@ class Strings {
     return true;
   }
 
+  // https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/?envType=company&envId=facebook&favoriteSlug=facebook-thirty-days
+  public int minAddToMakeValid(String s) {
+    int open = 0, close = 0;
+    for (char ch : s.toCharArray()) {
+      if (ch == '(') open++;
+      else if (ch == ')' && open > 0) open--;
+      else close++;
+    }
+    return open + close;
+  }
+
   /**
    * Challenge 2: Implement a Palindrome Checker (Deque) A palindrome is a word that reads the same
    * forward and backward (e.g., "racecar", "madam").

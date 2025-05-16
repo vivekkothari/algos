@@ -61,7 +61,7 @@ public class Arrays {
     //    System.out.println(
     //        java.util.Arrays.toString(nextGreaterElement(new int[] {4, 1, 2}, new int[] {1, 3, 4,
     // 2})));
-    //    nextPermutation1(new int[] {1, 4, 5, 8, 7});
+    nextPermutation1(new int[] {1, 2, 3, 8, 5, 6});
     //    System.out.println(Arrays.toString(twoSum(new int[] {3, 2, 4}, 6)));
     //    System.out.println(maxStockProfit(new int[] {7, 1, 5, 3, 6, 4}));
     //    var nums = new int[] {1, 2, 3, 0, 4, 0, 5};
@@ -972,6 +972,7 @@ public class Arrays {
     return false;
   }
 
+  // https://leetcode.com/problems/top-k-frequent-elements/?envType=company&envId=facebook&favoriteSlug=facebook-thirty-days
   public static int[] topKFrequent(int[] nums, int k) {
     // freq map
     Map<Integer, Integer> freq = new HashMap<>();
@@ -3806,5 +3807,26 @@ public class Arrays {
       map.put(sum, map.getOrDefault(sum, 0) + 1);
     }
     return count;
+  }
+
+  //https://leetcode.com/problems/k-closest-points-to-origin/
+  public int[][] kClosest(int[][] points, int k) {
+    PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> b[2] - a[2]);
+    for (int[] point : points) {
+      int d = (point[0] * point[0]) + (point[1] * point[1]);
+      if (pq.size() < k) {
+        pq.add(new int[] {point[0], point[1], d});
+      } else if (d < pq.peek()[2]) {
+        pq.add(new int[] {point[0], point[1], d});
+        pq.remove();
+      }
+    }
+    int[][] answer = new int[pq.size()][2];
+    for (int i = k - 1; i >= 0 && !pq.isEmpty(); i--) {
+      int[] c = pq.remove();
+      answer[i][0] = c[0];
+      answer[i][1] = c[1];
+    }
+    return answer;
   }
 }
