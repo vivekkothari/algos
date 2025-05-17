@@ -3809,7 +3809,7 @@ public class Arrays {
     return count;
   }
 
-  //https://leetcode.com/problems/k-closest-points-to-origin/
+  // https://leetcode.com/problems/k-closest-points-to-origin/
   public int[][] kClosest(int[][] points, int k) {
     PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> b[2] - a[2]);
     for (int[] point : points) {
