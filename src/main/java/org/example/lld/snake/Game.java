@@ -3,15 +3,35 @@ package org.example.lld.snake;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Game {
-  private static final int NONE = 0;
-  private static final int UP = 1;
-  private static final int RIGHT = 2;
-  private static final int DOWN = 3;
-  private static final int LEFT = 4;
+  public enum Direction {
+    NONE,
+    UP,
+    RIGHT,
+    DOWN,
+    LEFT;
+
+    public static Direction getRandomDirection() {
+      int randomDir = ThreadLocalRandom.current().nextInt(1, 5);
+      return switch (randomDir) {
+        case 1 -> UP;
+        case 2 -> RIGHT;
+        case 3 -> DOWN;
+        case 4 -> LEFT;
+        default -> NONE;
+      };
+    }
+
+    boolean isOppositeDirection(Direction next) {
+      return (this == Direction.UP && next == Direction.DOWN)
+          || (this == Direction.DOWN && next == Direction.UP)
+          || (this == Direction.LEFT && next == Direction.RIGHT)
+          || (this == Direction.RIGHT && next == Direction.LEFT);
+    }
+  }
 
   private final Board board;
   private final Snake snake;
-  private int direction;
+  private Direction direction;
   boolean isGameOver;
 
   public Game(Board board, Snake snake) {
@@ -19,21 +39,16 @@ public class Game {
     this.snake = snake;
   }
 
-  public void changeDirection(int newDirection) {
-    if (!isOppositeDirection(direction, newDirection)) {
+  public void changeDirection(Direction newDirection) {
+    if (direction == null) {
+      this.direction = newDirection;
+    } else if (!direction.isOppositeDirection(newDirection)) {
       this.direction = newDirection;
     }
   }
 
-  private boolean isOppositeDirection(int current, int next) {
-    return (current == UP && next == DOWN)
-        || (current == DOWN && next == UP)
-        || (current == LEFT && next == RIGHT)
-        || (current == RIGHT && next == LEFT);
-  }
-
   public void update() {
-    if (isGameOver || direction == NONE) return;
+    if (isGameOver || direction == Direction.NONE) return;
 
     Cell nextCell = getNextCell(snake.getHead());
     if (nextCell == null) return;
@@ -46,6 +61,7 @@ public class Game {
 
     if (nextCell.getType() == Cell.CellType.FOOD) {
       snake.grow(nextCell);
+      board.foodEaten();
       board.generateFood();
     } else {
       snake.move(nextCell);
@@ -79,26 +95,23 @@ public class Game {
   }
 
   public static void main(String[] args) throws InterruptedException {
-    Board board = new Board(10, 10);
-    Cell head = new Cell(5, 5);
+    Board board = new Board(10, 10, 3);
+    Cell head = board.getCells()[0][0];
     Snake snake = new Snake(head);
     Game game = new Game(board, snake);
-    game.changeDirection(RIGHT);
-
-    board.generateFood();
+    game.changeDirection(Direction.DOWN);
 
     while (!game.isGameOver) {
-      int newDir = ThreadLocalRandom.current().nextInt(UP, LEFT + 1);
-      game.changeDirection(newDir);
+      board.printBoard(snake.getHead());
+      System.out.println("================================");
+      game.changeDirection(Direction.getRandomDirection());
 
       if (ThreadLocalRandom.current().nextDouble() < 0.1) {
         board.generateFood();
       }
 
       game.update();
-      board.printBoard();
-      System.out.println("================================");
-      Thread.sleep(300);
+      Thread.sleep(1000);
     }
     System.out.println("Final Snake Length: " + snake.getLength());
   }
