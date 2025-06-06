@@ -576,6 +576,20 @@ class Matrix {
     }
   }
 
+  public static void rotateMatrix(ArrayList<ArrayList<Integer>> mat, int n, int m) {
+    for (int i = 0; i < n; i++) {
+      for (int j = i + 1; j < m; j++) {
+        int temp = mat.get(i).get(j);
+        mat.get(i).set(j, mat.get(j).get(i));
+        mat.get(j).set(i, temp);
+      }
+    }
+
+    for (int i = 0; i < n; i++) {
+      Collections.reverse(mat.get(i));
+    }
+  }
+
   static void swap(int[][] matrix, int i1, int j1, int i2, int j2) {
     var temp = matrix[i1][j1];
     matrix[i1][j1] = matrix[i2][j2];
