@@ -25,8 +25,8 @@ public class Board {
       return;
     }
     do {
-      int r = ThreadLocalRandom.current().nextInt(0, cells.length);
-      int c = ThreadLocalRandom.current().nextInt(0, cells[0].length);
+      int r = ThreadLocalRandom.current().nextInt(cells.length);
+      int c = ThreadLocalRandom.current().nextInt(cells[0].length);
       Cell cell = cells[r][c];
       if (cell.getType() == Cell.CellType.EMPTY) {
         cell.setType(Cell.CellType.FOOD);
